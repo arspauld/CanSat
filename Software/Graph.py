@@ -11,4 +11,4 @@ layout.addWidget(plot1, 0, 0, 1, 1)
 layout.addWidget(plot2, 0, 1, 1, 1)
 layout.addWidget(plot3, 1, 0, 1, 1)
 w.show() #show the widget
-app.exec_() #execute apllication
+app.exec_() #execute application
