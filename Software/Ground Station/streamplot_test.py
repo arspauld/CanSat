@@ -1,7 +1,7 @@
 import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
-from realtimeplot import PlotManager
+from streamplot import PlotManager
 import time
 
 length = 1
