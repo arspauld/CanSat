@@ -8,11 +8,13 @@ import random
 import time
 
 class RealTimePlot:
-    def __init__(self, name, layout, r, c, rspan=1, cspan=1):
+    def __init__(self, name, x_val=None, y_val=None):
         self.x_val = []
         self.y_val = []
+        if x_val is not None: self.x_val = x_val
+        if y_val is not None: self.y_val = y_val
         self.plot = pg.PlotWidget(title=name)
-        layout.addWidget(self.plot, r, c, rspan, cspan)
+        self.plot.plot(self.x_val, self.y_val)
 
     def add(self, x, y):
         self.plot.clear()
@@ -31,7 +33,8 @@ def classtest():
     win = QtGui.QWidget()                   #creates a widget item
     layout = QtGui.QGridLayout()            #creates a grid layout object that can hold plots
     win.setLayout(layout)                   #adds the layout to the
-    plot = RealTimePlot(name="Test", layout=layout, r=0, c=0)
+    plot = RealTimePlot(name="Test")
+    layout.addWidget(plot.plot, 0, 0)
     win.show()                              #shows the window
 
     points = int(input("How many random points?\n"))
