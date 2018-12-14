@@ -1,0 +1,24 @@
+First of all, when modifying parts please let everyone know so that multiple people do not end up modifying the same part and then 
+  trying to upload completely different versions.
+
+Second (note this is just the way I THINK it will work, don't know for sure): to open the assembly, clone the mechanical folder to 
+  your computer and open the latest version of the main assembly.  When you're done modifying parts take the latest version of each
+  part you modified and upload it to github. (If anyone knows this will/won't work let me know)
+
+Third: the naming of the parts/assemblies is as follows:
+  Main assembly: 2018-cssf-000.asm
+  Chassis assembly: 2018-cssf-100.asm
+  Gimbal assembly: 2018-cssf-200.asm
+  Lower rotor: 2018-cssf-300.asm
+  Upper rotor: 2018-cssf-300b.asm
+  Release mechanism: 2018-cssf-400.asm
+  
+  The parts are named by what assembly they belong to, for example the standoffs on the chassis are named 2018-cssf-102.prt becasue
+  they were the second part I created for the chassis assembly.
+  
+  The version number is the last digits after the file type, i.e. 2018-cssf.asm.19 is the 19th version of the main assembly.  The 
+  larger numbers are the latest versions.
+  
+  I'm going to make a changelog/note file under the mechanical folder so whenever a change is made please put the date and describe
+  what you changed.
+  
