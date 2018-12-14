@@ -19,6 +19,6 @@ Third: the naming of the parts/assemblies is as follows:
   The version number is the last digits after the file type, i.e. 2018-cssf.asm.19 is the 19th version of the main assembly.  The 
   larger numbers are the latest versions.
   
-  I'm going to make a changelog/note file under the mechanical folder so whenever a change is made please put the date and describe
-  what you changed.
+  I'm going to make a changelog/note file under the mechanical folder so whenever a change is made please put the date and 
+  describe what you changed.
   
