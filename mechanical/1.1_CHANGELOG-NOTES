@@ -1,6 +1,7 @@
 Just put down what you changed and when and who did it:
 
 
+12-15-18 (Zac F):  finalizing the release mechanism, lightening some parts
 12-14-18 (Zac F):  fixed design to dual rotor (supressed single rotor assembly) and added 2018-cssf-400b.asm, new release mechanism
 12-13-18 (Zac F):  All of the files should be uploaded, the design still has the rotors I had modeled for single rotor or double rotor so
            I'll get on changing that soon
