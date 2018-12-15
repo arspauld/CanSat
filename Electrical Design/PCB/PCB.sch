@@ -151,4 +151,78 @@ Wire Wire Line
 Wire Wire Line
 	4300 1700 4300 2700
 Connection ~ 4300 2700
+$Comp
+L Connector_Generic:Conn_02x03_Odd_Even J?
+U 1 1 5C15DCBD
+P 3100 3150
+F 0 "J?" H 3150 3467 50  0000 C CNN
+F 1 "Header 3x2" H 3150 3376 50  0000 C CNN
+F 2 "" H 3100 3150 50  0001 C CNN
+F 3 "~" H 3100 3150 50  0001 C CNN
+	1    3100 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C15E1D2
+P 3400 3250
+F 0 "#PWR?" H 3400 3000 50  0001 C CNN
+F 1 "GND" V 3405 3122 50  0000 R CNN
+F 2 "" H 3400 3250 50  0001 C CNN
+F 3 "" H 3400 3250 50  0001 C CNN
+	1    3400 3250
+	0    -1   1    0   
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 5C15E3E2
+P 3400 2950
+F 0 "#PWR?" H 3400 2800 50  0001 C CNN
+F 1 "VDD" H 3417 3123 50  0000 C CNN
+F 2 "" H 3400 2950 50  0001 C CNN
+F 3 "" H 3400 2950 50  0001 C CNN
+	1    3400 2950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 5C15ED03
+P 3600 3100
+F 0 "R?" V 3404 3100 50  0000 C CNN
+F 1 "10kΩ" V 3495 3100 50  0000 C CNN
+F 2 "" H 3600 3100 50  0001 C CNN
+F 3 "~" H 3600 3100 50  0001 C CNN
+	1    3600 3100
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3400 2950 3400 3050
+Wire Wire Line
+	3400 3050 3500 3050
+Wire Wire Line
+	3500 3050 3500 3100
+Connection ~ 3400 3050
+Wire Wire Line
+	3700 3100 3750 3100
+Wire Wire Line
+	2900 3050 2750 3050
+Wire Wire Line
+	2750 3050 2750 3350
+Wire Wire Line
+	2750 3350 3750 3350
+Wire Wire Line
+	3750 3350 3750 3200
+Wire Wire Line
+	3750 3200 3800 3200
+Wire Wire Line
+	2900 3250 2800 3250
+Wire Wire Line
+	2800 3250 2800 2700
+Wire Wire Line
+	3750 2700 3750 3100
+Wire Wire Line
+	2800 2700 3750 2700
+Connection ~ 3750 3100
+Wire Wire Line
+	3750 3100 3800 3100
 $EndSCHEMATC
