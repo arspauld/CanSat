@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:PCB-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -14,14 +15,137 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Custom_Components:MS5607 U?
-U 1 1 5C1158BE
-P 4500 2950
-F 0 "U?" H 5100 2465 50  0000 C CNN
-F 1 "MS5607" H 5100 2374 50  0000 C CNN
-F 2 "" H 5100 2250 50  0001 C CNN
-F 3 "" H 5100 2250 50  0001 C CNN
-	1    4500 2950
+L MCU_Microchip_ATmega:ATxmega128A1U-AU U?
+U 1 1 5C152EB5
+P 4600 5400
+F 0 "U?" H 4600 2714 50  0000 C CNN
+F 1 "ATxmega128A1U-AU" H 4600 2623 50  0000 C CNN
+F 2 "Package_QFP:TQFP-100_14x14mm_P0.5mm" H 4600 5400 50  0001 C CIN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-8385-8-and-16-bit-AVR-Microcontroller-ATxmega64A1U-ATxmega128A1U_datasheet.pdf" H 4600 5400 50  0001 C CNN
+	1    4600 5400
 	1    0    0    -1  
 $EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C153140
+P 4600 1000
+F 0 "#PWR?" H 4600 850 50  0001 C CNN
+F 1 "+3.3V" H 4615 1173 50  0000 C CNN
+F 2 "" H 4600 1000 50  0001 C CNN
+F 3 "" H 4600 1000 50  0001 C CNN
+	1    4600 1000
+	-1   0    0    -1  
+$EndComp
+$Comp
+L pspice:INDUCTOR L?
+U 1 1 5C15325D
+P 4600 1250
+F 0 "L?" H 4600 1465 50  0000 C CNN
+F 1 "10μH" H 4600 1374 50  0000 C CNN
+F 2 "" H 4600 1250 50  0001 C CNN
+F 3 "~" H 4600 1250 50  0001 C CNN
+	1    4600 1250
+	0    1    -1   0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5C153EFD
+P 4450 2700
+F 0 "C?" H 4565 2746 50  0000 L CNN
+F 1 "100nF" H 4565 2655 50  0000 L CNN
+F 2 "" H 4488 2550 50  0001 C CNN
+F 3 "~" H 4450 2700 50  0001 C CNN
+	1    4450 2700
+	0    -1   -1   0   
+$EndComp
+Connection ~ 4600 2700
+Wire Wire Line
+	4600 2700 4600 2800
+$Comp
+L Device:Ferrite_Bead_Small FB?
+U 1 1 5C155C8A
+P 4700 1900
+F 0 "FB?" H 4600 1946 50  0000 R CNN
+F 1 "Ferrite_Bead_Small" H 4600 1855 50  0000 R CNN
+F 2 "" V 4630 1900 50  0001 C CNN
+F 3 "~" H 4700 1900 50  0001 C CNN
+	1    4700 1900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5C15687D
+P 4850 2700
+F 0 "C?" V 4598 2700 50  0000 C CNN
+F 1 "100nF" V 4689 2700 50  0000 C CNN
+F 2 "" H 4888 2550 50  0001 C CNN
+F 3 "~" H 4850 2700 50  0001 C CNN
+	1    4850 2700
+	0    -1   1    0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C15837A
+P 4300 2700
+F 0 "#PWR?" H 4300 2450 50  0001 C CNN
+F 1 "GND" H 4305 2527 50  0000 C CNN
+F 2 "" H 4300 2700 50  0001 C CNN
+F 3 "" H 4300 2700 50  0001 C CNN
+	1    4300 2700
+	1    0    0    -1  
+$EndComp
+Connection ~ 4300 2700
+$Comp
+L Device:CP1 C?
+U 1 1 5C158FD7
+P 4850 2300
+F 0 "C?" V 4598 2300 50  0000 C CNN
+F 1 "10μF" V 4689 2300 50  0000 C CNN
+F 2 "" H 4850 2300 50  0001 C CNN
+F 3 "~" H 4850 2300 50  0001 C CNN
+	1    4850 2300
+	0    -1   1    0   
+$EndComp
+$Comp
+L Device:CP1 C?
+U 1 1 5C15911D
+P 4450 1800
+F 0 "C?" V 4198 1800 50  0000 C CNN
+F 1 "10μF" V 4289 1800 50  0000 C CNN
+F 2 "" H 4450 1800 50  0001 C CNN
+F 3 "~" H 4450 1800 50  0001 C CNN
+	1    4450 1800
+	0    1    1    0   
+$EndComp
+Connection ~ 4700 2700
+Wire Wire Line
+	4700 2700 4700 2800
+$Comp
+L power:GND #PWR?
+U 1 1 5C159D44
+P 5000 2700
+F 0 "#PWR?" H 5000 2450 50  0001 C CNN
+F 1 "GND" H 5005 2527 50  0000 C CNN
+F 2 "" H 5000 2700 50  0001 C CNN
+F 3 "" H 5000 2700 50  0001 C CNN
+	1    5000 2700
+	1    0    0    -1  
+$EndComp
+Connection ~ 4700 2300
+Wire Wire Line
+	4700 2300 4700 2700
+Wire Wire Line
+	4300 1800 4300 2700
+Wire Wire Line
+	4600 1500 4600 1800
+Connection ~ 4600 1800
+Wire Wire Line
+	4600 1800 4600 2700
+Wire Wire Line
+	4600 1800 4700 1800
+Wire Wire Line
+	4700 2000 4700 2300
+Wire Wire Line
+	5000 2300 5000 2700
+Connection ~ 5000 2700
 $EndSCHEMATC
