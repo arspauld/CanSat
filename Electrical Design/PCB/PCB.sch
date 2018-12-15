@@ -94,7 +94,6 @@ F 3 "" H 4300 2700 50  0001 C CNN
 	1    4300 2700
 	1    0    0    -1  
 $EndComp
-Connection ~ 4300 2700
 $Comp
 L Device:CP1 C?
 U 1 1 5C158FD7
@@ -109,12 +108,12 @@ $EndComp
 $Comp
 L Device:CP1 C?
 U 1 1 5C15911D
-P 4450 1800
-F 0 "C?" V 4198 1800 50  0000 C CNN
-F 1 "10μF" V 4289 1800 50  0000 C CNN
-F 2 "" H 4450 1800 50  0001 C CNN
-F 3 "~" H 4450 1800 50  0001 C CNN
-	1    4450 1800
+P 4450 1700
+F 0 "C?" V 4198 1700 50  0000 C CNN
+F 1 "10μF" V 4289 1700 50  0000 C CNN
+F 2 "" H 4450 1700 50  0001 C CNN
+F 3 "~" H 4450 1700 50  0001 C CNN
+	1    4450 1700
 	0    1    1    0   
 $EndComp
 Connection ~ 4700 2700
@@ -135,9 +134,7 @@ Connection ~ 4700 2300
 Wire Wire Line
 	4700 2300 4700 2700
 Wire Wire Line
-	4300 1800 4300 2700
-Wire Wire Line
-	4600 1500 4600 1800
+	4600 1500 4600 1700
 Connection ~ 4600 1800
 Wire Wire Line
 	4600 1800 4600 2700
@@ -148,4 +145,10 @@ Wire Wire Line
 Wire Wire Line
 	5000 2300 5000 2700
 Connection ~ 5000 2700
+Connection ~ 4600 1700
+Wire Wire Line
+	4600 1700 4600 1800
+Wire Wire Line
+	4300 1700 4300 2700
+Connection ~ 4300 2700
 $EndSCHEMATC
