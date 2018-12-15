@@ -9,8 +9,8 @@ Third: the naming of the parts/assemblies is as follows:
   Main assembly: 2018-cssf-000.asm
   Chassis assembly: 2018-cssf-100.asm
   Gimbal assembly: 2018-cssf-200.asm
-  Lower rotor: 2018-cssf-300.asm
-  Upper rotor: 2018-cssf-300b.asm
+  Dual rotor assembly: 2018-cssf-300.asm
+  Single rotor assembly: 2018-cssf-300b.asm
   Release mechanism: 2018-cssf-400.asm
   
   The parts are named by what assembly they belong to, for example the standoffs on the chassis are named 2018-cssf-102.prt becasue
