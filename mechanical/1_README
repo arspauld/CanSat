@@ -1,0 +1,24 @@
+First of all, when modifying parts please let everyone know so that multiple people do not end up modifying the same part and then 
+  trying to upload completely different versions of the same part.
+
+Second: to open the parts/assemblies make sure you pull the latest stuff from github then open creo and navigate to the github 
+  on your computer.  You should be able to edit and save everything inside that folder and then just push it back to github to 
+  update everything.
+
+Third: the naming of the parts/assemblies is as follows:
+  Main assembly: 2018-cssf-000.asm
+  Chassis assembly: 2018-cssf-100.asm
+  Gimbal assembly: 2018-cssf-200.asm
+  Dual rotor assembly: 2018-cssf-300.asm
+  Single rotor assembly: 2018-cssf-300b.asm
+  Release mechanism: 2018-cssf-400.asm
+  
+  The parts are named by what assembly they belong to, for example the standoffs on the chassis are named 2018-cssf-102.prt becasue
+  they were the second part I created for the chassis assembly.
+  
+  The version number is the last digits after the file type, i.e. 2018-cssf.asm.19 is the 19th version of the main assembly.  The 
+  larger numbers are the latest versions. But we shouldn't have to worry about version numbers for most of what we'll be doing.
+  
+  I'm going to make a changelog/note file under the mechanical folder so whenever a change is made please put the date and 
+  describe what you changed.
+  
