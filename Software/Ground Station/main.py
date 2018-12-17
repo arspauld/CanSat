@@ -5,6 +5,7 @@ from pyqtgraph import console
 from pyqtgraph.dockarea import *
 from realplot import RealTimePlot
 import random
+import time
 
 app = QtGui.QApplication([])                    # Starts the GUI application
 win = QtGui.QMainWindow()                       # Creates the main storage for docks
@@ -24,7 +25,8 @@ plot = RealTimePlot(name="Example")
 d1.addWidget(plot.plot)
 
 w = QtGui.QWidget()
-btn = QtGui.QPushButton('press me')
+btn = QtGui.QPushButton('restart plot')
+btn.setCheckable(True)
 text = QtGui.QLineEdit('enter text')
 listw = QtGui.QListWidget()
 layout = QtGui.QGridLayout()
@@ -38,9 +40,19 @@ layout.addWidget(listw, 0, 0)  # list widget goes in bottom-left
 win.show()                                      # Shows window
 
 ## Real Time Graphing
-points = 100
-for i in range(points):
-    plot.add(i, random.randint(0, points))
-    app.processEvents()
+points = 1
+going = True
+while True:
+    while going:
+        plot.add(points-1, random.randint(0, points))
+        points += 1
+        app.processEvents()
+        if btn.isChecked():
+            listw.addItem("Restarted")
+            break
+    if btn.isChecked():
+        btn.toggle()
+        points = 1
+        plot.clear()
 
 app.exec_()                                     # Executes application
