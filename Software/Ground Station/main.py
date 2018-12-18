@@ -28,6 +28,7 @@ w = QtGui.QWidget()                             # Creates a large widget to hold
 btn = QtGui.QPushButton('restart plot')         # A checkable box
 btn.setCheckable(True)                          # Allows for a button to stay pressed
 
+text = QtGui.QLineEdit('enter text')            # Create a text entry place
 
 listw = QtGui.QListWidget()                     # Creates a Display list box
 
