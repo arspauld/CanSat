@@ -21,21 +21,23 @@ area.addDock(d1, 'left')
 area.addDock(d2, 'right')
 
 ## Add Widgets to the docks
-plot = RealTimePlot(name="Example")
-d1.addWidget(plot.plot)
+plot = RealTimePlot(name="Example")             # Check realplot.py for documentation
+d1.addWidget(plot.plot)                         # Adds the widget to the dock
 
-w = QtGui.QWidget()
-btn = QtGui.QPushButton('restart plot')
-btn.setCheckable(True)
-text = QtGui.QLineEdit('enter text')
-listw = QtGui.QListWidget()
-layout = QtGui.QGridLayout()
-w.setLayout(layout)
-d2.addWidget(w)
+w = QtGui.QWidget()                             # Creates a large widget to hold the others
+btn = QtGui.QPushButton('restart plot')         # A checkable box
+btn.setCheckable(True)                          # Allows for a button to stay pressed
 
-layout.addWidget(btn, 2, 0)   # button goes in upper-left
-layout.addWidget(text, 1, 0)   # text edit goes in middle-left
-layout.addWidget(listw, 0, 0)  # list widget goes in bottom-left
+
+listw = QtGui.QListWidget()                     # Creates a Display list box
+
+layout = QtGui.QGridLayout()                    # Creates a layout element
+w.setLayout(layout)                             # Adds the layout to the large widget
+d2.addWidget(w)                                 # Adds the large widget to the dock
+
+layout.addWidget(btn, 2, 0)                     # button goes in upper-left
+layout.addWidget(text, 1, 0)                    # text edit goes in middle-left
+layout.addWidget(listw, 0, 0)                   # list widget goes in bottom-left
 
 win.show()                                      # Shows window
 
@@ -50,7 +52,7 @@ while True:
         if btn.isChecked():
             listw.addItem("Restarted")
             break
-    if btn.isChecked():
+    if btn.isChecked():                         # Checks if the button is pressed
         btn.toggle()
         points = 1
         plot.clear()
