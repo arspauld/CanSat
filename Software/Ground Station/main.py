@@ -25,10 +25,11 @@ plot = RealTimePlot(name="Example")             # Check realplot.py for document
 d1.addWidget(plot.plot)                         # Adds the widget to the dock
 
 w = QtGui.QWidget()                             # Creates a large widget to hold the others
-btn = QtGui.QPushButton('restart plot')         # A checkable box
-btn.setCheckable(True)                          # Allows for a button to stay pressed
+btn1 = QtGui.QPushButton('restart plot')        # A checkable box
+btn1.setCheckable(True)                         # Allows for a button to stay pressed
 
-text = QtGui.QLineEdit('enter text')            # Create a text entry place
+btn2 = QtGui.QPushButton('halt plot')           # Create a second button
+btn2.setCheckable(True)
 
 listw = QtGui.QListWidget()                     # Creates a Display list box
 
@@ -36,8 +37,8 @@ layout = QtGui.QGridLayout()                    # Creates a layout element
 w.setLayout(layout)                             # Adds the layout to the large widget
 d2.addWidget(w)                                 # Adds the large widget to the dock
 
-layout.addWidget(btn, 2, 0)                     # button goes in upper-left
-layout.addWidget(text, 1, 0)                    # text edit goes in middle-left
+layout.addWidget(btn1, 2, 0)                     # button goes in upper-left
+layout.addWidget(btn2, 1, 0)                    # text edit goes in middle-left
 layout.addWidget(listw, 0, 0)                   # list widget goes in bottom-left
 
 win.show()                                      # Shows window
@@ -50,12 +51,20 @@ while True:
         plot.add(points-1, random.randint(0, points))
         points += 1
         app.processEvents()
-        if btn.isChecked():
+        if btn1.isChecked():
             listw.addItem("Restarted")
             break
-    if btn.isChecked():                         # Checks if the button is pressed
-        btn.toggle()
+
+        if btn2.isChecked():
+            listw.addItem("Ended")
+            break
+
+    if btn1.isChecked():                         # Checks if the button is pressed
+        btn1.toggle()
         points = 1
         plot.clear()
+
+    if btn2.isChecked():
+        break
 
 app.exec_()                                     # Executes application
