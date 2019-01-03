@@ -67,9 +67,11 @@ layout2 = QtGui.QGridLayout()                   # Creates a layout element
 w.setLayout(layout2)                            # Adds the layout to the large widget
 d2.addWidget(w)                                 # Adds the large widget to the dock
 
-layout2.addWidget(btn1, 2, 0)                   # button goes in bottom-left
-layout2.addWidget(btn2, 1, 0)                   # text edit goes in middle-left
-layout2.addWidget(listw, 0, 0)                  # list widget goes in upper-left
+layout2.addWidget(btn1, 2, 0, 1, 2)             # button goes in bottom-left
+layout2.addWidget(btn2, 1, 0, 1, 2)             # text edit goes in middle-left
+layout2.addWidget(listw, 0, 0, 1, 2)            # list widget goes in upper-left
+layout2.addWidget(calibrate, 3, 0, 1, 1)
+layout2.addWidget(sys_check, 3, 1, 1, 1)
 
 win.show()                                      # Shows window
 
