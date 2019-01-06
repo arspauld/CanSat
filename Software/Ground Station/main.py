@@ -28,39 +28,38 @@ area.addDock(d2, 'right')
 # Plots
 wid = QtGui.QWidget()                           # Creates an empty Widget to hold a layout
 lay = QtGui.QGridLayout()                       # Creates a layout to orgonaize the plots
-wid.setLayout(lay)                              # Adds the layout to the container widget
-
-altitude  = RealTimePlot(name="Altitude")       # Check realplot.py for documentation
-pressure  = RealTimePlot(name="Pressure")       # Creates plotting elements for each telemetry section
-temp      = RealTimePlot(name="Temp")
-voltage   = RealTimePlot(name="Voltage")
-pitch     = RealTimePlot(name="Pitch")
-roll      = RealTimePlot(name="Roll")
-spin      = RealTimePlot(name="Blade Spin Rate")
+altitude = RealTimePlot(name="Altitude")        # Check realplot.py for documentation
+lay.addWidget(altitude.plot, 0, 0)              # Adds the widget to the layout
+pressure = RealTimePlot(name="Pressure")
+lay.addWidget(pressure.plot, 0, 1)
+temp = RealTimePlot(name="Temp")
+lay.addWidget(temp.plot, 1, 0)
+voltage = RealTimePlot(name="Voltage")
+lay.addWidget(voltage.plot, 1, 1)
+pitch = RealTimePlot(name="Pitch")
+lay.addWidget(pitch.plot, 2, 0)
+roll = RealTimePlot(name="Roll")
+lay.addWidget(roll.plot, 2, 1)
+spin = RealTimePlot(name="Blade Spin Rate")
+lay.addWidget(spin.plot, 3, 0)
 direction = RealTimePlot(name="Bonus Direction")
-lay.addWidget(altitude.plot,    0, 0)          # Adds the widgets to the layout
-lay.addWidget(pressure.plot,    0, 1)
-lay.addWidget(temp.plot,        1, 0)
-lay.addWidget(voltage.plot,     1, 1)
-lay.addWidget(pitch.plot,       2, 0)
-lay.addWidget(roll.plot,        2, 1)
-lay.addWidget(spin.plot,        3, 0)
-lay.addWidget(direction.plot,   3, 1)
+lay.addWidget(direction.plot, 3, 1)
 
+wid.setLayout(lay)                              # Adds the layout to the container widget
 plots.addWidget(wid)                            # Adds the container widget to the Dock
 
 
-# Buttons
+#Buttons
 w = QtGui.QWidget()                             # Creates a large widget to hold the others
-btn = QtGui.QPushButton('halt plot')            # A checkable box
-btn.setCheckable(True)                          # Allows for a button to stay pressed
+btn1 = QtGui.QPushButton('restart plot')        # A checkable box
+btn1.setCheckable(True)                         # Allows for a button to stay pressed
+btn2 = QtGui.QPushButton('halt plot')           # Create a second button
+btn2.setCheckable(True)
 
 calibrate = QtGui.QPushButton("Calibrate Payload")
-sys_check = QtGui.QPushButton("Check Systems")
-reset_btn = QtGui.QPushButton("RESET")
 calibrate.setCheckable(True)
+sys_check = QtGui.QPushButton("Check Systems")
 sys_check.setCheckable(True)
-reset_btn.setCheckable(True)
 
 listw = QtGui.QListWidget()                     # Creates a Display list box
 
@@ -68,56 +67,35 @@ layout2 = QtGui.QGridLayout()                   # Creates a layout element
 w.setLayout(layout2)                            # Adds the layout to the large widget
 d2.addWidget(w)                                 # Adds the large widget to the dock
 
-layout2.addWidget(reset_btn,    0, 0, 1, 2)     # button goes in row 0, column 0, spanning 1 row and 2 columns
-layout2.addWidget(btn,          2, 0, 1, 2)     # text edit goes in middle-left
-layout2.addWidget(listw,        1, 0, 1, 2)     # list widget goes in upper-left
-layout2.addWidget(calibrate,    3, 0, 1, 1)
-layout2.addWidget(sys_check,    3, 1, 1, 1)
+layout2.addWidget(btn1, 2, 0)                   # button goes in bottom-left
+layout2.addWidget(btn2, 1, 0)                   # text edit goes in middle-left
+layout2.addWidget(listw, 0, 0)                  # list widget goes in upper-left
 
-# Shows Window
 win.show()                                      # Shows window
 
-
+## Real Time Graphing
 listw.addItem(telem_form)
-
-## Real Time Graphing (main loop)
 points = 1
 going = True
 while True:
     while going:
-        altitude.add(   points-1, random.randint(0, points))   #adds a point x = number of points, y = random integer from 0 to x
-        pressure.add(   points-1, random.randint(0, points))
-        temp.add(       points-1, random.randint(0, points))
-        voltage.add(    points-1, random.randint(0, points))
-        pitch.add(      points-1, random.randint(0, points))
-        roll.add(       points-1, random.randint(0, points))
-        spin.add(       points-1, random.randint(0, points))
-        direction.add(  points-1, random.randint(0, points))
-        #if points % 10 == 0: listw.addItem(str(points))
+        altitude.add(points-1, random.randint(0, points))
         points += 1
         app.processEvents()
-        if reset_btn.isChecked():
+        if btn1.isChecked():
             listw.addItem("Restarted")
             break
 
-        if btn.isChecked():
+        if btn2.isChecked():
             listw.addItem("Ended")
             break
 
-    if reset_btn.isChecked():                   # Checks if the button is pressed
-        reset_btn.toggle()
+    if btn1.isChecked():                         # Checks if the button is pressed
+        btn1.toggle()
         points = 1
         altitude.clear()
-        pressure.clear()
-        temp.clear()
-        voltage.clear()
-        pitch.clear()
-        roll.clear()
-        spin.clear()
-        direction.clear()
 
-
-    if btn.isChecked():
+    if btn2.isChecked():
         break
 
 app.exec_()                                     # Executes application
