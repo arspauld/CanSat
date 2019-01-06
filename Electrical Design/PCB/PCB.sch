@@ -481,4 +481,30 @@ F 3 "" H 8050 5550 50  0001 C CNN
 	1    8050 5550
 	1    0    0    -1  
 $EndComp
+$Comp
+L Custom_Components:SS490_Hall_Sensor U?
+U 1 1 5C2E0303
+P 3300 1750
+F 0 "U?" H 3481 2525 50  0000 C CNN
+F 1 "SS490_Hall_Sensor" H 3481 2434 50  0000 C CNN
+F 2 "" H 3400 2650 50  0001 C CNN
+F 3 "" H 3400 2650 50  0001 C CNN
+	1    3300 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C2E0666
+P 3750 1450
+F 0 "#PWR?" H 3750 1200 50  0001 C CNN
+F 1 "GND" H 3755 1277 50  0000 C CNN
+F 2 "" H 3750 1450 50  0001 C CNN
+F 3 "" H 3750 1450 50  0001 C CNN
+	1    3750 1450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3750 1450 3750 1400
+Wire Wire Line
+	3750 1400 3650 1400
 $EndSCHEMATC
