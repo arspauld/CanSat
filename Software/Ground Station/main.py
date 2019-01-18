@@ -18,11 +18,25 @@ win.setCentralWidget(area)                      # Adds the area to the window sp
 win.resize(1400,800)                            # Sets the window size to 1400 pixels wide by 800 tall
 win.setWindowTitle("Ground Station Control")    # Names the window
 
-## Creates two Docks and inserts them into the area
-plots = Dock("Plots", size=(1000, 800))
-d2 = Dock("Messages and Communication", size=(400, 800))
-area.addDock(plots, 'left')
-area.addDock(d2, 'right')
+## Creates Docks and inserts them into the area
+altituded  = Dock("Altitude")       # Check realplot.py for documentation
+pressured  = Dock("Pressure")       # Creates plotting elements for each telemetry section
+tempd      = Dock("Temp")
+voltaged   = Dock("Voltage")
+flightd    = Dock("Pitch, Roll, and Yaw")
+spind      = Dock("Blade Spin Rate")
+directiond = Dock("Bonus Direction")
+gpsd       = Dock("GPS")
+messages   = Dock("Messages and Communication")
+area.addDock(altituded, 'left')
+area.addDock(pressured, 'right', altituded)
+area.addDock(tempd, 'bottom', pressured)
+area.addDock(flightd, 'right', tempd)
+area.addDock(spind, 'right', flightd)
+area.addDock(voltaged, 'bottom', flightd)
+area.addDock(directiond, 'bottom', spind)
+area.addDock(gpsd, 'bottom', altituded)
+area.addDock(messages, 'right')
 
 ## Add Widgets to the docks
 # Plots
@@ -34,20 +48,18 @@ altitude  = RealTimePlot(name="Altitude")       # Check realplot.py for document
 pressure  = RealTimePlot(name="Pressure")       # Creates plotting elements for each telemetry section
 temp      = RealTimePlot(name="Temp")
 voltage   = RealTimePlot(name="Voltage")
-pitch     = RealTimePlot(name="Pitch")
-roll      = RealTimePlot(name="Roll")
+flight    = RealTimePlot(name="Pitch, Roll, and Yaw")
 spin      = RealTimePlot(name="Blade Spin Rate")
 direction = RealTimePlot(name="Bonus Direction")
-lay.addWidget(altitude.plot,    0, 0)          # Adds the widgets to the layout
-lay.addWidget(pressure.plot,    0, 1)
-lay.addWidget(temp.plot,        1, 0)
-lay.addWidget(voltage.plot,     1, 1)
-lay.addWidget(pitch.plot,       2, 0)
-lay.addWidget(roll.plot,        2, 1)
-lay.addWidget(spin.plot,        3, 0)
-lay.addWidget(direction.plot,   3, 1)
-
-plots.addWidget(wid)                            # Adds the container widget to the Dock
+gps      = RealTimePlot(name="GPS")
+altituded.addWidget(altitude.plot)          # Adds the widgets to the layout
+pressured.addWidget(pressure.plot)
+tempd.addWidget(temp.plot)
+voltaged.addWidget(voltage.plot)
+flightd.addWidget(flight.plot)
+gpsd.addWidget(gps.plot)
+spind.addWidget(spin.plot)
+directiond.addWidget(direction.plot)
 
 
 # Buttons
@@ -66,7 +78,7 @@ listw = QtGui.QListWidget()                     # Creates a Display list box
 
 layout2 = QtGui.QGridLayout()                   # Creates a layout element
 w.setLayout(layout2)                            # Adds the layout to the large widget
-d2.addWidget(w)                                 # Adds the large widget to the dock
+messages.addWidget(w)                                 # Adds the large widget to the dock
 
 layout2.addWidget(reset_btn,    0, 0, 1, 2)     # button goes in row 0, column 0, spanning 1 row and 2 columns
 layout2.addWidget(btn,          2, 0, 1, 2)     # text edit goes in middle-left
@@ -89,8 +101,7 @@ while True:
         pressure.add(   points-1, random.randint(0, points))
         temp.add(       points-1, random.randint(0, points))
         voltage.add(    points-1, random.randint(0, points))
-        pitch.add(      points-1, random.randint(0, points))
-        roll.add(       points-1, random.randint(0, points))
+        flight.add(      points-1, random.randint(0, points))
         spin.add(       points-1, random.randint(0, points))
         direction.add(  points-1, random.randint(0, points))
         #if points % 10 == 0: listw.addItem(str(points))
@@ -111,8 +122,8 @@ while True:
         pressure.clear()
         temp.clear()
         voltage.clear()
-        pitch.clear()
-        roll.clear()
+        flight.clear()
+        gps.clear()
         spin.clear()
         direction.clear()
 
