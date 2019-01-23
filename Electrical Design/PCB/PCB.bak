@@ -277,17 +277,6 @@ Text Label 4150 5950 2    50   ~ 0
 MOSI
 Text Label 4150 5750 2    50   ~ 0
 SCLK
-$Comp
-L power:VDD #PWR0107
-U 1 1 5C48FB82
-P 5600 5450
-F 0 "#PWR0107" H 5600 5300 50  0001 C CNN
-F 1 "VDD" H 5617 5623 50  0000 C CNN
-F 2 "" H 5600 5450 50  0001 C CNN
-F 3 "" H 5600 5450 50  0001 C CNN
-	1    5600 5450
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5350 5550 5600 5550
 Wire Wire Line
@@ -580,17 +569,6 @@ F 3 "~" H 1650 6950 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L power:VDD #PWR0114
-U 1 1 5C4C9BA3
-P 750 6950
-F 0 "#PWR0114" H 750 6800 50  0001 C CNN
-F 1 "VDD" H 767 7123 50  0000 C CNN
-F 2 "" H 750 6950 50  0001 C CNN
-F 3 "" H 750 6950 50  0001 C CNN
-	1    750  6950
-	1    0    0    -1  
-$EndComp
-$Comp
 L power:GND #PWR0115
 U 1 1 5C4C9DEF
 P 2000 6950
@@ -613,7 +591,7 @@ Wire Wire Line
 Wire Wire Line
 	1250 6950 1400 6950
 Text Label 1400 7050 3    50   ~ 0
-ADC
+PA6-Therm
 $Comp
 L ADP3338AKCZ-5-R7:ADP3338AKCZ-5-R7 U?
 U 1 1 5C4D6E8B
@@ -628,17 +606,6 @@ F 6 "LDO Regulator Pos 5V 1.6A 4-Pin_3+Tab_ SOT-223 T/R" H 1750 5700 50  0001 L 
 F 7 "SOT-223-3 Analog Devices" H 1750 5700 50  0001 L BNN "Field7"
 F 8 "None" H 1750 5700 50  0001 L BNN "Field8"
 	1    1750 5700
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:VDD #PWR0116
-U 1 1 5C4D7B60
-P 700 5500
-F 0 "#PWR0116" H 700 5350 50  0001 C CNN
-F 1 "VDD" H 717 5673 50  0000 C CNN
-F 2 "" H 700 5500 50  0001 C CNN
-F 3 "" H 700 5500 50  0001 C CNN
-	1    700  5500
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -744,17 +711,6 @@ F 6 "LDO Regulator Pos 5V 1.6A 4-Pin_3+Tab_ SOT-223 T/R" H 3450 6900 50  0001 L 
 F 7 "SOT-223-3 Analog Devices" H 3450 6900 50  0001 L BNN "Field7"
 F 8 "None" H 3450 6900 50  0001 L BNN "Field8"
 	1    3450 6900
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:VDD #PWR0121
-U 1 1 5C4ECC2A
-P 2400 6700
-F 0 "#PWR0121" H 2400 6550 50  0001 C CNN
-F 1 "VDD" H 2417 6873 50  0000 C CNN
-F 2 "" H 2400 6700 50  0001 C CNN
-F 3 "" H 2400 6700 50  0001 C CNN
-	1    2400 6700
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -865,17 +821,6 @@ F 6 "SS495A" H 5450 6900 50  0001 L BNN "Field6"
 F 7 "Unavailable" H 5450 6900 50  0001 L BNN "Field7"
 F 8 "TO-92 Honeywell" H 5450 6900 50  0001 L BNN "Field8"
 	1    5450 6900
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:VCC #PWR0126
-U 1 1 5C4FE341
-P 5000 6950
-F 0 "#PWR0126" H 5000 6800 50  0001 C CNN
-F 1 "VCC" H 5017 7123 50  0000 C CNN
-F 2 "" H 5000 6950 50  0001 C CNN
-F 3 "" H 5000 6950 50  0001 C CNN
-	1    5000 6950
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1030,4 +975,61 @@ Text Notes 1700 3050 0    50   ~ 0
 BNO-080
 Text Notes 1200 6600 0    50   ~ 0
 Thermistor
+$Comp
+L power:+6V #PWR?
+U 1 1 5C49358D
+P 700 5500
+F 0 "#PWR?" H 700 5350 50  0001 C CNN
+F 1 "+6V" H 715 5673 50  0000 C CNN
+F 2 "" H 700 5500 50  0001 C CNN
+F 3 "" H 700 5500 50  0001 C CNN
+	1    700  5500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+6V #PWR?
+U 1 1 5C49758F
+P 2400 6700
+F 0 "#PWR?" H 2400 6550 50  0001 C CNN
+F 1 "+6V" H 2415 6873 50  0000 C CNN
+F 2 "" H 2400 6700 50  0001 C CNN
+F 3 "" H 2400 6700 50  0001 C CNN
+	1    2400 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C49ACEC
+P 5600 5450
+F 0 "#PWR?" H 5600 5300 50  0001 C CNN
+F 1 "+3.3V" H 5615 5623 50  0000 C CNN
+F 2 "" H 5600 5450 50  0001 C CNN
+F 3 "" H 5600 5450 50  0001 C CNN
+	1    5600 5450
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C49E3CA
+P 750 6950
+F 0 "#PWR?" H 750 6800 50  0001 C CNN
+F 1 "+3.3V" H 765 7123 50  0000 C CNN
+F 2 "" H 750 6950 50  0001 C CNN
+F 3 "" H 750 6950 50  0001 C CNN
+	1    750  6950
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5C4A1F82
+P 5000 6950
+F 0 "#PWR?" H 5000 6800 50  0001 C CNN
+F 1 "+5V" H 5015 7123 50  0000 C CNN
+F 2 "" H 5000 6950 50  0001 C CNN
+F 3 "" H 5000 6950 50  0001 C CNN
+	1    5000 6950
+	1    0    0    -1  
+$EndComp
+Text Label 10350 4150 0    50   ~ 0
+PA6-Therm
 $EndSCHEMATC
