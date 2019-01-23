@@ -1,0 +1,188 @@
+STEP translation to Solid Edge
+Date: Tuesday,January 22,2019 09:04PM
+Source File: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-cssf-000_asm.stp
+Author: peter
+Organization: Unknown
+Source System: CREO PARAMETRIC BY PTC INC, 2018050
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+Operating System: Windows 8
+Installed Memory: 7.87 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
+Solid Edge Version: 110.00.00.107 x64
+
+Step Import Options
+Import Faceted Bodies: On
+Import Check Bodies: Off
+Import Curves: On
+Import DoNotSave: On
+Import Multiple Bodies As Single Part File: On
+Import Stitch Surfaces: On
+Import Boolean Solids: On
+Make Base Feature: On
+Simplify Geometry: On
+Import Imprint Curves: On
+Import Drive: C:
+Import Stitch Surfaces: On
+Import Surfaces: On
+Import Output Path: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical
+Import Enable Default Output Path: On
+Import Path: 
+
+Translating to Parasolid data types...
++Begin Assembly: 1
++Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-cssf-000_asm.asm
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-100_AF0_ASM.asm
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-101.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-102.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-102.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-102.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-102.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-103.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-106.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-106.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-106.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-106.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-105.par
+|  |--+Begin Assembly: 3
+|  |--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-500_AF0_ASM.asm
+|  |  |--+Begin Assembly: 4
+|  |  |--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO_AF4_ASM.asm
+|  |  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO.par
+|  |  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SERVO_ARM.par
+|  |  |--+Total Parts: 4
+|  |  |--+Assemblies: 0
+|  |  |--+Solid Bodies: 4
+|  |  |--+Sheet Bodies: 0
+|  |  |--+End Assembly: 4
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-502.par
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\GYRO_MOTOR.par
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-501.par
+|  |--+Total Parts: 9
+|  |--+Assemblies: 1
+|  |--+Solid Bodies: 6
+|  |--+Sheet Bodies: 2
+|  |--+End Assembly: 3
+|  |--+Begin Assembly: 3
+|  |--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-200_AF0_ASM.asm
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-201.par
+|  |  |--+Begin Assembly: 4
+|  |  |--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO_AF2_ASM.asm
+|  |  |  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO.par
+|  |  |  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SERVO_ARM.par
+|  |  |--+Total Parts: 2
+|  |  |--+Assemblies: 0
+|  |  |--+Solid Bodies: 2
+|  |  |--+Sheet Bodies: 0
+|  |  |--+End Assembly: 4
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-202.par
+|  |  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-203.par
+|  |  |--+Begin Assembly: 4
+|  |  |--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO_AF3_ASM.asm
+|  |  |  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO.par
+|  |  |  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SERVO_ARM.par
+|  |  |--+Total Parts: 2
+|  |  |--+Assemblies: 0
+|  |  |--+Solid Bodies: 2
+|  |  |--+Sheet Bodies: 0
+|  |  |--+End Assembly: 4
+|  |--+Total Parts: 8
+|  |--+Assemblies: 2
+|  |--+Solid Bodies: 6
+|  |--+Sheet Bodies: 0
+|  |--+End Assembly: 3
+|--+Total Parts: 30
+|--+Assemblies: 2
+|--+Solid Bodies: 16
+|--+Sheet Bodies: 12
+|--+End Assembly: 2
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-300_ASM.asm
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-301.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-303_TOP.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-302.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-303.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR1_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR1_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR1_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR1_WING.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR2_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR2_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR2_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\ROTOR2_WING.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|--+Total Parts: 87
+|--+Assemblies: 0
+|--+Solid Bodies: 87
+|--+Sheet Bodies: 0
+|--+End Assembly: 2
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-300B_ASM.asm
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-301B.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-307B.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-305B.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-305B.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-305B.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-305B.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\57155K337_STAINLESS_STEEL_BALL_.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-306.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-307.par
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\2018-CSSF-307.par
+|--+Total Parts: 42
+|--+Assemblies: 0
+|--+Solid Bodies: 40
+|--+Sheet Bodies: 2
+|--+End Assembly: 2
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\CONTAINER.par
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\CAMERA_DOME.par
+Bodies: 0
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\6409_NACA_ROTOR.par
+Bodies: 0
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\DOME_OFFSET.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\DOME_OFFSET.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\DOME_OFFSET.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\DOME_OFFSET.par
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\CANSAT_SHELL.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\CANSAT_SHELL.par
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\CONTAINER_SLEEVE_1.par
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO_FULL_LENGTH_ARM_ASM.asm
+|  |--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\MICRO_SERVO.par
+|  |--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SERVO_ARM_FULL_LENGTH.par
+|--+Total Parts: 3
+|--+Assemblies: 0
+|--+Solid Bodies: 3
+|--+Sheet Bodies: 0
+|--+End Assembly: 2
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\RELEASE_CATCH.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\RELEASE_CATCH.par
+|--+Created SE Part File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\PAYLOAD_DOWEL.par
+|--+Reusing File C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\PAYLOAD_DOWEL.par
++Total Parts: 29
++Assemblies: 4
++Solid Bodies: 20
++Sheet Bodies: 5
++End Assembly: 1
+Translation process completed
+Total time required to translate and post process:00 : 00 : 05
