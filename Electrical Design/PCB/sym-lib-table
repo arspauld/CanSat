@@ -1,4 +1,5 @@
 (sym_lib_table
   (lib (name PCB-rescue)(type Legacy)(uri ${KIPRJMOD}/PCB-rescue.lib)(options "")(descr ""))
   (lib (name Custom_Components)(type Legacy)(uri "C:/Users/peter/Google Drive/SHC/Cansat/Cansat/CanSat/Electrical Design/PCB/Custom_Components.lib")(options "")(descr ""))
+  (lib (name SS495A)(type Legacy)(uri "/Users/alex/Google_Drive/Freshman/Fall/Space_Hardware/cansat/Software/CanSat/Electrical Design/PCB/libraries/SS495A.lib")(options "")(descr ""))
 )
