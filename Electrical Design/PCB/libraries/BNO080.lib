@@ -1,0 +1,45 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#(c) SnapEDA 2016 (snapeda.com)
+#This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA) with Design Exception 1.0
+#
+# BNO080
+#
+DEF BNO080 U 0 40 Y Y 1 L N
+F0 "U" -700 820 50 H V L BNN
+F1 "BNO080" -700 -890 50 H V L BNN
+F2 "LGA-28" 0 0 50 H I L BNN
+F3 "Imu Accel/Gyro/Mag I2c 32bit" 0 0 50 H I L BNN
+F4 "Hillcrest Laboratories," 0 0 50 H I L BNN
+F5 "https://www.digikey.com/product-detail/en/hillcrest-laboratories-inc/BNO080/1888-1000-1-ND/7917169?utm_source=snapeda&utm_medium=aggregator&utm_campaign=symbol" 0 0 50 H I L BNN
+F6 "BNO080" 0 0 50 H I L BNN
+F7 "TFLGA-28 Hillcrest Laboratories" 0 0 50 H I L BNN
+F8 "1888-1000-1-ND" 0 0 50 H I L BNN
+DRAW
+P 2 0 0 10 -700 800 -700 -800 N
+P 2 0 0 10 -700 -800 600 -800 N
+P 2 0 0 10 600 -800 600 800 N
+P 2 0 0 10 600 800 -700 800 N
+X GND 2 -800 -600 100 R 40 40 0 0 B 
+X ~RST~ 11 700 700 100 L 40 40 0 0 B 
+X CAP 9 700 -700 100 L 40 40 0 0 B 
+X VDD 3 -800 700 100 R 40 40 0 0 B 
+X XIN32 27 700 -300 100 L 40 40 0 0 B 
+X CLKSEL1 26 700 -400 100 L 40 40 0 0 B 
+X S_SDA 16 700 300 100 L 40 40 0 0 B 
+X S_SCL 15 700 200 100 L 40 40 0 0 B 
+X ~BOOT~ 4 -800 -100 100 R 40 40 0 0 B 
+X ~H_INT~ 14 -800 100 100 R 40 40 0 0 B 
+X H_SCL/SCLK/RX 19 -800 200 100 R 40 40 0 0 B 
+X H_SDA/MISO/TX 20 -800 300 100 R 40 40 0 0 B 
+X H_SA0/MOSI 17 -800 400 100 R 40 40 0 0 B 
+X VDDIO 28 -800 600 100 R 40 40 0 0 B 
+X GNDIO 25 -800 -700 100 R 40 40 0 0 B 
+X ~H_CS~ 18 -800 0 100 R 40 40 0 0 B 
+X CLKSEL0 10 -800 500 100 R 40 40 0 0 B 
+X PS0/WAKE 6 -800 -300 100 R 40 40 0 0 B 
+X PS1 5 -800 -400 100 R 40 40 0 0 B 
+ENDDRAW
+ENDDEF
+#
+# End Library
