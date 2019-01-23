@@ -1,0 +1,30 @@
+Solid Edge Translation to STEP
+Date: Wednesday,January 23,2019 12:11PM
+Output File: D:\Users\Jakek\Documents\GitHub\CanSat\mechanical\SolidEdge\Container Assembly.stp
+Author: Unknown
+Organization: Unknown
+Source System: Solid Edge
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz
+Operating System: Windows 8
+Installed Memory: 23.87 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
+Solid Edge Version: 110.00.03.003 x64
+
+STEP Export Options
+Export Format: AP214
+Export Construction Sheets: Off
+Export Construction Solids: Off
+Export Construction Wires: Off
+Export Displayed Parts Only: Off
+Export Units: Millimeters
+Export Part Component Names As Unicode: Off
+
+Phase 1 of 1 Translating Parasolid to foreign data types...
+Translation process completed
+Time required to translate:00 : 00 : 01
