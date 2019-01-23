@@ -1026,4 +1026,8 @@ Text Notes 1350 5200 0    50   ~ 0
 6V —> 5V Regulator
 Text Notes 950  3800 0    50   ~ 0
 PDI Interface
+Text Notes 1700 3050 0    50   ~ 0
+BNO-080
+Text Notes 1200 6600 0    50   ~ 0
+Thermistor
 $EndSCHEMATC
