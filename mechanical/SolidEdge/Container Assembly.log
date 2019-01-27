@@ -1,30 +1,39 @@
-Solid Edge Translation to STEP
-Date: Wednesday,January 23,2019 12:11PM
-Output File: D:\Users\Jakek\Documents\GitHub\CanSat\mechanical\SolidEdge\Container Assembly.stp
+STEP translation to Solid Edge
+Date: Thursday,January 24,2019 07:45PM
+Source File: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\Container Assembly.stp
 Author: Unknown
 Organization: Unknown
-Source System: Solid Edge
+Source System: DEX
 
 Hardware:
-Processor: Intel(R) Core(TM) i5-7600K CPU @ 3.80GHz
+Processor: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
 Operating System: Windows 8
-Installed Memory: 23.87 GB
+Installed Memory: 7.87 GB
 
 Software Information
 Parasolid Version: 30.0.167
 PSBodyShop Version: 30.0.81
 Step Adapter Version: 3.0.52
-Solid Edge Version: 110.00.03.003 x64
+Solid Edge Version: 110.00.00.107 x64
 
-STEP Export Options
-Export Format: AP214
-Export Construction Sheets: Off
-Export Construction Solids: Off
-Export Construction Wires: Off
-Export Displayed Parts Only: Off
-Export Units: Millimeters
-Export Part Component Names As Unicode: Off
+Step Import Options
+Import Faceted Bodies: On
+Import Check Bodies: Off
+Import Curves: On
+Import DoNotSave: On
+Import Multiple Bodies As Single Part File: On
+Import Stitch Surfaces: On
+Import Boolean Solids: On
+Make Base Feature: On
+Simplify Geometry: On
+Import Imprint Curves: On
+Import Drive: C:
+Import Stitch Surfaces: On
+Import Surfaces: On
+Import Output Path: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge
+Import Enable Default Output Path: On
+Import Path: 
 
-Phase 1 of 1 Translating Parasolid to foreign data types...
+Translating to Parasolid data types...
 Translation process completed
-Time required to translate:00 : 00 : 01
+Total time required to translate and post process:00 : 00 : 10
