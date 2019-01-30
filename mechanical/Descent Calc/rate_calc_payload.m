@@ -2,16 +2,20 @@
 % First import and fit the data to a polynomial and create a function to
 % use for obtain the coefficient of lift at every angle of attack 
 
-nums = importdata('nums.txt');
+nums = importdata('xfoil.txt');
 alpha = nums(:,1)';
 c_lift = nums(:,2)';
 c_drag = nums(:,3)';
 
-coef = polyfit(alpha, c_lift, 7);
-c_l = @(t) coef(1)*t.^7+coef(2)*t.^6+coef(3)*t.^5+coef(4)*t.^4+coef(5)*t.^3+coef(6)*t.^2+coef(7)*t+coef(8);
-coef = polyfit(alpha, c_drag, 7);
-c_d = @(t) coef(1)*t.^7+coef(2)*t.^6+coef(3)*t.^5+coef(4)*t.^4+coef(5)*t.^3+coef(6)*t.^2+coef(7)*t+coef(8);
-x = linspace(-8, 16);
+deg = 6;
+coef = polyfit(alpha, c_lift, deg);
+coef = coef(deg+1:-1:1);
+c_l = @(t) coef(7)*t.^6+coef(6)*t.^5+coef(5)*t.^4+coef(4)*t.^3+coef(3)*t.^2+coef(2)*t+coef(1);
+
+coef = polyfit(alpha, c_drag, deg);
+coef = coef(deg+1:-1:1);
+c_d = @(t) coef(7)*t.^6+coef(6)*t.^5+coef(5)*t.^4+coef(4)*t.^3+coef(3)*t.^2+coef(2)*t+coef(1);
+x = linspace(-35, 35);
 
 figure(1);
 subplot(221);
@@ -39,10 +43,10 @@ xlabel('C_D'); ylabel('C_L');
 %% Incrementing Over Length
 r = 62;         % mm
 L = 207;        % mm
+I = .0003;      % moment of inertia
 m = .4;         % kg
 g = 9.81;       % m / s^2
 rho = 1.16;     % kg / m^3
-V_y = 10;       % m / s
 
 
 phi = @(h) 10 * h / L - 10; % degrees
@@ -50,43 +54,66 @@ w_i = 50;
 w_f = 30;
 w = @(h) (w_f-w_i)*h/L + w_i;    % mm
 
-
-dh = .01;
-spin = 35:1:100;
-rads = 2 * pi * spin;
-lift_comp(1, length(spin)) = 0;
-drag_comp(1, length(spin)) = 0; 
-for i = 0:dh:L
-    V_x = rads * (i + r) * .001; % m / s
-    theta = - atand(V_y ./ V_x); % degrees
-    p = phi(i); % phi
-    alpha = p - theta; % degrees
-    dA = w(i) * dh * .001^2; % m^2
-    V_sq = V_x.^2 + V_y^2;
-    V = sqrt(V_sq);
+dh = 1;
+dt = .01;
+V_y = -20;
+omega = 0;
+dat = 0;
+% models the drop
+for t = 0:dt:1
+    dat = dat + 1; 
+    F = 0;
+    T = 0;
+    % gets net forces and torques
+    for h = 0:dh:L
+        fprintf('Time: %g\tH: %g\n', t, h);
+        V_x = omega * (h + r) * .001;
+        theta = atand(V_y ./ V_x); % degrees
+        p = phi(h); % phi
+        alpha = p - theta; % degrees
+        dA = w(h) * dh * .001^2; % m^2
+        V = sqrt(V_x.^2 + V_y^2); 
+        
+        tau = rho * dA * V^2 / 2;
+        L = tau * c_l(alpha);
+        D = tau * c_d(alpha);
+        
+        beta = 90 + theta;
+        L_x = L * cosd(beta);
+        L_y = L * sind(beta);
+        D_x = D * cosd(beta + 90);
+        D_y = D * sind(beta + 90);
+        
+        T = T + (L_x + D_x) * (h + r) * .001;
+        F = F + L_y + D_y;
+    end
+    D_payload = -sign(V_y) * 0.81 * rho * V_y^2 / 2 * .002353;
+    F = 4*F + D_payload - m*g; % Adjusts for four blades
+    T = 2*T; % adjusts for two blades on rotor
+    omega = omega + T / I * dt; 
+    V_y = V_y + F / m * dt;
     
-    lift_comp(1, :) = lift_comp(1, :) + rho * dA / (2 * V_y) * V.^3 .* c_d(alpha);
-    drag_comp(1, :) = drag_comp(1, :) + rho * dA / 2 * V_sq .* c_d(alpha) * V_y .* cosd(theta) ./ V_x;
+    vert(1, dat) = V_y;
+    time(1, dat) = t+dt;
+    rps(1, dat) = omega;
+    
+%     disp(V_y)
+%     resp = input('Continue? (y/n): ', 's');
+%     if isempty(resp), resp = 'y'; end
+%     if resp ~= 'y'
+%         break
+%     end
 end
 
-weight = m * g * ones(1,length(lift_comp));
-net_vert = 4 * lift_comp - weight;
-
-
-% subplot(131);
-% plot(spin*60, lift_comp);
-% grid on;
-% xlabel('Spin Rate [rpm]'); ylabel('Lift [N]');
-% 
-% subplot(132);
-% plot(spin*60, drag_comp);
-% grid on;
-% xlabel('Spin Rate [rpm]'); ylabel('Drag [N]');
-
 figure(2);
-plot(spin*60, net_vert);
+plot(time, vert);
 grid on;
-xlabel('Spin Rate [rpm]'); ylabel('Net Force [N]');
+xlabel('Time [s]'); ylabel('Vertical Velocity [^m/_s]');
+
+figure(3);
+plot(time, rps);
+grid on;
+xlabel('Time [s]'); ylabel('Angular Velocity [^{rads}/_s]');
 
 %% Solving for Intersection
-rpm_coef
+%rpm_coef
