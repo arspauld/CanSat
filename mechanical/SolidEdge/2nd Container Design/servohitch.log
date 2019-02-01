@@ -1,0 +1,39 @@
+STEP translation to Solid Edge
+Date: Wednesday,January 30,2019 08:53PM
+Source File: C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\servohitch.step
+Author: Unknown
+Organization: Unknown
+Source System: Autodesk Translation Framework v7.6.0.251
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz
+Operating System: Windows 8
+Installed Memory: 7.89 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
+Solid Edge Version: 110.00.00.107 x64
+
+Step Import Options
+Import Faceted Bodies: On
+Import Check Bodies: Off
+Import Curves: On
+Import DoNotSave: On
+Import Multiple Bodies As Single Part File: On
+Import Stitch Surfaces: On
+Import Boolean Solids: On
+Make Base Feature: On
+Simplify Geometry: On
+Import Imprint Curves: On
+Import Drive: C:
+Import Stitch Surfaces: On
+Import Surfaces: On
+Import Output Path: C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design
+Import Enable Default Output Path: On
+Import Path: 
+
+Translating to Parasolid data types...
+Translation process completed
+Total time required to translate and post process:00 : 00 : 00

@@ -1,0 +1,76 @@
+STEP translation to Solid Edge
+Date: Wednesday,January 30,2019 08:31PM
+Source File: C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Container 2 parts.step
+Author: Wayne1881
+Organization: Unknown
+Source System: Autodesk Translation Framework v7.6.0.251
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz
+Operating System: Windows 8
+Installed Memory: 7.89 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
+Solid Edge Version: 110.00.00.107 x64
+
+Step Import Options
+Import Faceted Bodies: On
+Import Check Bodies: Off
+Import Curves: On
+Import DoNotSave: On
+Import Multiple Bodies As Single Part File: On
+Import Stitch Surfaces: On
+Import Boolean Solids: On
+Make Base Feature: On
+Simplify Geometry: On
+Import Imprint Curves: On
+Import Drive: C:
+Import Stitch Surfaces: On
+Import Surfaces: On
+Import Output Path: C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design
+Import Enable Default Output Path: On
+Import Path: 
+
+Translating to Parasolid data types...
++Begin Assembly: 1
++Created SE Assembly File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Container 2 parts.asm
+|--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Container 2 parts.par
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Top 2.asm
+|  |--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Top 2.par
+Bodies: 0
+|  |--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Component1.par
+Bodies: 0
+|--+Total Parts: 2
+|--+Assemblies: 0
+|--+Solid Bodies: 2
+|--+Sheet Bodies: 0
+|--+End Assembly: 2
+|--+Begin Assembly: 2
+|--+Created SE Assembly File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Top.asm
+Bodies: 0
+|  |--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Outer Top.par
+Bodies: 0
+|  |--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Top 1.par
+|--+Total Parts: 2
+|--+Assemblies: 0
+|--+Solid Bodies: 2
+|--+Sheet Bodies: 0
+|--+End Assembly: 2
+|--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Rod.par
+|--+Reusing File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Rod.par
+|--+Reusing File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Rod.par
+|--+Reusing File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Rod.par
+|--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Bottom empty half.par
+|--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\Bottom servo half.par
+|--+Created SE Part File C:\Users\peter\Google Drive\SHC\Cansat\Cansat\CanSat\mechanical\SolidEdge\2nd Container Design\servo.par
++Total Parts: 23
++Assemblies: 2
++Solid Bodies: 21
++Sheet Bodies: 0
++End Assembly: 1
+Translation process completed
+Total time required to translate and post process:00 : 00 : 12
