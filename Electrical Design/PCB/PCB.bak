@@ -799,67 +799,67 @@ Connection ~ 1050 750
 $Comp
 L SS495A:SS495A U5
 U 1 1 5C4FD36A
-P 5450 6900
-F 0 "U5" H 5750 7067 50  0000 C CNN
-F 1 "SS495A" H 5750 6976 50  0000 C CNN
-F 2 "SIP3-UA" H 5450 6900 50  0001 L BNN
-F 3 "None" H 5450 6900 50  0001 L BNN
-F 4 "Sensor; Sink; 4.5 to 10.5 VDC; 8.7 mA @5 VDC; 0.2 VDC _Typ._/0.4 VDC _Min._" H 5450 6900 50  0001 L BNN "Field4"
-F 5 "Honeywell Sensing" H 5450 6900 50  0001 L BNN "Field5"
-F 6 "SS495A" H 5450 6900 50  0001 L BNN "Field6"
-F 7 "Unavailable" H 5450 6900 50  0001 L BNN "Field7"
-F 8 "TO-92 Honeywell" H 5450 6900 50  0001 L BNN "Field8"
-	1    5450 6900
+P 5600 6900
+F 0 "U5" H 5900 7067 50  0000 C CNN
+F 1 "SS495A" H 5900 6976 50  0000 C CNN
+F 2 "SIP3-UA" H 5600 6900 50  0001 L BNN
+F 3 "None" H 5600 6900 50  0001 L BNN
+F 4 "Sensor; Sink; 4.5 to 10.5 VDC; 8.7 mA @5 VDC; 0.2 VDC _Typ._/0.4 VDC _Min._" H 5600 6900 50  0001 L BNN "Field4"
+F 5 "Honeywell Sensing" H 5600 6900 50  0001 L BNN "Field5"
+F 6 "SS495A" H 5600 6900 50  0001 L BNN "Field6"
+F 7 "Unavailable" H 5600 6900 50  0001 L BNN "Field7"
+F 8 "TO-92 Honeywell" H 5600 6900 50  0001 L BNN "Field8"
+	1    5600 6900
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0127
 U 1 1 5C501DB3
-P 5150 7250
-F 0 "#PWR0127" H 5150 7000 50  0001 C CNN
-F 1 "GND" H 5155 7077 50  0000 C CNN
-F 2 "" H 5150 7250 50  0001 C CNN
-F 3 "" H 5150 7250 50  0001 C CNN
-	1    5150 7250
+P 5300 7250
+F 0 "#PWR0127" H 5300 7000 50  0001 C CNN
+F 1 "GND" H 5305 7077 50  0000 C CNN
+F 2 "" H 5300 7250 50  0001 C CNN
+F 3 "" H 5300 7250 50  0001 C CNN
+	1    5300 7250
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5150 7250 5150 7200
+	5300 7250 5300 7200
 Wire Wire Line
-	5150 7200 5250 7200
-Text Label 6250 7000 0    50   ~ 0
+	5300 7200 5400 7200
+Text Label 6400 7000 0    50   ~ 0
 UNASSIGNED
 $Comp
 L Device:C_Small C10
 U 1 1 5C5057CC
-P 5150 6900
-F 0 "C10" H 5242 6946 50  0000 L CNN
-F 1 "1uF" H 5242 6855 50  0000 L CNN
-F 2 "" H 5150 6900 50  0001 C CNN
-F 3 "~" H 5150 6900 50  0001 C CNN
-	1    5150 6900
+P 5300 6900
+F 0 "C10" H 5392 6946 50  0000 L CNN
+F 1 "1uF" H 5392 6855 50  0000 L CNN
+F 2 "" H 5300 6900 50  0001 C CNN
+F 3 "~" H 5300 6900 50  0001 C CNN
+	1    5300 6900
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR0128
 U 1 1 5C50B237
-P 5150 6750
-F 0 "#PWR0128" H 5150 6500 50  0001 C CNN
-F 1 "GND" H 5155 6577 50  0000 C CNN
-F 2 "" H 5150 6750 50  0001 C CNN
-F 3 "" H 5150 6750 50  0001 C CNN
-	1    5150 6750
+P 5300 6750
+F 0 "#PWR0128" H 5300 6500 50  0001 C CNN
+F 1 "GND" H 5305 6577 50  0000 C CNN
+F 2 "" H 5300 6750 50  0001 C CNN
+F 3 "" H 5300 6750 50  0001 C CNN
+	1    5300 6750
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	5000 6950 5000 7000
+	5150 6950 5150 7000
 Wire Wire Line
-	5000 7000 5150 7000
-Connection ~ 5150 7000
+	5150 7000 5300 7000
+Connection ~ 5300 7000
 Wire Wire Line
-	5150 7000 5250 7000
+	5300 7000 5400 7000
 Wire Wire Line
-	5150 6750 5150 6800
+	5300 6750 5300 6800
 Text Notes 11000 3850 3    50   ~ 0
 Ports A & B have access to the ADC
 Text Label 10350 5350 0    50   ~ 0
@@ -924,7 +924,7 @@ Connection ~ 2700 4300
 Wire Wire Line
 	2700 4300 2800 4300
 Text Notes 2200 4500 0    50   ~ 0
-Voltage Divider (6 —> 2.25)
+Voltage Divider (6 —> 2)
 Text Label 10350 4250 0    50   ~ 0
 PA7-Voltage
 Text Label 2700 4100 1    50   ~ 0
@@ -933,7 +933,7 @@ Text Notes 4250 5100 0    50   ~ 0
 MS5607 Pressure Sensor
 Text Notes 6950 4950 0    50   ~ 0
 Power Interface
-Text Notes 5400 6650 0    50   ~ 0
+Text Notes 5550 6650 0    50   ~ 0
 Hall Effect Sensor
 Text Notes 3050 6450 0    50   ~ 0
 6V —> 3.3V Regulator
@@ -992,12 +992,12 @@ $EndComp
 $Comp
 L power:+5V #PWR07
 U 1 1 5C4A1F82
-P 5000 6950
-F 0 "#PWR07" H 5000 6800 50  0001 C CNN
-F 1 "+5V" H 5015 7123 50  0000 C CNN
-F 2 "" H 5000 6950 50  0001 C CNN
-F 3 "" H 5000 6950 50  0001 C CNN
-	1    5000 6950
+P 5150 6950
+F 0 "#PWR07" H 5150 6800 50  0001 C CNN
+F 1 "+5V" H 5165 7123 50  0000 C CNN
+F 2 "" H 5150 6950 50  0001 C CNN
+F 3 "" H 5150 6950 50  0001 C CNN
+	1    5150 6950
 	1    0    0    -1  
 $EndComp
 Text Label 10350 4150 0    50   ~ 0
@@ -1032,4 +1032,289 @@ F 3 "" H 2200 4200 50  0001 C CNN
 	1    2200 4200
 	1    0    0    -1  
 $EndComp
+$Comp
+L dk_Clock-Timing-Real-Time-Clocks:PCF8523T_1_118 U?
+U 1 1 5C4D622C
+P 4750 3900
+F 0 "U?" H 4250 4450 60  0000 C CNN
+F 1 "PCF8523T_1_118" H 4250 4300 60  0000 C CNN
+F 2 "digikey-footprints:SOIC-8_W3.9mm" H 4950 4100 60  0001 L CNN
+F 3 "https://www.nxp.com/docs/en/data-sheet/PCF8523.pdf" H 4950 4200 60  0001 L CNN
+F 4 "568-5306-1-ND" H 4950 4300 60  0001 L CNN "Digi-Key_PN"
+F 5 "PCF8523T/1,118" H 4950 4400 60  0001 L CNN "MPN"
+F 6 "Integrated Circuits (ICs)" H 4950 4500 60  0001 L CNN "Category"
+F 7 "Clock/Timing - Real Time Clocks" H 4950 4600 60  0001 L CNN "Family"
+F 8 "https://www.nxp.com/docs/en/data-sheet/PCF8523.pdf" H 4950 4700 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/nxp-usa-inc/PCF8523T-1,118/568-5306-1-ND/2530784" H 4950 4800 60  0001 L CNN "DK_Detail_Page"
+F 10 "IC RTC CLK/CALENDAR I2C 8-SOIC" H 4950 4900 60  0001 L CNN "Description"
+F 11 "NXP USA Inc." H 4950 5000 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 4950 5100 60  0001 L CNN "Status"
+	1    4750 3900
+	1    0    0    -1  
+$EndComp
+NoConn ~ 4750 3500
+$Comp
+L power:GND #PWR?
+U 1 1 5C4DC0F2
+P 4650 4350
+F 0 "#PWR?" H 4650 4100 50  0001 C CNN
+F 1 "GND" H 4655 4177 50  0000 C CNN
+F 2 "" H 4650 4350 50  0001 C CNN
+F 3 "" H 4650 4350 50  0001 C CNN
+	1    4650 4350
+	1    0    0    -1  
+$EndComp
+Text Label 4250 3900 2    50   ~ 0
+I2C
+Text Label 4250 4000 2    50   ~ 0
+I2C
+NoConn ~ 5350 3900
+NoConn ~ 4250 3800
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C4E5D06
+P 5300 3450
+F 0 "#PWR?" H 5300 3300 50  0001 C CNN
+F 1 "+3.3V" H 5315 3623 50  0000 C CNN
+F 2 "" H 5300 3450 50  0001 C CNN
+F 3 "" H 5300 3450 50  0001 C CNN
+	1    5300 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R?
+U 1 1 5C4E6AFF
+P 5100 3500
+F 0 "R?" V 5200 3400 50  0000 C CNN
+F 1 "R_Small" V 5200 3600 50  0000 C CNN
+F 2 "" H 5100 3500 50  0001 C CNN
+F 3 "~" H 5100 3500 50  0001 C CNN
+	1    5100 3500
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C4E6F4F
+P 4950 3300
+F 0 "C?" H 4750 3350 50  0000 L CNN
+F 1 "C_Small" H 4550 3250 50  0000 L CNN
+F 2 "" H 4950 3300 50  0001 C CNN
+F 3 "~" H 4950 3300 50  0001 C CNN
+	1    4950 3300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5300 3450 5300 3500
+Wire Wire Line
+	5300 3500 5200 3500
+Wire Wire Line
+	5000 3500 4950 3500
+Wire Wire Line
+	4950 3500 4950 3400
+Connection ~ 4950 3500
+Wire Wire Line
+	4950 3500 4850 3500
+$Comp
+L power:GND #PWR?
+U 1 1 5C4F2617
+P 4950 3150
+F 0 "#PWR?" H 4950 2900 50  0001 C CNN
+F 1 "GND" H 4955 2977 50  0000 C CNN
+F 2 "" H 4950 3150 50  0001 C CNN
+F 3 "" H 4950 3150 50  0001 C CNN
+	1    4950 3150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4950 3200 4950 3150
+$Comp
+L Device:R_Small R?
+U 1 1 5C504583
+P 5500 3800
+F 0 "R?" H 5559 3846 50  0000 L CNN
+F 1 "R_Small" H 5559 3755 50  0000 L CNN
+F 2 "" H 5500 3800 50  0001 C CNN
+F 3 "~" H 5500 3800 50  0001 C CNN
+	1    5500 3800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5300 3500 5500 3500
+Wire Wire Line
+	5500 3500 5500 3700
+Connection ~ 5300 3500
+Wire Wire Line
+	5500 3900 5500 4000
+Wire Wire Line
+	5500 4000 5350 4000
+Text Notes 4050 3100 0    50   ~ 0
+Real Time Clock
+Wire Notes Line
+	3800 2900 5900 2900
+Wire Notes Line
+	5900 2900 5900 4700
+Wire Notes Line
+	5900 4700 3800 4700
+Wire Notes Line
+	3800 4700 3800 2900
+Wire Notes Line
+	2100 3600 2100 4600
+Wire Notes Line
+	2100 4600 3500 4600
+Wire Notes Line
+	3500 4600 3500 3600
+Wire Notes Line
+	3500 3600 2100 3600
+Wire Notes Line
+	600  3600 1950 3600
+Wire Notes Line
+	1950 3600 1950 4950
+Wire Notes Line
+	1950 4950 600  4950
+Wire Notes Line
+	600  4950 600  3600
+Wire Notes Line
+	600  6300 3250 6300
+Wire Notes Line
+	3250 6300 3250 5650
+Wire Notes Line
+	3250 5650 2350 5650
+Wire Notes Line
+	2350 5650 2350 5000
+Wire Notes Line
+	2350 5000 600  5000
+Wire Notes Line
+	600  5000 600  6300
+Wire Notes Line
+	4200 4950 4200 5400
+Wire Notes Line
+	4200 5400 3750 5400
+Wire Notes Line
+	3750 5400 3750 6300
+Wire Notes Line
+	3750 6300 5900 6300
+Wire Notes Line
+	5900 6300 5900 5900
+Wire Notes Line
+	5900 5900 6100 5900
+Wire Notes Line
+	6100 5900 6100 5450
+Wire Notes Line
+	6100 5450 5800 5450
+Wire Notes Line
+	5800 5450 5800 5150
+Wire Notes Line
+	5800 5150 5300 5150
+Wire Notes Line
+	5300 5150 5300 4950
+Wire Notes Line
+	5300 4950 4200 4950
+Wire Notes Line
+	500  450  500  3400
+Wire Notes Line
+	500  3400 3650 3400
+Wire Notes Line
+	3650 3400 3650 2050
+Wire Notes Line
+	3650 2050 2900 2050
+Wire Notes Line
+	2900 2050 2900 1500
+Wire Notes Line
+	2900 1500 3150 1500
+Wire Notes Line
+	3150 1500 3150 1200
+Wire Notes Line
+	3150 1200 2050 1200
+Wire Notes Line
+	2050 1200 2050 450 
+Wire Notes Line
+	2050 450  500  450 
+Wire Notes Line
+	6900 5400 6400 5400
+Wire Notes Line
+	6400 5400 6400 5900
+Wire Notes Line
+	6400 5900 6900 5900
+Wire Notes Line
+	6900 5900 6900 6300
+Wire Notes Line
+	6900 6300 7500 6300
+Wire Notes Line
+	7500 6300 7500 6100
+Wire Notes Line
+	7500 6100 7750 6100
+Wire Notes Line
+	7750 6100 7750 5750
+Wire Notes Line
+	7750 5750 8100 5750
+Wire Notes Line
+	8100 5750 8100 5100
+Wire Notes Line
+	8100 5100 7650 5100
+Wire Notes Line
+	7650 5100 7650 4800
+Wire Notes Line
+	7650 4800 6900 4800
+Wire Notes Line
+	6900 4800 6900 5400
+Wire Notes Line
+	2300 6350 2300 7200
+Wire Notes Line
+	2300 7200 2850 7200
+Wire Notes Line
+	2850 7200 2850 7350
+Wire Notes Line
+	2850 7350 4000 7350
+Wire Notes Line
+	4000 7350 4000 7200
+Wire Notes Line
+	4000 7200 4350 7200
+Wire Notes Line
+	4350 7200 4350 7500
+Wire Notes Line
+	4350 7500 4950 7500
+Wire Notes Line
+	4950 7500 4950 6900
+Wire Notes Line
+	4950 6900 4100 6900
+Wire Notes Line
+	4100 6900 4100 6350
+Wire Notes Line
+	4100 6350 2300 6350
+Wire Notes Line
+	5100 6500 6900 6500
+Wire Notes Line
+	6900 6500 6900 7550
+Wire Notes Line
+	6900 7550 5100 7550
+Wire Notes Line
+	5100 7550 5100 6500
+Wire Notes Line
+	650  6500 650  7050
+Wire Notes Line
+	650  7050 1300 7050
+Wire Notes Line
+	1300 7050 1300 7550
+Wire Notes Line
+	1300 7550 1450 7550
+Wire Notes Line
+	1450 7550 1450 7050
+Wire Notes Line
+	1450 7050 1900 7050
+Wire Notes Line
+	1900 7050 1900 7250
+Wire Notes Line
+	1900 7250 2100 7250
+Wire Notes Line
+	2100 7250 2100 6800
+Wire Notes Line
+	2100 6800 1800 6800
+Wire Notes Line
+	1800 6800 1800 6650
+Wire Notes Line
+	1800 6650 1700 6650
+Wire Notes Line
+	1700 6650 1700 6500
+Wire Notes Line
+	1700 6500 650  6500
 $EndSCHEMATC
