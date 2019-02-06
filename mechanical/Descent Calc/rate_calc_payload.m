@@ -44,13 +44,13 @@ x_s = linspace(-10, 10);
 % Plots the data from the fits
 figure(1);
 subplot(221);
-plot(alpha, c_lift, x, c_l(x), x_s, c_ls(x_s));
+plot(alpha, c_lift, '*', x, c_l(x), x_s, c_ls(x_s));
 title('\alpha versus C_L')
 xlabel('\alpha [\circ]'); ylabel('C_L');
 legend('Data', 'Fit', 'Small Fit', 'Location', 'northwest')
 
 subplot(222);
-plot(alpha, c_drag, x, c_d(x), x_s, c_ds(x_s));
+plot(alpha, c_drag, '*', x, c_d(x), x_s, c_ds(x_s));
 title('\alpha versus C_D')
 xlabel('\alpha [\circ]'); ylabel('C_D');
 legend('Data', 'Fit', 'Small Fit', 'Location', 'northwest')
@@ -77,7 +77,7 @@ g = 9.81;       % m / s^2
 rho = 1.1226;   % kg / m^3 at Standard 900 m
 
 
-a_i = 20;
+a_i = 90;
 twist = 10;
 phi = @(h) twist * h / L  - a_i; % degrees
 
@@ -86,19 +86,23 @@ w_f = 30;
 w = @(h) (w_f-w_i)*h/L + w_i;    % mm
 
 dh = 1;
-dt = .01;
-V_y = -0.0001; % starting velocity does not matter as it will go to same end value
+dt = .001;
+V_y = -20; % starting velocity does not matter as it will go to same end value
 omega = 0;
 dat = 0;
+T = 0;
+F = 0;
 
 % models the drop
 dx = 0;
 h = 0:dh:L;
-for t = 0:dt:10
+for t = 0:dt:100
     dat = dat + 1; 
     vert(1, dat) = V_y;
     time(1, dat) = t+dt;
     rps(1, dat) = omega;
+    force(1, dat) = F;
+    torque(1,dat) = T;
     
     F = 0;
     T = 0;
@@ -118,10 +122,6 @@ for t = 0:dt:10
     tau = rho * dA .* V.^2 / 2;     % common coefficient of lift and drag calcs
     L = tau .* (c_l(alpha.*~inds) + c_ls(alpha.*inds));          % Lift
     D = tau .* (c_d(alpha.*~inds) + c_ds(alpha.*inds));          % Drag
-
-%     tau = rho * dA .* V.^2 / 2;     % common coefficient of lift and drag calcs
-%     L = tau .* c_l(alpha);          % Lift
-%     D = tau .* c_d(alpha);          % Drag
 
     
     beta = 90 + theta;              % new angle set in the 1st quadrant
@@ -143,14 +143,25 @@ for t = 0:dt:10
  
     if abs(V_y-V_old) >= 0.1 * dt, dx = dx + V_old * dt + F/m/2*dt^2; end
 end
-fprintf('Fell:    %7.3f\nSpeed: %9.3f\nRPM:   %9.3f\n', dx, -V_y, omega * 60 / 2 / pi);
+fprintf('Fell:    %7.3f\nSpeed: %9.3f\nRPM:   %9.3f\n', dx, V_y, omega * 60 / 2 / pi);
 
 figure(2);
-plot(time, vert, time, -10.163 * ones(1, length(time)));
+subplot(221)
+plot(time, vert, time, V_y * ones(1, length(time)));
 grid on;
 xlabel('Time [s]'); ylabel('Vertical Velocity [^m/_s]');
 
-figure(3);
+subplot(222)
 plot(time, rps);
 grid on;
 xlabel('Time [s]'); ylabel('Angular Velocity [^{rads}/_s]');
+
+subplot(223)
+plot(time, force);
+grid on;
+xlabel('Time [s]'); ylabel('Force [N]');
+
+subplot(224)
+plot(time, torque);
+grid on;
+xlabel('Time [s]'); ylabel('Torque [N\bulletm]');
