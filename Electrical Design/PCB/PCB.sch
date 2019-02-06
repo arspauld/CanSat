@@ -1289,4 +1289,24 @@ Wire Notes Line
 	6900 7550 5100 7550
 Wire Notes Line
 	5100 7550 5100 6500
+$Comp
+L dk_RF-Transceiver-Modules:XBP9B-DMWT-002 MOD?
+U 1 1 5C555561
+P 4900 2000
+F 0 "MOD?" H 4950 1706 60  0000 C CNN
+F 1 "XBP9B-DMWT-002" H 4950 1600 60  0000 C CNN
+F 2 "digikey-footprints:XBEE_PRO-20_THT" H 5100 2200 60  0001 L CNN
+F 3 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5100 2300 60  0001 L CNN
+F 4 "602-1301-ND" H 5100 2400 60  0001 L CNN "Digi-Key_PN"
+F 5 "XBP9B-DMWT-002" H 5100 2500 60  0001 L CNN "MPN"
+F 6 "RF/IF and RFID" H 5100 2600 60  0001 L CNN "Category"
+F 7 "RF Transceiver Modules" H 5100 2700 60  0001 L CNN "Family"
+F 8 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5100 2800 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/digi-international/XBP9B-DMWT-002/602-1301-ND/3594159" H 5100 2900 60  0001 L CNN "DK_Detail_Page"
+F 10 "RF TXRX MODULE ISM<1GHZ WIRE ANT" H 5100 3000 60  0001 L CNN "Description"
+F 11 "Digi International" H 5100 3100 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 5100 3200 60  0001 L CNN "Status"
+	1    4900 2000
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
