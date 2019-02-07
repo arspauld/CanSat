@@ -39,6 +39,24 @@ X SCLK 8 150 -800 100 R 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
+# Openlog-Skyfire_Custom_Components
+#
+DEF Openlog-Skyfire_Custom_Components U 0 40 Y Y 1 F N
+F0 "U" -400 450 50 H V C CNN
+F1 "Openlog-Skyfire_Custom_Components" -400 350 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -600 300 -200 -100 0 1 0 N
+X BLK ~ -300 -200 100 U 50 50 1 1 O
+X GND ~ -700 150 100 R 50 50 1 1 O
+X GRN ~ -500 -200 100 U 50 50 1 1 O
+X RXI ~ -100 250 100 L 50 50 1 1 I
+X TXO ~ -100 150 100 L 50 50 1 1 O
+X VIN ~ -700 250 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
 # SS490_Hall_Sensor-Custom_Components
 #
 DEF SS490_Hall_Sensor-Custom_Components U 0 40 Y Y 1 F N
