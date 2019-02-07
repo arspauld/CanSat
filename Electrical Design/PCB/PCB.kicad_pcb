@@ -1589,7 +1589,7 @@
   )
 
   (module LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder (layer F.Cu) (tedit 5B4B45C9) (tstamp 5C6A9124)
-    (at 164.690001 95.665001)
+    (at 104.535 38.1)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED handsolder")
     (path /5C639F18)
@@ -1627,7 +1627,7 @@
   )
 
   (module LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder (layer F.Cu) (tedit 5B4B45C9) (tstamp 5C6A9137)
-    (at 121.045 53.34)
+    (at 104.535 33.02)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED handsolder")
     (path /5C63923E)
@@ -1665,7 +1665,7 @@
   )
 
   (module LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder (layer F.Cu) (tedit 5B4B45C9) (tstamp 5C6A914A)
-    (at 122.795 41.91)
+    (at 104.535 22.86)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED handsolder")
     (path /5C639B86)
@@ -1703,7 +1703,7 @@
   )
 
   (module LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder (layer F.Cu) (tedit 5B4B45C9) (tstamp 5C6A915D)
-    (at 121.92 46.99)
+    (at 104.535 27.94)
     (descr "LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags "LED handsolder")
     (path /5C639D8B)
@@ -1997,7 +1997,7 @@
   )
 
   (module Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal (layer F.Cu) (tedit 59FED5CB) (tstamp 5C6A9235)
-    (at 91.44 67.31)
+    (at 102.87 49.53)
     (descr "Through hole angled pin header, 1x03, 2.54mm pitch, 6mm pin length, single row")
     (tags "Through hole angled pin header THT 1x03 2.54mm single row")
     (path /5C6F7803)
@@ -2080,7 +2080,7 @@
   )
 
   (module Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal (layer F.Cu) (tedit 59FED5CB) (tstamp 5C6A9275)
-    (at 130.81 69.85)
+    (at 102.87 62.23)
     (descr "Through hole angled pin header, 1x03, 2.54mm pitch, 6mm pin length, single row")
     (tags "Through hole angled pin header THT 1x03 2.54mm single row")
     (path /5C6F6AC9)
@@ -2241,7 +2241,7 @@
   )
 
   (module digikey-footprints:SOT-23-3 (layer F.Cu) (tedit 59D275F3) (tstamp 5C6A92C2)
-    (at 181.570001 79.145001)
+    (at 86.14 38.42)
     (path /5C64B586)
     (fp_text reference Q1 (at 0.025 -3.375) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -3076,7 +3076,7 @@
   )
 
   (module ADP3338AKCZ-3.3RL7:SOT230P700X180-4N (layer F.Cu) (tedit 0) (tstamp 5C6A94B8)
-    (at 162.56 115.57)
+    (at 106.68 83.82)
     (path /5C4ECC23)
     (attr smd)
     (fp_text reference U3 (at -0.63534 -4.59985) (layer F.SilkS)
@@ -3454,7 +3454,7 @@
   )
 
   (module Package_QFP:TQFP-44_10x10mm_P0.8mm (layer F.Cu) (tedit 5A02F146) (tstamp 5C6A95F2)
-    (at 124.46 128.27)
+    (at 109.22 113.03)
     (descr "44-Lead Plastic Thin Quad Flatpack (PT) - 10x10x1.0 mm Body [TQFP] (see Microchip Packaging Specification 00000049BS.pdf)")
     (tags "QFP 0.8")
     (path /5C4816FD)
