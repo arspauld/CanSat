@@ -166,8 +166,8 @@ $Comp
 L Connector_Generic:Conn_02x03_Odd_Even J1
 U 1 1 5C487514
 P 1150 4250
-F 0 "J1" H 1200 4550 50  0000 C CNN
-F 1 "Conn_02x03_Odd_Even" H 1200 4450 50  0000 C CNN
+F 0 "J1" H 1200 4600 50  0000 C CNN
+F 1 "Conn_02x03_Odd_Even" H 1200 4500 50  0000 C CNN
 F 2 "" H 1150 4250 50  0001 C CNN
 F 3 "~" H 1150 4250 50  0001 C CNN
 	1    1150 4250
@@ -303,7 +303,7 @@ F 3 "" H 5750 5950 50  0001 C CNN
 $EndComp
 Connection ~ 5750 5950
 Text Label 4150 5550 2    50   ~ 0
-SS_5607
+~SS_5607
 $Comp
 L BNO080:BNO080 U2
 U 1 1 5C492D9E
@@ -457,7 +457,7 @@ Wire Wire Line
 Text Label 1150 2000 2    50   ~ 0
 HOST_INTN
 Text Label 1150 2100 2    50   ~ 0
-SS_BNO080
+~SS_BNO080
 Text Label 1150 2200 2    50   ~ 0
 BNO_BOOTN
 Text Label 2650 1400 0    50   ~ 0
@@ -634,8 +634,8 @@ $Comp
 L Device:C_Small C6
 U 1 1 5C4E2003
 P 2800 5950
-F 0 "C6" H 2892 5996 50  0000 L CNN
-F 1 "1uF" H 2892 5905 50  0000 L CNN
+F 0 "C6" H 2900 5950 50  0000 L CNN
+F 1 "1uF" H 2900 5850 50  0000 L CNN
 F 2 "" H 2800 5950 50  0001 C CNN
 F 3 "~" H 2800 5950 50  0001 C CNN
 	1    2800 5950
@@ -645,8 +645,8 @@ $Comp
 L Device:C_Small C1
 U 1 1 5C4E29CB
 P 900 5600
-F 0 "C1" H 992 5646 50  0000 L CNN
-F 1 "1uF" H 992 5555 50  0000 L CNN
+F 0 "C1" H 1000 5700 50  0000 L CNN
+F 1 "1uF" H 1000 5600 50  0000 L CNN
 F 2 "" H 900 5600 50  0001 C CNN
 F 3 "~" H 900 5600 50  0001 C CNN
 	1    900  5600
@@ -828,13 +828,13 @@ Wire Wire Line
 Wire Wire Line
 	5300 7200 5400 7200
 Text Label 6400 7000 0    50   ~ 0
-UNASSIGNED
+PA5-Hall_effect
 $Comp
 L Device:C_Small C10
 U 1 1 5C5057CC
 P 5300 6900
-F 0 "C10" H 5392 6946 50  0000 L CNN
-F 1 "1uF" H 5392 6855 50  0000 L CNN
+F 0 "C10" H 5400 7000 50  0000 L CNN
+F 1 "1uF" H 5400 6900 50  0000 L CNN
 F 2 "" H 5300 6900 50  0001 C CNN
 F 3 "~" H 5300 6900 50  0001 C CNN
 	1    5300 6900
@@ -860,10 +860,10 @@ Wire Wire Line
 	5300 7000 5400 7000
 Wire Wire Line
 	5300 6750 5300 6800
-Text Notes 11000 3850 3    50   ~ 0
+Text Notes 11050 3850 3    50   ~ 0
 Ports A & B have access to the ADC
 Text Label 10350 5350 0    50   ~ 0
-SS_5607
+~SS_5607
 Text Label 10350 5450 0    50   ~ 0
 MOSI
 Text Label 10350 5550 0    50   ~ 0
@@ -874,7 +874,7 @@ Wire Wire Line
 	1700 4550 1700 4600
 Connection ~ 1700 4550
 Text Label 10350 5250 0    50   ~ 0
-SS_BNO080
+~SS_BNO080
 NoConn ~ 2650 1800
 NoConn ~ 2650 1900
 $Comp
@@ -1013,10 +1013,6 @@ F 3 "" H 1700 4000 50  0001 C CNN
 	1    1700 4000
 	1    0    0    -1  
 $EndComp
-Text Notes 8800 5200 0    50   ~ 0
-RX
-Text Notes 8800 5300 0    50   ~ 0
-TX\n
 Text Notes 8800 5400 0    50   ~ 0
 TC
 Text Notes 8800 5500 0    50   ~ 0
@@ -1292,21 +1288,203 @@ Wire Notes Line
 $Comp
 L dk_RF-Transceiver-Modules:XBP9B-DMWT-002 MOD?
 U 1 1 5C555561
-P 4900 2000
-F 0 "MOD?" H 4950 1706 60  0000 C CNN
-F 1 "XBP9B-DMWT-002" H 4950 1600 60  0000 C CNN
-F 2 "digikey-footprints:XBEE_PRO-20_THT" H 5100 2200 60  0001 L CNN
-F 3 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5100 2300 60  0001 L CNN
-F 4 "602-1301-ND" H 5100 2400 60  0001 L CNN "Digi-Key_PN"
-F 5 "XBP9B-DMWT-002" H 5100 2500 60  0001 L CNN "MPN"
-F 6 "RF/IF and RFID" H 5100 2600 60  0001 L CNN "Category"
-F 7 "RF Transceiver Modules" H 5100 2700 60  0001 L CNN "Family"
-F 8 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5100 2800 60  0001 L CNN "DK_Datasheet_Link"
-F 9 "/product-detail/en/digi-international/XBP9B-DMWT-002/602-1301-ND/3594159" H 5100 2900 60  0001 L CNN "DK_Detail_Page"
-F 10 "RF TXRX MODULE ISM<1GHZ WIRE ANT" H 5100 3000 60  0001 L CNN "Description"
-F 11 "Digi International" H 5100 3100 60  0001 L CNN "Manufacturer"
-F 12 "Active" H 5100 3200 60  0001 L CNN "Status"
-	1    4900 2000
+P 4800 2300
+F 0 "MOD?" H 5100 2100 60  0000 C CNN
+F 1 "XBP9B-DMWT-002" H 5400 2000 60  0000 C CNN
+F 2 "digikey-footprints:XBEE_PRO-20_THT" H 5000 2500 60  0001 L CNN
+F 3 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5000 2600 60  0001 L CNN
+F 4 "602-1301-ND" H 5000 2700 60  0001 L CNN "Digi-Key_PN"
+F 5 "XBP9B-DMWT-002" H 5000 2800 60  0001 L CNN "MPN"
+F 6 "RF/IF and RFID" H 5000 2900 60  0001 L CNN "Category"
+F 7 "RF Transceiver Modules" H 5000 3000 60  0001 L CNN "Family"
+F 8 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" H 5000 3100 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/digi-international/XBP9B-DMWT-002/602-1301-ND/3594159" H 5000 3200 60  0001 L CNN "DK_Detail_Page"
+F 10 "RF TXRX MODULE ISM<1GHZ WIRE ANT" H 5000 3300 60  0001 L CNN "Description"
+F 11 "Digi International" H 5000 3400 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 5000 3500 60  0001 L CNN "Status"
+	1    4800 2300
 	1    0    0    -1  
 $EndComp
+Text Label 5500 2000 0    50   ~ 0
+~SS_XBEE
+Text Label 10350 5150 0    50   ~ 0
+~SS_XBEE
+Text Label 5500 1900 0    50   ~ 0
+SCLK
+Text Label 5500 2100 0    50   ~ 0
+MOSI
+Text Label 4200 1600 2    50   ~ 0
+MISO
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C5C1E38
+P 4900 750
+F 0 "#PWR?" H 4900 600 50  0001 C CNN
+F 1 "+3.3V" H 4700 800 50  0000 C CNN
+F 2 "" H 4900 750 50  0001 C CNN
+F 3 "" H 4900 750 50  0001 C CNN
+	1    4900 750 
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C5C8DD2
+P 5000 800
+F 0 "C?" V 4950 1050 50  0000 C CNN
+F 1 "1uF" V 5050 1050 50  0000 C CNN
+F 2 "" H 5000 800 50  0001 C CNN
+F 3 "~" H 5000 800 50  0001 C CNN
+	1    5000 800 
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C5C904D
+P 5000 1000
+F 0 "C?" V 4950 1250 50  0000 C CNN
+F 1 "47pF" V 5050 1250 50  0000 C CNN
+F 2 "" H 5000 1000 50  0001 C CNN
+F 3 "~" H 5000 1000 50  0001 C CNN
+	1    5000 1000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4900 800  4900 1000
+Connection ~ 4900 1000
+Wire Wire Line
+	4900 1000 4900 1100
+$Comp
+L power:GND #PWR?
+U 1 1 5C5D0424
+P 5100 750
+F 0 "#PWR?" H 5100 500 50  0001 C CNN
+F 1 "GND" H 5105 577 50  0000 C CNN
+F 2 "" H 5100 750 50  0001 C CNN
+F 3 "" H 5100 750 50  0001 C CNN
+	1    5100 750 
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5100 1000 5100 800 
+Connection ~ 5100 800 
+Wire Wire Line
+	5100 800  5100 750 
+Connection ~ 4900 800 
+Wire Wire Line
+	4900 800  4900 750 
+$Comp
+L power:GND #PWR?
+U 1 1 5C5E8C78
+P 4800 2600
+F 0 "#PWR?" H 4800 2350 50  0001 C CNN
+F 1 "GND" H 4805 2427 50  0000 C CNN
+F 2 "" H 4800 2600 50  0001 C CNN
+F 3 "" H 4800 2600 50  0001 C CNN
+	1    4800 2600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 2500 4800 2600
+Text Notes 5500 1150 0    50   ~ 0
+XBEE
+Text Label 10350 4050 0    50   ~ 0
+PA5-Hall_Effect
+$Comp
+L Skyfire_Custom_Components:Adafruit_746 U?
+U 1 1 5C5FC17D
+P 7200 1150
+F 0 "U?" H 6900 1475 50  0000 C CNN
+F 1 "Adafruit_746" H 6900 1384 50  0000 C CNN
+F 2 "" H 7200 1150 50  0001 C CNN
+F 3 "" H 7200 1150 50  0001 C CNN
+	1    7200 1150
+	1    0    0    -1  
+$EndComp
+Text Label 7250 1150 0    50   ~ 0
+GPS_TX
+Text Label 7250 1050 0    50   ~ 0
+GPS_RX
+Text Label 8950 5150 2    50   ~ 0
+GPS_MISO
+Text Label 8950 5250 2    50   ~ 0
+GPS_MOSI
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C6096AA
+P 6400 1000
+F 0 "#PWR?" H 6400 850 50  0001 C CNN
+F 1 "+3.3V" H 6415 1173 50  0000 C CNN
+F 2 "" H 6400 1000 50  0001 C CNN
+F 3 "" H 6400 1000 50  0001 C CNN
+	1    6400 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C609986
+P 6400 1200
+F 0 "#PWR?" H 6400 950 50  0001 C CNN
+F 1 "GND" H 6405 1027 50  0000 C CNN
+F 2 "" H 6400 1200 50  0001 C CNN
+F 3 "" H 6400 1200 50  0001 C CNN
+	1    6400 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6400 1000 6400 1050
+Wire Wire Line
+	6400 1050 6550 1050
+Wire Wire Line
+	6400 1200 6400 1150
+Wire Wire Line
+	6400 1150 6550 1150
+$Comp
+L Skyfire_Custom_Components:Openlog U?
+U 1 1 5C61ADA8
+P 7300 2000
+F 0 "U?" H 6900 2475 50  0000 C CNN
+F 1 "Openlog" H 6900 2384 50  0000 C CNN
+F 2 "" H 7300 2000 50  0001 C CNN
+F 3 "" H 7300 2000 50  0001 C CNN
+	1    7300 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C61B5FB
+P 6450 1700
+F 0 "#PWR?" H 6450 1550 50  0001 C CNN
+F 1 "+3.3V" H 6465 1873 50  0000 C CNN
+F 2 "" H 6450 1700 50  0001 C CNN
+F 3 "" H 6450 1700 50  0001 C CNN
+	1    6450 1700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C61BA6F
+P 6450 1900
+F 0 "#PWR?" H 6450 1650 50  0001 C CNN
+F 1 "GND" H 6455 1727 50  0000 C CNN
+F 2 "" H 6450 1900 50  0001 C CNN
+F 3 "" H 6450 1900 50  0001 C CNN
+	1    6450 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6450 1700 6450 1750
+Wire Wire Line
+	6450 1750 6600 1750
+Wire Wire Line
+	6450 1900 6450 1850
+Wire Wire Line
+	6450 1850 6600 1850
+Text Label 8950 4650 2    50   ~ 0
+OpenLog_MISO
+Text Label 8950 4750 2    50   ~ 0
+OpenLog_MOSI
+Text Label 7200 1750 0    50   ~ 0
+OpenLog_MOSI
+Text Label 7200 1850 0    50   ~ 0
+OpenLog_MISO
 $EndSCHEMATC

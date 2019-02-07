@@ -356,6 +356,40 @@ X OUT 3 800 -100 200 L 40 40 0 0 B
 ENDDRAW
 ENDDEF
 #
+# Skyfire_Custom_Components_Adafruit_746
+#
+DEF Skyfire_Custom_Components_Adafruit_746 U 0 40 Y Y 1 F N
+F0 "U" -300 300 50 H V C CNN
+F1 "Skyfire_Custom_Components_Adafruit_746" -300 200 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -550 150 -50 -50 0 1 0 N
+X GND ~ -650 0 100 R 50 50 1 1 O
+X RX ~ 50 100 100 L 50 50 1 1 I
+X TX ~ 50 0 100 L 50 50 1 1 O
+X VIN ~ -650 100 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# Skyfire_Custom_Components_Openlog
+#
+DEF Skyfire_Custom_Components_Openlog U 0 40 Y Y 1 F N
+F0 "U" -400 450 50 H V C CNN
+F1 "Skyfire_Custom_Components_Openlog" -400 350 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+S -600 300 -200 -100 0 1 0 N
+X BLK ~ -300 -200 100 U 50 50 1 1 O
+X GND ~ -700 150 100 R 50 50 1 1 O
+X GRN ~ -500 -200 100 U 50 50 1 1 O
+X RXI ~ -100 250 100 L 50 50 1 1 I
+X TXO ~ -100 150 100 L 50 50 1 1 O
+X VIN ~ -700 250 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
 # dk_Clock-Timing-Real-Time-Clocks_PCF8523T_1_118
 #
 DEF dk_Clock-Timing-Real-Time-Clocks_PCF8523T_1_118 U 0 40 Y Y 1 F N
