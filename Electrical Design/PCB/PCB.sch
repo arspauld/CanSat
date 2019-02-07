@@ -620,17 +620,6 @@ Connection ~ 2600 5850
 Wire Wire Line
 	2600 5850 2600 5900
 $Comp
-L power:-5V #PWR0118
-U 1 1 5C4E1B30
-P 2900 5850
-F 0 "#PWR0118" H 2900 5950 50  0001 C CNN
-F 1 "-5V" V 2915 5978 50  0000 L CNN
-F 2 "" H 2900 5850 50  0001 C CNN
-F 3 "" H 2900 5850 50  0001 C CNN
-	1    2900 5850
-	0    1    1    0   
-$EndComp
-$Comp
 L Device:C_Small C6
 U 1 1 5C4E2003
 P 2800 5950
@@ -728,8 +717,8 @@ $Comp
 L Device:C_Small C9
 U 1 1 5C4ECC42
 P 4500 7150
-F 0 "C9" H 4592 7196 50  0000 L CNN
-F 1 "1uF" H 4592 7105 50  0000 L CNN
+F 0 "C9" H 4600 7150 50  0000 L CNN
+F 1 "1uF" H 4600 7050 50  0000 L CNN
 F 2 "" H 4500 7150 50  0001 C CNN
 F 3 "~" H 4500 7150 50  0001 C CNN
 	1    4500 7150
@@ -780,17 +769,6 @@ Wire Wire Line
 Connection ~ 2600 6900
 Wire Wire Line
 	2600 6900 2750 6900
-$Comp
-L power:-3V3 #PWR0125
-U 1 1 5C4F216F
-P 4600 7050
-F 0 "#PWR0125" H 4600 7150 50  0001 C CNN
-F 1 "-3V3" V 4615 7178 50  0000 L CNN
-F 2 "" H 4600 7050 50  0001 C CNN
-F 3 "" H 4600 7050 50  0001 C CNN
-	1    4600 7050
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	1050 750  1400 750 
 Wire Wire Line
@@ -1487,4 +1465,321 @@ Text Label 7200 1750 0    50   ~ 0
 OpenLog_MOSI
 Text Label 7200 1850 0    50   ~ 0
 OpenLog_MISO
+$Comp
+L power:GND #PWR?
+U 1 1 5C62F64C
+P 7050 2300
+F 0 "#PWR?" H 7050 2050 50  0001 C CNN
+F 1 "GND" V 7055 2172 50  0000 R CNN
+F 2 "" H 7050 2300 50  0001 C CNN
+F 3 "" H 7050 2300 50  0001 C CNN
+	1    7050 2300
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7000 2200 7000 2300
+Wire Wire Line
+	7000 2300 7050 2300
+Text Label 6800 2200 3    50   ~ 0
+OpenLog_GRN
+Text Label 8950 5050 2    50   ~ 0
+OpenLog_GRN
+$Comp
+L Device:LED D?
+U 1 1 5C63923E
+P 6700 3650
+F 0 "D?" H 6692 3395 50  0000 C CNN
+F 1 "3V3 Status" H 6692 3486 50  0000 C CNN
+F 2 "" H 6700 3650 50  0001 C CNN
+F 3 "~" H 6700 3650 50  0001 C CNN
+	1    6700 3650
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:LED D?
+U 1 1 5C639B86
+P 6700 4050
+F 0 "D?" H 6692 3795 50  0000 C CNN
+F 1 "5V Status" H 6692 3886 50  0000 C CNN
+F 2 "" H 6700 4050 50  0001 C CNN
+F 3 "~" H 6700 4050 50  0001 C CNN
+	1    6700 4050
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:LED D?
+U 1 1 5C639D8B
+P 6700 4450
+F 0 "D?" H 6692 4195 50  0000 C CNN
+F 1 "6V Status" H 6692 4286 50  0000 C CNN
+F 2 "" H 6700 4450 50  0001 C CNN
+F 3 "~" H 6700 4450 50  0001 C CNN
+	1    6700 4450
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:LED D?
+U 1 1 5C639F18
+P 6900 3050
+F 0 "D?" H 6900 2950 50  0000 C CNN
+F 1 "Power Status" H 6900 3200 50  0000 C CNN
+F 2 "" H 6900 3050 50  0001 C CNN
+F 3 "~" H 6900 3050 50  0001 C CNN
+	1    6900 3050
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C6422B9
+P 4600 7050
+F 0 "#PWR?" H 4600 6900 50  0001 C CNN
+F 1 "+3.3V" V 4615 7178 50  0000 L CNN
+F 2 "" H 4600 7050 50  0001 C CNN
+F 3 "" H 4600 7050 50  0001 C CNN
+	1    4600 7050
+	0    1    1    0   
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5C648869
+P 2900 5850
+F 0 "#PWR?" H 2900 5700 50  0001 C CNN
+F 1 "+5V" V 2915 5978 50  0000 L CNN
+F 2 "" H 2900 5850 50  0001 C CNN
+F 3 "" H 2900 5850 50  0001 C CNN
+	1    2900 5850
+	0    1    1    0   
+$EndComp
+$Comp
+L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q?
+U 1 1 5C64B586
+P 7650 3050
+F 0 "Q?" H 7758 2997 60  0000 L CNN
+F 1 "LED_MOS" V 7758 3103 60  0000 L CNN
+F 2 "digikey-footprints:SOT-23-3" H 7850 3250 60  0001 L CNN
+F 3 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 7850 3350 60  0001 L CNN
+F 4 "2N7002K-T1-E3CT-ND" H 7850 3450 60  0001 L CNN "Digi-Key_PN"
+F 5 "2N7002K-T1-E3" H 7850 3550 60  0001 L CNN "MPN"
+F 6 "Discrete Semiconductor Products" H 7850 3650 60  0001 L CNN "Category"
+F 7 "Transistors - FETs, MOSFETs - Single" H 7850 3750 60  0001 L CNN "Family"
+F 8 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 7850 3850 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/vishay-siliconix/2N7002K-T1-E3/2N7002K-T1-E3CT-ND/1656760" H 7850 3950 60  0001 L CNN "DK_Detail_Page"
+F 10 "MOSFET N-CH 60V 300MA SOT-23" H 7850 4050 60  0001 L CNN "Description"
+F 11 "Vishay Siliconix" H 7850 4150 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 7850 4250 60  0001 L CNN "Status"
+	1    7650 3050
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7050 3050 7450 3050
+Text Label 7750 3350 3    50   ~ 0
+LED_MOS
+Text Label 8950 4950 2    50   ~ 0
+LED_MOS
+$Comp
+L power:GND #PWR?
+U 1 1 5C6B23F7
+P 8000 3100
+F 0 "#PWR?" H 8000 2850 50  0001 C CNN
+F 1 "GND" H 8005 2927 50  0000 C CNN
+F 2 "" H 8000 3100 50  0001 C CNN
+F 3 "" H 8000 3100 50  0001 C CNN
+	1    8000 3100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+6V #PWR?
+U 1 1 5C6B2922
+P 6600 3000
+F 0 "#PWR?" H 6600 2850 50  0001 C CNN
+F 1 "+6V" H 6615 3173 50  0000 C CNN
+F 2 "" H 6600 3000 50  0001 C CNN
+F 3 "" H 6600 3000 50  0001 C CNN
+	1    6600 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6600 3000 6600 3050
+Wire Wire Line
+	6600 3050 6750 3050
+Wire Wire Line
+	7850 3050 8000 3050
+Wire Wire Line
+	8000 3050 8000 3100
+$Comp
+L power:GND #PWR?
+U 1 1 5C6BF138
+P 7000 3700
+F 0 "#PWR?" H 7000 3450 50  0001 C CNN
+F 1 "GND" H 7005 3527 50  0000 C CNN
+F 2 "" H 7000 3700 50  0001 C CNN
+F 3 "" H 7000 3700 50  0001 C CNN
+	1    7000 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C6BF40A
+P 7000 4100
+F 0 "#PWR?" H 7000 3850 50  0001 C CNN
+F 1 "GND" H 7005 3927 50  0000 C CNN
+F 2 "" H 7000 4100 50  0001 C CNN
+F 3 "" H 7000 4100 50  0001 C CNN
+	1    7000 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C6BF549
+P 7000 4500
+F 0 "#PWR?" H 7000 4250 50  0001 C CNN
+F 1 "GND" H 7005 4327 50  0000 C CNN
+F 2 "" H 7000 4500 50  0001 C CNN
+F 3 "" H 7000 4500 50  0001 C CNN
+	1    7000 4500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6850 3650 7000 3650
+Wire Wire Line
+	7000 3650 7000 3700
+Wire Wire Line
+	6850 4050 7000 4050
+Wire Wire Line
+	7000 4050 7000 4100
+Wire Wire Line
+	6850 4450 7000 4450
+Wire Wire Line
+	7000 4450 7000 4500
+$Comp
+L power:+3.3V #PWR?
+U 1 1 5C6D23BB
+P 6400 3600
+F 0 "#PWR?" H 6400 3450 50  0001 C CNN
+F 1 "+3.3V" H 6200 3650 50  0000 C CNN
+F 2 "" H 6400 3600 50  0001 C CNN
+F 3 "" H 6400 3600 50  0001 C CNN
+	1    6400 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5C6D2787
+P 6400 4000
+F 0 "#PWR?" H 6400 3850 50  0001 C CNN
+F 1 "+5V" H 6250 4050 50  0000 C CNN
+F 2 "" H 6400 4000 50  0001 C CNN
+F 3 "" H 6400 4000 50  0001 C CNN
+	1    6400 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+6V #PWR?
+U 1 1 5C6D29F3
+P 6400 4400
+F 0 "#PWR?" H 6400 4250 50  0001 C CNN
+F 1 "+6V" H 6250 4450 50  0000 C CNN
+F 2 "" H 6400 4400 50  0001 C CNN
+F 3 "" H 6400 4400 50  0001 C CNN
+	1    6400 4400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6400 3600 6400 3650
+Wire Wire Line
+	6400 3650 6550 3650
+Wire Wire Line
+	6400 4000 6400 4050
+Wire Wire Line
+	6400 4050 6550 4050
+Wire Wire Line
+	6400 4400 6400 4450
+Wire Wire Line
+	6400 4450 6550 4450
+$Comp
+L Motor:Motor_Servo M?
+U 1 1 5C6F6AC9
+P 8900 1000
+F 0 "M?" H 9232 1065 50  0000 L CNN
+F 1 "Release_Servo" H 9232 974 50  0000 L CNN
+F 2 "" H 8900 810 50  0001 C CNN
+F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8900 810 50  0001 C CNN
+	1    8900 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Motor:Motor_Servo M?
+U 1 1 5C6F7803
+P 8900 1750
+F 0 "M?" H 9231 1815 50  0000 L CNN
+F 1 "Camera_Servo" H 9231 1724 50  0000 L CNN
+F 2 "" H 8900 1560 50  0001 C CNN
+F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8900 1560 50  0001 C CNN
+	1    8900 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+6V #PWR?
+U 1 1 5C6F83F2
+P 8450 1000
+F 0 "#PWR?" H 8450 850 50  0001 C CNN
+F 1 "+6V" V 8465 1128 50  0000 L CNN
+F 2 "" H 8450 1000 50  0001 C CNN
+F 3 "" H 8450 1000 50  0001 C CNN
+	1    8450 1000
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C6F875E
+P 8450 1150
+F 0 "#PWR?" H 8450 900 50  0001 C CNN
+F 1 "GND" H 8455 977 50  0000 C CNN
+F 2 "" H 8450 1150 50  0001 C CNN
+F 3 "" H 8450 1150 50  0001 C CNN
+	1    8450 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5C6F8A5A
+P 8450 1900
+F 0 "#PWR?" H 8450 1650 50  0001 C CNN
+F 1 "GND" H 8455 1727 50  0000 C CNN
+F 2 "" H 8450 1900 50  0001 C CNN
+F 3 "" H 8450 1900 50  0001 C CNN
+	1    8450 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+6V #PWR?
+U 1 1 5C6F8FC9
+P 8450 1750
+F 0 "#PWR?" H 8450 1600 50  0001 C CNN
+F 1 "+6V" V 8465 1878 50  0000 L CNN
+F 2 "" H 8450 1750 50  0001 C CNN
+F 3 "" H 8450 1750 50  0001 C CNN
+	1    8450 1750
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8450 1750 8600 1750
+Wire Wire Line
+	8450 1900 8450 1850
+Wire Wire Line
+	8450 1850 8600 1850
+Wire Wire Line
+	8450 1150 8450 1100
+Wire Wire Line
+	8450 1100 8600 1100
+Wire Wire Line
+	8450 1000 8600 1000
+Text Label 8950 4550 2    50   ~ 0
+Release_Servo
+Text Label 8950 4450 2    50   ~ 0
+Camera_Servo
+Text Label 8600 1650 2    50   ~ 0
+Camera_Servo
+Text Label 8600 900  2    50   ~ 0
+Release_Servo
 $EndSCHEMATC
