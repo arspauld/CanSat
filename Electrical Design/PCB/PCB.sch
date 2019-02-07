@@ -15,7 +15,7 @@ Comment3 "Noah Schwalb"
 Comment4 "Electrical Team: "
 $EndDescr
 $Comp
-L MCU_Microchip_ATmega:ATxmega128A4U-AU U9
+L PCB-rescue:ATxmega128A4U-AU-MCU_Microchip_ATmega U9
 U 1 1 5C4816FD
 P 9650 4650
 F 0 "U9" H 9900 3100 50  0000 C CNN
@@ -232,7 +232,7 @@ PDI_CLK
 Text Label 1700 4600 3    50   ~ 0
 PDI_CLK
 $Comp
-L MS560702BA03-50:MS560702BA03-50 U5
+L PCB-rescue:MS560702BA03-50-MS560702BA03-50 U5
 U 1 1 5C48EC0D
 P 4750 5750
 F 0 "U5" H 4750 6217 50  0000 C CNN
@@ -305,7 +305,7 @@ Connection ~ 5750 5950
 Text Label 4150 5550 2    50   ~ 0
 ~SS_5607
 $Comp
-L BNO080:BNO080 U2
+L PCB-rescue:BNO080-BNO080 U2
 U 1 1 5C492D9E
 P 1950 2100
 F 0 "U2" H 1900 3067 50  0000 C CNN
@@ -509,7 +509,7 @@ Wire Wire Line
 Text Label 1400 7050 3    50   ~ 0
 PA6-Therm
 $Comp
-L ADP3338AKCZ-5-R7:ADP3338AKCZ-5-R7 U1
+L PCB-rescue:ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7 U1
 U 1 1 5C4D6E8B
 P 1750 5700
 F 0 "U1" H 1750 6070 50  0000 C CNN
@@ -603,7 +603,7 @@ Connection ~ 900  5700
 Wire Wire Line
 	900  5700 1050 5700
 $Comp
-L ADP3338AKCZ-5-R7:ADP3338AKCZ-5-R7 U3
+L PCB-rescue:ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7 U3
 U 1 1 5C4ECC23
 P 3450 6900
 F 0 "U3" H 3450 7270 50  0000 C CNN
@@ -702,7 +702,7 @@ Wire Wire Line
 	1050 750  1050 700 
 Connection ~ 1050 750 
 $Comp
-L SS495A:SS495A U6
+L PCB-rescue:SS495A-SS495A U6
 U 1 1 5C4FD36A
 P 5600 6900
 F 0 "U6" H 5900 7067 50  0000 C CNN
@@ -934,7 +934,7 @@ F 3 "" H 2200 4200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L dk_Clock-Timing-Real-Time-Clocks:PCF8523T_1_118 U4
+L PCB-rescue:PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks U4
 U 1 1 5C4D622C
 P 4750 3900
 F 0 "U4" H 4250 4450 60  0000 C CNN
@@ -1191,7 +1191,7 @@ Wire Notes Line
 Wire Notes Line
 	5100 7550 5100 6500
 $Comp
-L dk_RF-Transceiver-Modules:XBP9B-DMWT-002 MOD1
+L PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules MOD1
 U 1 1 5C555561
 P 4800 2300
 F 0 "MOD1" H 5100 2100 60  0000 C CNN
@@ -1295,7 +1295,7 @@ XBEE
 Text Label 10350 4050 0    50   ~ 0
 PA5-Hall_Effect
 $Comp
-L Skyfire_Custom_Components:Adafruit_746 U7
+L PCB-rescue:Adafruit_746-Skyfire_Custom_Components U7
 U 1 1 5C5FC17D
 P 7450 1350
 F 0 "U7" H 6850 1450 50  0000 C CNN
@@ -1344,7 +1344,7 @@ Wire Wire Line
 Wire Wire Line
 	6350 800  6500 800 
 $Comp
-L Skyfire_Custom_Components:Openlog U8
+L PCB-rescue:Openlog-Skyfire_Custom_Components U8
 U 1 1 5C61ADA8
 P 7300 2000
 F 0 "U8" H 6900 2475 50  0000 C CNN
@@ -1478,7 +1478,7 @@ F 3 "" H 2900 5850 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q1
+L PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q1
 U 1 1 5C64B586
 P 6400 3200
 F 0 "Q1" H 6508 3147 60  0000 L CNN
@@ -1702,7 +1702,7 @@ Camera_Servo
 Text Label 10050 2700 0    50   ~ 0
 Release_Servo
 $Comp
-L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q3
+L PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q3
 U 1 1 5C72FE6D
 P 8300 2650
 F 0 "Q3" H 8408 2597 60  0000 L CNN
@@ -1738,7 +1738,7 @@ Wire Wire Line
 Wire Wire Line
 	8500 1350 8500 1550
 $Comp
-L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q2
+L PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q2
 U 1 1 5C72F9D1
 P 8300 1550
 F 0 "Q2" H 8408 1497 60  0000 L CNN
@@ -1796,7 +1796,7 @@ Wire Wire Line
 Wire Wire Line
 	8950 1350 8500 1350
 $Comp
-L dk_USB-DVI-HDMI-Connectors:10118193-0001LF J2
+L PCB-rescue:10118193-0001LF-dk_USB-DVI-HDMI-Connectors J2
 U 1 1 5C83D693
 P 12500 1600
 F 0 "J2" H 12563 2345 60  0000 C CNN
@@ -1849,7 +1849,7 @@ $EndComp
 Wire Wire Line
 	13000 1400 12800 1400
 $Comp
-L dk_Diodes-Rectifiers-Single:1N4148W-TP D5
+L PCB-rescue:1N4148W-TP-dk_Diodes-Rectifiers-Single D5
 U 1 1 5C88A6D8
 P 13200 1400
 F 0 "D5" H 13200 1637 60  0000 C CNN
@@ -1980,7 +1980,7 @@ Wire Wire Line
 	10950 5050 11150 5050
 Connection ~ 10950 5050
 $Comp
-L CSS-95B30-SMT:CSS-95B30-SMT LS1
+L PCB-rescue:CSS-95B30-SMT-CSS-95B30-SMT LS1
 U 1 1 5C6232EA
 P 13300 4000
 F 0 "LS1" V 13063 4000 50  0000 C CNN
@@ -1997,7 +1997,7 @@ F 9 "https://www.cui.com/product/audio/buzzers/audio-transducers/magnetic/css-95
 	0    1    1    0   
 $EndComp
 $Comp
-L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q4
+L PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q4
 U 1 1 5C623A5F
 P 12500 4000
 F 0 "Q4" H 12608 3947 60  0000 L CNN

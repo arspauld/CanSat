@@ -1,4 +1,4 @@
-(kicad_pcb (version 20171130) (host pcbnew "(5.0.1-3-g963ef8bb5)")
+(kicad_pcb (version 20171130) (host pcbnew "(5.0.0)")
 
   (general
     (thickness 1.6)
@@ -69,7 +69,7 @@
     (pad_drill 0.762)
     (pad_to_mask_clearance 0.0508)
     (aux_axis_origin 0 0)
-    (visible_elements FFFFFF7F)
+    (visible_elements 7FFFFFFF)
     (pcbplotparams
       (layerselection 0x010fc_ffffffff)
       (usegerberextensions false)
@@ -3342,7 +3342,7 @@
   )
 
   (module Connectors:1X09 (layer F.Cu) (tedit 5963D769) (tstamp 5C6A957F)
-    (at -247.138399 49.631601)
+    (at -244.094 45.974)
     (descr "PLATED THROUGH HOLE -9 PIN")
     (tags "PLATED THROUGH HOLE -9 PIN")
     (path /5C5FC17D)
