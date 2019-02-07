@@ -991,9 +991,9 @@ F 3 "" H 1700 4000 50  0001 C CNN
 	1    1700 4000
 	1    0    0    -1  
 $EndComp
-Text Notes 8800 5400 0    50   ~ 0
+Text Notes 8850 5350 0    50   ~ 0
 TC
-Text Notes 8800 5500 0    50   ~ 0
+Text Notes 8850 5450 0    50   ~ 0
 TC
 $Comp
 L power:+6V #PWR?
@@ -1699,87 +1699,147 @@ Wire Wire Line
 $Comp
 L Motor:Motor_Servo M?
 U 1 1 5C6F6AC9
-P 8900 1000
-F 0 "M?" H 9232 1065 50  0000 L CNN
-F 1 "Release_Servo" H 9232 974 50  0000 L CNN
-F 2 "" H 8900 810 50  0001 C CNN
-F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8900 810 50  0001 C CNN
-	1    8900 1000
+P 8800 1050
+F 0 "M?" H 9132 1115 50  0000 L CNN
+F 1 "Release_Servo" H 9132 1024 50  0000 L CNN
+F 2 "" H 8800 860 50  0001 C CNN
+F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8800 860 50  0001 C CNN
+	1    8800 1050
 	1    0    0    -1  
 $EndComp
 $Comp
 L Motor:Motor_Servo M?
 U 1 1 5C6F7803
-P 8900 1750
-F 0 "M?" H 9231 1815 50  0000 L CNN
-F 1 "Camera_Servo" H 9231 1724 50  0000 L CNN
-F 2 "" H 8900 1560 50  0001 C CNN
-F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8900 1560 50  0001 C CNN
-	1    8900 1750
+P 8800 2100
+F 0 "M?" H 9131 2165 50  0000 L CNN
+F 1 "Camera_Servo" H 9131 2074 50  0000 L CNN
+F 2 "" H 8800 1910 50  0001 C CNN
+F 3 "http://forums.parallax.com/uploads/attachments/46831/74481.png" H 8800 1910 50  0001 C CNN
+	1    8800 2100
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:+6V #PWR?
 U 1 1 5C6F83F2
-P 8450 1000
-F 0 "#PWR?" H 8450 850 50  0001 C CNN
-F 1 "+6V" V 8465 1128 50  0000 L CNN
-F 2 "" H 8450 1000 50  0001 C CNN
-F 3 "" H 8450 1000 50  0001 C CNN
-	1    8450 1000
+P 8350 1050
+F 0 "#PWR?" H 8350 900 50  0001 C CNN
+F 1 "+6V" V 8365 1178 50  0000 L CNN
+F 2 "" H 8350 1050 50  0001 C CNN
+F 3 "" H 8350 1050 50  0001 C CNN
+	1    8350 1050
 	0    -1   -1   0   
 $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 5C6F875E
-P 8450 1150
-F 0 "#PWR?" H 8450 900 50  0001 C CNN
-F 1 "GND" H 8455 977 50  0000 C CNN
-F 2 "" H 8450 1150 50  0001 C CNN
-F 3 "" H 8450 1150 50  0001 C CNN
-	1    8450 1150
+P 10600 1050
+F 0 "#PWR?" H 10600 800 50  0001 C CNN
+F 1 "GND" H 10750 1000 50  0000 C CNN
+F 2 "" H 10600 1050 50  0001 C CNN
+F 3 "" H 10600 1050 50  0001 C CNN
+	1    10600 1050
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 5C6F8A5A
-P 8450 1900
-F 0 "#PWR?" H 8450 1650 50  0001 C CNN
-F 1 "GND" H 8455 1727 50  0000 C CNN
-F 2 "" H 8450 1900 50  0001 C CNN
-F 3 "" H 8450 1900 50  0001 C CNN
-	1    8450 1900
+P 10600 2150
+F 0 "#PWR?" H 10600 1900 50  0001 C CNN
+F 1 "GND" H 10750 2100 50  0000 C CNN
+F 2 "" H 10600 2150 50  0001 C CNN
+F 3 "" H 10600 2150 50  0001 C CNN
+	1    10600 2150
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:+6V #PWR?
 U 1 1 5C6F8FC9
-P 8450 1750
-F 0 "#PWR?" H 8450 1600 50  0001 C CNN
-F 1 "+6V" V 8465 1878 50  0000 L CNN
-F 2 "" H 8450 1750 50  0001 C CNN
-F 3 "" H 8450 1750 50  0001 C CNN
-	1    8450 1750
+P 8350 2100
+F 0 "#PWR?" H 8350 1950 50  0001 C CNN
+F 1 "+6V" V 8365 2228 50  0000 L CNN
+F 2 "" H 8350 2100 50  0001 C CNN
+F 3 "" H 8350 2100 50  0001 C CNN
+	1    8350 2100
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	8450 1750 8600 1750
+	8350 2100 8500 2100
 Wire Wire Line
-	8450 1900 8450 1850
-Wire Wire Line
-	8450 1850 8600 1850
-Wire Wire Line
-	8450 1150 8450 1100
-Wire Wire Line
-	8450 1100 8600 1100
-Wire Wire Line
-	8450 1000 8600 1000
+	8350 1050 8500 1050
 Text Label 8950 4550 2    50   ~ 0
 Release_Servo
 Text Label 8950 4450 2    50   ~ 0
 Camera_Servo
-Text Label 8600 1650 2    50   ~ 0
+Text Label 8500 2000 2    50   ~ 0
 Camera_Servo
-Text Label 8600 900  2    50   ~ 0
+Text Label 8500 950  2    50   ~ 0
 Release_Servo
+$Comp
+L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q?
+U 1 1 5C72FE6D
+P 10250 1000
+F 0 "Q?" H 10358 947 60  0000 L CNN
+F 1 "RELEASE_MOS" V 10358 1053 60  0000 L CNN
+F 2 "digikey-footprints:SOT-23-3" H 10450 1200 60  0001 L CNN
+F 3 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 10450 1300 60  0001 L CNN
+F 4 "2N7002K-T1-E3CT-ND" H 10450 1400 60  0001 L CNN "Digi-Key_PN"
+F 5 "2N7002K-T1-E3" H 10450 1500 60  0001 L CNN "MPN"
+F 6 "Discrete Semiconductor Products" H 10450 1600 60  0001 L CNN "Category"
+F 7 "Transistors - FETs, MOSFETs - Single" H 10450 1700 60  0001 L CNN "Family"
+F 8 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 10450 1800 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/vishay-siliconix/2N7002K-T1-E3/2N7002K-T1-E3CT-ND/1656760" H 10450 1900 60  0001 L CNN "DK_Detail_Page"
+F 10 "MOSFET N-CH 60V 300MA SOT-23" H 10450 2000 60  0001 L CNN "Description"
+F 11 "Vishay Siliconix" H 10450 2100 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 10450 2200 60  0001 L CNN "Status"
+	1    10250 1000
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	10450 1000 10600 1000
+Wire Wire Line
+	10600 1000 10600 1050
+Wire Wire Line
+	10450 2100 10600 2100
+Wire Wire Line
+	10600 2100 10600 2150
+Wire Wire Line
+	8500 1150 8500 1250
+Wire Wire Line
+	8500 1250 10050 1250
+Wire Wire Line
+	10050 1250 10050 1000
+Wire Wire Line
+	8500 2200 8500 2300
+Wire Wire Line
+	10050 2300 10050 2100
+Wire Wire Line
+	8500 2300 10050 2300
+$Comp
+L dk_Transistors-FETs-MOSFETs-Single:2N7002K-T1-E3 Q?
+U 1 1 5C72F9D1
+P 10250 2100
+F 0 "Q?" H 10358 2047 60  0000 L CNN
+F 1 "CAMERA_MOS" V 10358 2153 60  0000 L CNN
+F 2 "digikey-footprints:SOT-23-3" H 10450 2300 60  0001 L CNN
+F 3 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 10450 2400 60  0001 L CNN
+F 4 "2N7002K-T1-E3CT-ND" H 10450 2500 60  0001 L CNN "Digi-Key_PN"
+F 5 "2N7002K-T1-E3" H 10450 2600 60  0001 L CNN "MPN"
+F 6 "Discrete Semiconductor Products" H 10450 2700 60  0001 L CNN "Category"
+F 7 "Transistors - FETs, MOSFETs - Single" H 10450 2800 60  0001 L CNN "Family"
+F 8 "http://www.vishay.com/docs/71333/2n7002k.pdf" H 10450 2900 60  0001 L CNN "DK_Datasheet_Link"
+F 9 "/product-detail/en/vishay-siliconix/2N7002K-T1-E3/2N7002K-T1-E3CT-ND/1656760" H 10450 3000 60  0001 L CNN "DK_Detail_Page"
+F 10 "MOSFET N-CH 60V 300MA SOT-23" H 10450 3100 60  0001 L CNN "Description"
+F 11 "Vishay Siliconix" H 10450 3200 60  0001 L CNN "Manufacturer"
+F 12 "Active" H 10450 3300 60  0001 L CNN "Status"
+	1    10250 2100
+	0    -1   -1   0   
+$EndComp
+Text Label 10350 2400 3    50   ~ 0
+CAMERA_MOS
+Text Label 10350 1300 3    50   ~ 0
+RELEASE_MOS
+Text Label 8950 5650 2    50   ~ 0
+CAMERA_MOS
+Text Label 8950 5550 2    50   ~ 0
+RELEASE_MOS
 $EndSCHEMATC
