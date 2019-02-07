@@ -1,11 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# Connector_Generic:Conn_02x03_Odd_Even
+# Connector_Generic_Conn_02x03_Odd_Even
 #
-DEF Connector_Generic:Conn_02x03_Odd_Even J 0 40 Y N 1 F N
+DEF Connector_Generic_Conn_02x03_Odd_Even J 0 40 Y N 1 F N
 F0 "J" 50 200 50 H V C CNN
-F1 "Connector_Generic:Conn_02x03_Odd_Even" 50 -200 50 H V C CNN
+F1 "Connector_Generic_Conn_02x03_Odd_Even" 50 -200 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -28,11 +28,11 @@ X Pin_6 6 300 -100 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:CP1_Small
+# Device_CP1_Small
 #
-DEF Device:CP1_Small C 0 10 N N 1 F N
+DEF Device_CP1_Small C 0 10 N N 1 F N
 F0 "C" 10 70 50 H V L CNN
-F1 "Device:CP1_Small" 10 -80 50 H V L CNN
+F1 "Device_CP1_Small" 10 -80 50 H V L CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -48,11 +48,11 @@ X ~ 2 0 -100 80 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:C_Small
+# Device_C_Small
 #
-DEF Device:C_Small C 0 10 N N 1 F N
+DEF Device_C_Small C 0 10 N N 1 F N
 F0 "C" 10 70 50 H V L CNN
-F1 "Device:C_Small" 10 -80 50 H V L CNN
+F1 "Device_C_Small" 10 -80 50 H V L CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -66,11 +66,11 @@ X ~ 2 0 -100 80 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:Ferrite_Bead_Small
+# Device_Ferrite_Bead_Small
 #
-DEF Device:Ferrite_Bead_Small L 0 0 N Y 1 F N
-F0 "L" 75 50 50 H V L CNN
-F1 "Device:Ferrite_Bead_Small" 75 -50 50 H V L CNN
+DEF Device_Ferrite_Bead_Small FB 0 0 N Y 1 F N
+F0 "FB" 75 50 50 H V L CNN
+F1 "Device_Ferrite_Bead_Small" 75 -50 50 H V L CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -87,11 +87,11 @@ X ~ 2 0 -100 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:LED
+# Device_LED
 #
-DEF Device:LED D 0 40 N N 1 F N
+DEF Device_LED D 0 40 N N 1 F N
 F0 "D" 0 100 50 H V C CNN
-F1 "Device:LED" 0 -100 50 H V C CNN
+F1 "Device_LED" 0 -100 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -110,11 +110,11 @@ X A 2 150 0 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:L_Small
+# Device_L_Small
 #
-DEF Device:L_Small L 0 10 N N 1 F N
+DEF Device_L_Small L 0 10 N N 1 F N
 F0 "L" 30 40 50 H V L CNN
-F1 "Device:L_Small" 30 -40 50 H V L CNN
+F1 "Device_L_Small" 30 -40 50 H V L CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -133,11 +133,11 @@ X ~ 2 0 -100 20 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:R_Small
+# Device_R_Small
 #
-DEF Device:R_Small R 0 10 N N 1 F N
+DEF Device_R_Small R 0 10 N N 1 F N
 F0 "R" 30 20 50 H V L CNN
-F1 "Device:R_Small" 30 -40 50 H V L CNN
+F1 "Device_R_Small" 30 -40 50 H V L CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -150,11 +150,11 @@ X ~ 2 0 -100 30 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Device:Thermistor_NTC
+# Device_Thermistor_NTC
 #
-DEF Device:Thermistor_NTC TH 0 0 N Y 1 F N
+DEF Device_Thermistor_NTC TH 0 0 N Y 1 F N
 F0 "TH" -175 0 50 V V C CNN
-F1 "Device:Thermistor_NTC" 125 0 50 V V C CNN
+F1 "Device_Thermistor_NTC" 125 0 50 V V C CNN
 F2 "" 0 50 50 H I C CNN
 F3 "" 0 50 50 H I C CNN
 $FPLIST
@@ -182,11 +182,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Motor:Motor_Servo
+# Motor_Motor_Servo
 #
-DEF Motor:Motor_Servo M 0 1 Y Y 1 F N
+DEF Motor_Motor_Servo M 0 1 Y Y 1 F N
 F0 "M" -200 175 50 H V L CNN
-F1 "Motor:Motor_Servo" -200 -160 50 H V L TNN
+F1 "Motor_Motor_Servo" -200 -160 50 H V L TNN
 F2 "" 0 -190 50 H I C CNN
 F3 "" 0 -190 50 H I C CNN
 ALIAS Motor_Servo_JR Motor_Servo_Hitec Motor_Servo_Futaba_J Motor_Servo_Robbe Motor_Servo_Grapner_JR
@@ -214,11 +214,11 @@ X - 3 -300 -100 100 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:10118193-0001LF-dk_USB-DVI-HDMI-Connectors
+# PCB-rescue_10118193-0001LF-dk_USB-DVI-HDMI-Connectors
 #
-DEF PCB-rescue:10118193-0001LF-dk_USB-DVI-HDMI-Connectors J 0 40 Y Y 1 F N
+DEF PCB-rescue_10118193-0001LF-dk_USB-DVI-HDMI-Connectors J 0 40 Y Y 1 F N
 F0 "J" -175 600 60 H V C CNN
-F1 "PCB-rescue:10118193-0001LF-dk_USB-DVI-HDMI-Connectors" -250 -300 60 V V C CNN
+F1 "PCB-rescue_10118193-0001LF-dk_USB-DVI-HDMI-Connectors" -250 -300 60 V V C CNN
 F2 "digikey-footprints:USB_Micro_B_Female_10118193-0001LF" 200 200 60 H I L CNN
 F3 "http://www.amphenol-icc.com/media/wysiwyg/files/drawing/10118193.pdf" 200 300 60 H I L CNN
 F4 "609-4616-1-ND" 200 400 60 H I L CNN "Digi-Key_PN"
@@ -255,11 +255,11 @@ X ~ SH -100 -600 80 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:1N4148W-TP-dk_Diodes-Rectifiers-Single
+# PCB-rescue_1N4148W-TP-dk_Diodes-Rectifiers-Single
 #
-DEF PCB-rescue:1N4148W-TP-dk_Diodes-Rectifiers-Single D 0 0 N N 1 F N
+DEF PCB-rescue_1N4148W-TP-dk_Diodes-Rectifiers-Single D 0 0 N N 1 F N
 F0 "D" 0 100 60 H V C BNN
-F1 "PCB-rescue:1N4148W-TP-dk_Diodes-Rectifiers-Single" 50 -100 60 H V C CNN
+F1 "PCB-rescue_1N4148W-TP-dk_Diodes-Rectifiers-Single" 50 -100 60 H V C CNN
 F2 "digikey-footprints:SOD-123" 200 200 60 H I L CNN
 F3 "http://www.mccsemi.com/up_pdf/1N4148W(SOD123).pdf" 200 300 60 H I L CNN
 F4 "1N4148WTPMSCT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
@@ -279,11 +279,11 @@ X ~ K 200 0 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single
+# PCB-rescue_2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single
 #
-DEF PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q 0 0 Y Y 1 F N
+DEF PCB-rescue_2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single Q 0 0 Y Y 1 F N
 F0 "Q" -106 143 60 H V R CNN
-F1 "PCB-rescue:2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single" 136 0 60 V V C CNN
+F1 "PCB-rescue_2N7002K-T1-E3-dk_Transistors-FETs-MOSFETs-Single" 136 0 60 V V C CNN
 F2 "digikey-footprints:SOT-23-3" 200 200 60 H I L CNN
 F3 "http://www.vishay.com/docs/71333/2n7002k.pdf" 200 300 60 H I L CNN
 F4 "2N7002K-T1-E3CT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
@@ -319,11 +319,11 @@ X D 3 0 200 100 D 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7
+# PCB-rescue_ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7
 #
-DEF PCB-rescue:ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7 U 0 40 Y Y 1 L N
+DEF PCB-rescue_ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7 U 0 40 Y Y 1 L N
 F0 "U" -186 266 50 H V L BNN
-F1 "PCB-rescue:ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7" -225 -503 50 H V L BNN
+F1 "PCB-rescue_ADP3338AKCZ-5-R7-ADP3338AKCZ-5-R7" -225 -503 50 H V L BNN
 F2 "SOT230P700X180-4N" 0 0 50 H I L BNN
 F3 "Unavailable" 0 0 50 H I L BNN
 F4 "Analog Devices" 0 0 50 H I L BNN
@@ -343,11 +343,11 @@ X OUT 4 700 -100 200 L 40 40 0 0 O
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:ATxmega128A4U-AU-MCU_Microchip_ATmega
+# PCB-rescue_ATxmega128A4U-AU-MCU_Microchip_ATmega
 #
-DEF PCB-rescue:ATxmega128A4U-AU-MCU_Microchip_ATmega U 0 20 Y Y 1 F N
+DEF PCB-rescue_ATxmega128A4U-AU-MCU_Microchip_ATmega U 0 20 Y Y 1 F N
 F0 "U" -600 1350 50 H V L BNN
-F1 "PCB-rescue:ATxmega128A4U-AU-MCU_Microchip_ATmega" 100 -1350 50 H V L TNN
+F1 "PCB-rescue_ATxmega128A4U-AU-MCU_Microchip_ATmega" 100 -1350 50 H V L TNN
 F2 "Package_QFP:TQFP-44_10x10mm_P0.8mm" 0 0 50 H I C CIN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -402,11 +402,11 @@ X VCC 9 0 1400 100 D 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:Adafruit_746-Skyfire_Custom_Components
+# PCB-rescue_Adafruit_746-Skyfire_Custom_Components
 #
-DEF PCB-rescue:Adafruit_746-Skyfire_Custom_Components U 0 40 Y Y 1 F N
+DEF PCB-rescue_Adafruit_746-Skyfire_Custom_Components U 0 40 Y Y 1 F N
 F0 "U" -600 850 50 H V C CNN
-F1 "PCB-rescue:Adafruit_746-Skyfire_Custom_Components" -600 750 50 H V C CNN
+F1 "PCB-rescue_Adafruit_746-Skyfire_Custom_Components" -600 750 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -423,11 +423,11 @@ X PPS 9 -250 350 100 L 50 50 1 1 O
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:BNO080-BNO080
+# PCB-rescue_BNO080-BNO080
 #
-DEF PCB-rescue:BNO080-BNO080 U 0 40 Y Y 1 L N
+DEF PCB-rescue_BNO080-BNO080 U 0 40 Y Y 1 L N
 F0 "U" -700 820 50 H V L BNN
-F1 "PCB-rescue:BNO080-BNO080" -700 -890 50 H V L BNN
+F1 "PCB-rescue_BNO080-BNO080" -700 -890 50 H V L BNN
 F2 "LGA-28" 0 0 50 H I L BNN
 F3 "Imu Accel/Gyro/Mag I2c 32bit" 0 0 50 H I L BNN
 F4 "Hillcrest Laboratories," 0 0 50 H I L BNN
@@ -462,11 +462,11 @@ X CAP 9 700 -700 100 L 40 40 0 0 B
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:CSS-95B30-SMT-CSS-95B30-SMT
+# PCB-rescue_CSS-95B30-SMT-CSS-95B30-SMT
 #
-DEF PCB-rescue:CSS-95B30-SMT-CSS-95B30-SMT LS 0 40 N N 1 L N
+DEF PCB-rescue_CSS-95B30-SMT-CSS-95B30-SMT LS 0 40 N N 1 L N
 F0 "LS" -151 351 50 H V L BNN
-F1 "PCB-rescue:CSS-95B30-SMT-CSS-95B30-SMT" -151 -402 50 H V L BNN
+F1 "PCB-rescue_CSS-95B30-SMT-CSS-95B30-SMT" -151 -402 50 H V L BNN
 F2 "CUI_CSS-95B30-SMT" 0 0 50 H I L BNN
 F3 "CSS-95B30-SMT-TR" 0 0 50 H I L BNN
 F4 "CUI" 0 0 50 H I L BNN
@@ -494,11 +494,11 @@ X P P 0 200 100 D 40 40 0 0 P
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:MS560702BA03-50-MS560702BA03-50
+# PCB-rescue_MS560702BA03-50-MS560702BA03-50
 #
-DEF PCB-rescue:MS560702BA03-50-MS560702BA03-50 U 0 40 Y Y 1 L N
+DEF PCB-rescue_MS560702BA03-50-MS560702BA03-50 U 0 40 Y Y 1 L N
 F0 "U" -400 330 50 H V L BNN
-F1 "PCB-rescue:MS560702BA03-50-MS560702BA03-50" -400 -400 50 H V L BNN
+F1 "PCB-rescue_MS560702BA03-50-MS560702BA03-50" -400 -400 50 H V L BNN
 F2 "SON125P300X500X100-8N" 0 0 50 H I L BNN
 F3 "https://www.te.com/usa-en/product-MS560702BA03-50.html?te_bu=Cor&te_type=disp&te_campaign=seda_glo_cor-seda-global-disp-prtnr-fy19-seda-model-bom-cta_sma-317_1&elqCampaignId=32493" 0 0 50 H I L BNN
 F4 "MS560702BA03-50" 0 0 50 H I L BNN
@@ -524,11 +524,11 @@ X SCLK 8 -600 0 200 R 40 40 0 0 I C
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:Openlog-Skyfire_Custom_Components
+# PCB-rescue_Openlog-Skyfire_Custom_Components
 #
-DEF PCB-rescue:Openlog-Skyfire_Custom_Components U 0 40 Y Y 1 F N
+DEF PCB-rescue_Openlog-Skyfire_Custom_Components U 0 40 Y Y 1 F N
 F0 "U" -400 450 50 H V C CNN
-F1 "PCB-rescue:Openlog-Skyfire_Custom_Components" -400 350 50 H V C CNN
+F1 "PCB-rescue_Openlog-Skyfire_Custom_Components" -400 350 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -542,11 +542,11 @@ X GRN 6 -500 -200 100 U 50 50 1 1 O
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks
+# PCB-rescue_PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks
 #
-DEF PCB-rescue:PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks U 0 40 Y Y 1 F N
+DEF PCB-rescue_PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks U 0 40 Y Y 1 F N
 F0 "U" -350 300 60 H V L CNN
-F1 "PCB-rescue:PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks" -50 -350 60 H V L CNN
+F1 "PCB-rescue_PCF8523T_1_118-dk_Clock-Timing-Real-Time-Clocks" -50 -350 60 H V L CNN
 F2 "digikey-footprints:SOIC-8_W3.9mm" 200 200 60 H I L CNN
 F3 "https://www.nxp.com/docs/en/data-sheet/PCF8523.pdf" 200 300 60 H I L CNN
 F4 "568-5306-1-ND" 200 400 60 H I L CNN "Digi-Key_PN"
@@ -571,11 +571,11 @@ X VDD 8 100 400 150 D 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:SS495A-SS495A
+# PCB-rescue_SS495A-SS495A
 #
-DEF PCB-rescue:SS495A-SS495A U 0 40 Y Y 1 L N
+DEF PCB-rescue_SS495A-SS495A U 0 40 Y Y 1 L N
 F0 "U" 0 50 50 H V L BNN
-F1 "PCB-rescue:SS495A-SS495A" 0 -500 50 H V L BNN
+F1 "PCB-rescue_SS495A-SS495A" 0 -500 50 H V L BNN
 F2 "SIP3-UA" 0 0 50 H I L BNN
 F3 "None" 0 0 50 H I L BNN
 F4 "Sensor; Sink; 4.5 to 10.5 VDC; 8.7 mA @5 VDC; 0.2 VDC _Typ._/0.4 VDC _Min._" 0 0 50 H I L BNN
@@ -594,11 +594,11 @@ X OUT 3 800 -100 200 L 40 40 0 0 B
 ENDDRAW
 ENDDEF
 #
-# PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules
+# PCB-rescue_XBP9B-DMWT-002-dk_RF-Transceiver-Modules
 #
-DEF PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules MOD 0 40 Y Y 1 F N
+DEF PCB-rescue_XBP9B-DMWT-002-dk_RF-Transceiver-Modules MOD 0 40 Y Y 1 F N
 F0 "MOD" -500 1148 60 H V L CNN
-F1 "PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules" 36 -150 60 H V L CNN
+F1 "PCB-rescue_XBP9B-DMWT-002-dk_RF-Transceiver-Modules" 36 -150 60 H V L CNN
 F2 "digikey-footprints:XBEE_PRO-20_THT" 200 200 60 H I L CNN
 F3 "https://www.digi.com/resources/documentation/digidocs/pdfs/90002173.pdf" 200 300 60 H I L CNN
 F4 "602-1301-ND" 200 400 60 H I L CNN "Digi-Key_PN"
@@ -635,11 +635,11 @@ X ~DTR~/SLRQ/DI8 9 -600 400 100 R 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
-# power:+3.3V
+# power_+3.3V
 #
-DEF power:+3.3V #PWR 0 0 Y Y 1 F P
+DEF power_+3.3V #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:+3.3V" 0 140 50 H V C CNN
+F1 "power_+3.3V" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 ALIAS +3.3V
@@ -651,11 +651,11 @@ X +3V3 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# power:+5V
+# power_+5V
 #
-DEF power:+5V #PWR 0 0 Y Y 1 F P
+DEF power_+5V #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:+5V" 0 140 50 H V C CNN
+F1 "power_+5V" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -666,11 +666,11 @@ X +5V 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# power:+6V
+# power_+6V
 #
-DEF power:+6V #PWR 0 0 Y Y 1 F P
+DEF power_+6V #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:+6V" 0 140 50 H V C CNN
+F1 "power_+6V" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -681,11 +681,11 @@ X +6V 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# power:GND
+# power_GND
 #
-DEF power:GND #PWR 0 0 Y Y 1 F P
+DEF power_GND #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "power:GND" 0 -150 50 H V C CNN
+F1 "power_GND" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
