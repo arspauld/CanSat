@@ -733,7 +733,7 @@ Wire Wire Line
 Wire Wire Line
 	5300 7200 5400 7200
 Text Label 6400 7000 0    50   ~ 0
-PA5-Hall_effect
+PA5-Hall_Effect
 $Comp
 L Device:C_Small C11
 U 1 1 5C5057CC

@@ -1306,9 +1306,9 @@ F 3 "" H 7450 1350 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 7200 800  0    50   ~ 0
-GPS_TX
+GPS_MISO
 Text Label 7200 700  0    50   ~ 0
-GPS_RX
+GPS_MOSI
 Text Label 8950 5150 2    50   ~ 0
 GPS_MISO
 Text Label 8950 5250 2    50   ~ 0
