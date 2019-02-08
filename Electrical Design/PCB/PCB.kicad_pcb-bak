@@ -3,7 +3,7 @@
   (general
     (thickness 1.6)
     (drawings 4)
-    (tracks 236)
+    (tracks 238)
     (zones 0)
     (modules 59)
     (nets 96)
@@ -70,7 +70,7 @@
     (pad_to_mask_clearance 0.0508)
     (solder_mask_min_width 0.25)
     (aux_axis_origin 0 0)
-    (visible_elements 7FFFF7FF)
+    (visible_elements 7FFFFFFF)
     (pcbplotparams
       (layerselection 0x010fc_ffffffff)
       (usegerberextensions false)
@@ -1107,7 +1107,7 @@
   )
 
   (module Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder (layer F.Cu) (tedit 5B36C52B) (tstamp 5C6A8F46)
-    (at 140.453 32.258 180)
+    (at 140.707 34.798 180)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (path /5C5057CC)
@@ -2812,7 +2812,7 @@
     )
   )
 
-  (module Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder (layer F.Cu) (tedit 5B36C52B) (tstamp 5C6A93D1)
+  (module Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder (layer F.Cu) (tedit 5B36C52B) (tstamp 5C5D5A43)
     (at 142.993 66.294 180)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
@@ -2849,7 +2849,7 @@
   )
 
   (module Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder (layer F.Cu) (tedit 5B36C52B) (tstamp 5C6A93E2)
-    (at 114.799 125.476)
+    (at 137.659 109.22)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (path /5C5D391E)
@@ -2885,7 +2885,7 @@
   )
 
   (module Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder (layer F.Cu) (tedit 5B36C52B) (tstamp 5C6A93F3)
-    (at 114.799 122.936)
+    (at 137.659 106.68)
     (descr "Resistor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (path /5C5D40EE)
@@ -3272,7 +3272,7 @@
   )
 
   (module Connector_PinHeader_2.00mm:PinHeader_1x03_P2.00mm_Horizontal (layer F.Cu) (tedit 59FED667) (tstamp 5C6A953A)
-    (at 135.636 32.258 180)
+    (at 135.89 34.798 180)
     (descr "Through hole angled pin header, 1x03, 2.00mm pitch, 4.2mm pin length, single row")
     (tags "Through hole angled pin header THT 1x03 2.00mm single row")
     (path /5C4FD36A)
@@ -3353,7 +3353,7 @@
     )
   )
 
-  (module Connectors:1X09 (layer F.Cu) (tedit 5963D769) (tstamp 5C6A957F)
+  (module Connectors:1X09 (layer F.Cu) (tedit 5963D769) (tstamp 5C5D5D14)
     (at 173.99 49.53 90)
     (descr "PLATED THROUGH HOLE -9 PIN")
     (tags "PLATED THROUGH HOLE -9 PIN")
@@ -3897,6 +3897,8 @@
   (segment (start 136.906 166.116) (end 135.608 166.116) (width 0.1524) (layer F.Cu) (net 5))
   (segment (start 139.954 163.068) (end 136.906 166.116) (width 0.1524) (layer F.Cu) (net 5))
   (segment (start 145.8468 163.068) (end 139.954 163.068) (width 0.1524) (layer F.Cu) (net 5))
+  (segment (start 131.572 157.48) (end 131.318 157.226) (width 0.1524) (layer F.Cu) (net 5))
+  (segment (start 146.794 157.48) (end 131.572 157.48) (width 0.1524) (layer F.Cu) (net 5))
   (segment (start 165.608 145.796) (end 165.608 143.764) (width 0.1524) (layer F.Cu) (net 7))
   (segment (start 168.148 151.892) (end 168.148 148.336) (width 0.1524) (layer F.Cu) (net 7))
   (segment (start 168.148 148.336) (end 165.608 145.796) (width 0.1524) (layer F.Cu) (net 7))
