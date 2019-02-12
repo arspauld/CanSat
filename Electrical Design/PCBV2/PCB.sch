@@ -2025,7 +2025,7 @@ F 3 "" H -1300 3500 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Skyfire_Custom_Components:Adafruit_Cam U1
+L PCB-rescue:Adafruit_Cam-Skyfire_Custom_Components U1
 U 1 1 5C5F2365
 P -1350 2200
 F 0 "U1" H -1172 2115 50  0000 L CNN
