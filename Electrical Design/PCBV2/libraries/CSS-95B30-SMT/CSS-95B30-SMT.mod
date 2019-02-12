@@ -1,0 +1,69 @@
+PCBNEW-LibModule-V1  
+# encoding utf-8
+Units mm
+$INDEX
+CUI_CSS-95B30-SMT
+$EndINDEX
+$MODULE CUI_CSS-95B30-SMT
+Po 0 0 0 15 00000000 00000000 ~~
+Li CUI_CSS-95B30-SMT
+Cd 
+Sc 00000000
+At SMD
+Op 0 0 0
+.SolderMask 0
+.SolderPaste 0
+T0 -2.4653 -7.55131 1.00217 1.00217 0 0.05 N V 21 "CUI_CSS-95B30-SMT"
+T1 -1.72768 7.17612 1.00155 1.00155 0 0.05 N V 21 "VAL**"
+DS -5 -5 5 -5 0.127 27
+DS 5 -5 5 3 0.127 27
+DS 3 5 -5 5 0.127 27
+DS -5 5 -5 -5 0.127 27
+DS -5.25 -6.25 5.25 -6.25 0.05 26
+DS 5.25 -6.25 5.25 6.25 0.05 26
+DS 5.25 6.25 -5.25 6.25 0.05 26
+DS -5.25 6.25 -5.25 -6.25 0.05 26
+T2 -6.786410 5.583450 1 1 0 .05 N V 21 "+"
+DS -5 -5 -5 5 0.127 21
+DS -5 5 -4.557 5 0.127 21
+DS -5 -5 -4.557 -5 0.127 21
+DS -1.316 -5 1.316 -5 0.127 21
+DS 4.557 -5 5 -5 0.127 21
+DS 5 -5 5 3 0.127 21
+DS 1.453 5 -1.443 5 0.127 21
+T2 -6.681240 -4.089680 1 1 0 .05 N V 21 "-"
+DS 3 5 5 3 0.127 27
+DS 5 3 4.4 3.6 0.127 21
+$PAD
+Sh "N" R 2.5 2 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -3 -5
+$EndPAD
+$PAD
+Sh "2" R 2.5 2 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 3 -5
+$EndPAD
+$PAD
+Sh "1" R 2.5 2 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po 3 5
+$EndPAD
+$PAD
+Sh "P" R 2.5 2 0 0 0
+At SMD N 00888000
+.SolderMask 0
+.SolderPaste 0
+Ne 0 ""
+Po -3 5
+$EndPAD
+$EndMODULE CUI_CSS-95B30-SMT
