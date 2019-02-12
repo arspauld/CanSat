@@ -1150,14 +1150,6 @@ Wire Notes Line
 	4100 6900 4100 6350
 Wire Notes Line
 	4100 6350 2300 6350
-Wire Notes Line
-	5100 6500 6900 6500
-Wire Notes Line
-	6900 6500 6900 7550
-Wire Notes Line
-	6900 7550 5100 7550
-Wire Notes Line
-	5100 7550 5100 6500
 $Comp
 L PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules MOD1
 U 1 1 5C555561
