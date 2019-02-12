@@ -116,12 +116,12 @@ $EndComp
 $Comp
 L power:GND #PWR044
 U 1 1 5C4834EF
-P 7450 5950
-F 0 "#PWR044" H 7450 5700 50  0001 C CNN
-F 1 "GND" H 7455 5777 50  0000 C CNN
-F 2 "" H 7450 5950 50  0001 C CNN
-F 3 "" H 7450 5950 50  0001 C CNN
-	1    7450 5950
+P 7800 5950
+F 0 "#PWR044" H 7800 5700 50  0001 C CNN
+F 1 "GND" H 7805 5777 50  0000 C CNN
+F 2 "" H 7800 5950 50  0001 C CNN
+F 3 "" H 7800 5950 50  0001 C CNN
+	1    7800 5950
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
@@ -131,8 +131,6 @@ Wire Wire Line
 Wire Wire Line
 	7100 5950 7300 5950
 Connection ~ 7300 5950
-Wire Wire Line
-	7300 5950 7450 5950
 Wire Wire Line
 	7100 5750 7200 5750
 Connection ~ 7100 5750
@@ -175,10 +173,8 @@ F 3 "~" H 1150 4250 50  0001 C CNN
 $EndComp
 NoConn ~ 1450 4250
 NoConn ~ 950  4250
-Text Label 7400 5750 0    50   ~ 0
+Text Label 7750 5750 0    50   ~ 0
 MCU_VCC
-Wire Wire Line
-	7300 5750 7400 5750
 Connection ~ 7300 5750
 Text Label 9650 3250 1    50   ~ 0
 MCU_VCC
@@ -1131,34 +1127,6 @@ Wire Notes Line
 Wire Notes Line
 	2050 450  500  450 
 Wire Notes Line
-	6900 5400 6400 5400
-Wire Notes Line
-	6400 5400 6400 5900
-Wire Notes Line
-	6400 5900 6900 5900
-Wire Notes Line
-	6900 5900 6900 6300
-Wire Notes Line
-	6900 6300 7500 6300
-Wire Notes Line
-	7500 6300 7500 6100
-Wire Notes Line
-	7500 6100 7750 6100
-Wire Notes Line
-	7750 6100 7750 5750
-Wire Notes Line
-	7750 5750 8100 5750
-Wire Notes Line
-	8100 5750 8100 5100
-Wire Notes Line
-	8100 5100 7650 5100
-Wire Notes Line
-	7650 5100 7650 4800
-Wire Notes Line
-	7650 4800 6900 4800
-Wire Notes Line
-	6900 4800 6900 5400
-Wire Notes Line
 	2300 6350 2300 7200
 Wire Notes Line
 	2300 7200 2850 7200
@@ -1182,14 +1150,6 @@ Wire Notes Line
 	4100 6900 4100 6350
 Wire Notes Line
 	4100 6350 2300 6350
-Wire Notes Line
-	5100 6500 6900 6500
-Wire Notes Line
-	6900 6500 6900 7550
-Wire Notes Line
-	6900 7550 5100 7550
-Wire Notes Line
-	5100 7550 5100 6500
 $Comp
 L PCB-rescue:XBP9B-DMWT-002-dk_RF-Transceiver-Modules MOD1
 U 1 1 5C555561
@@ -1766,36 +1726,6 @@ CAMERA_MOS
 Text Label 10350 3650 0    50   ~ 0
 RELEASE_MOS
 $Comp
-L Device:R_Small R11
-U 1 1 5C7ED981
-P 9050 2400
-F 0 "R11" V 9150 2250 50  0000 C CNN
-F 1 "10k" V 9150 2400 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 9050 2400 50  0001 C CNN
-F 3 "~" H 9050 2400 50  0001 C CNN
-	1    9050 2400
-	0    -1   -1   0   
-$EndComp
-$Comp
-L Device:R_Small R10
-U 1 1 5C7FD208
-P 9050 1350
-F 0 "R10" V 9150 1200 50  0000 C CNN
-F 1 "10k" V 9150 1350 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 9050 1350 50  0001 C CNN
-F 3 "~" H 9050 1350 50  0001 C CNN
-	1    9050 1350
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	10050 2400 9150 2400
-Wire Wire Line
-	8950 2400 8500 2400
-Wire Wire Line
-	10050 1350 9150 1350
-Wire Wire Line
-	8950 1350 8500 1350
-$Comp
 L PCB-rescue:10118193-0001LF-dk_USB-DVI-HDMI-Connectors J2
 U 1 1 5C83D693
 P 12500 1600
@@ -2142,4 +2072,46 @@ F 3 "~" V -1300 3760 50  0001 C CNN
 	1    -1300 3700
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	8500 1350 10050 1350
+Wire Wire Line
+	8500 2400 10050 2400
+$Comp
+L Device:C_Small C?
+U 1 1 5C6B77F9
+P 7500 5850
+F 0 "C?" V 7450 5550 50  0000 C CNN
+F 1 "100nF" V 7550 5550 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 7500 5850 50  0001 C CNN
+F 3 "~" H 7500 5850 50  0001 C CNN
+	1    7500 5850
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C?
+U 1 1 5C6B7965
+P 7700 5850
+F 0 "C?" V 7650 5550 50  0000 C CNN
+F 1 "100nF" V 7750 5550 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 7700 5850 50  0001 C CNN
+F 3 "~" H 7700 5850 50  0001 C CNN
+	1    7700 5850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7300 5750 7500 5750
+Connection ~ 7500 5750
+Wire Wire Line
+	7500 5750 7700 5750
+Connection ~ 7700 5750
+Wire Wire Line
+	7700 5750 7750 5750
+Wire Wire Line
+	7300 5950 7500 5950
+Connection ~ 7500 5950
+Wire Wire Line
+	7500 5950 7700 5950
+Connection ~ 7700 5950
+Wire Wire Line
+	7700 5950 7800 5950
 $EndSCHEMATC
