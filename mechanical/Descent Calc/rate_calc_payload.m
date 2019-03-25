@@ -77,7 +77,7 @@ g = 9.81;       % m / s^2
 rho = 1.1226;   % kg / m^3 at Standard 900 m
 
 
-a_i = 90;
+a_i = 10;
 twist = 10;
 phi = @(h) twist * h / L  - a_i; % degrees
 
