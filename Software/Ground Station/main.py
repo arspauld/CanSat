@@ -15,7 +15,7 @@ app = QtGui.QApplication([])                    # Starts the GUI application
 win = QtGui.QMainWindow()                       # Creates the main storage for docks
 area = DockArea()                               # Creates an area to dock into
 win.setCentralWidget(area)                      # Adds the area to the window space
-win.resize(1400,800)                            # Sets the window size to 1400 pixels wide by 800 tall
+win.resize(1400,800)                            # Sets the window size to 1400 pixels wide by 800 pixels tall
 win.setWindowTitle("Ground Station Control")    # Names the window
 
 ## Creates Docks and inserts them into the area
@@ -23,7 +23,7 @@ altituded  = Dock("Altitude")       # Check realplot.py for documentation
 pressured  = Dock("Pressure")       # Creates plotting elements for each telemetry section
 tempd      = Dock("Temp")
 voltaged   = Dock("Voltage")
-flightd    = Dock("Pitch, Roll, and Yaw")
+flightd    = Dock("Pitch and Roll")
 spind      = Dock("Blade Spin Rate")
 directiond = Dock("Bonus Direction")
 gpsd       = Dock("GPS")
@@ -48,7 +48,7 @@ altitude  = RealTimePlot(name="Altitude")       # Check realplot.py for document
 pressure  = RealTimePlot(name="Pressure")       # Creates plotting elements for each telemetry section
 temp      = RealTimePlot(name="Temp")
 voltage   = RealTimePlot(name="Voltage")
-flight    = RealTimePlot(name="Pitch, Roll, and Yaw")
+flight    = RealTimePlot(name="Pitch and Roll")
 spin      = RealTimePlot(name="Blade Spin Rate")
 direction = RealTimePlot(name="Bonus Direction")
 gps      = RealTimePlot(name="GPS")
@@ -131,4 +131,14 @@ while True:
     if btn.isChecked():
         break
 
+#	while going:
+#		update(altitude, x, y)
+#		update(pressure, x ,y)
+#		update(temp, x, y)
+#		update(voltage, x ,y)
+#		update(flight, x, y)
+#		update(gps, x, y)
+#		update(spin, x, y)
+#		update(direction, x, y)
+		
 app.exec_()                                     # Executes application
