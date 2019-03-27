@@ -13,13 +13,13 @@
 #define CMD_MS5607_READ_ADC		0x00
 #define CMD_MS5607_CONVERT_D1	0x48
 #define CMD_MS5607_CONVERT_D2	0x58
+#define MS5607_PORT				0x10
 
-
-uint16_t ms5607_read_adc(void)
+uint16_t ms5607_read(uint16_t port = CMD_MS5607_READ_ADC)
 {
 	uint16_t rx_data = 0; // temporary 16-bit value
-	spi_select(); // select our spi device
-	spi_write(CMD_MS5607_READ_ADC); // write a specified command to ask for data
+	spi_select(MS5607_PORT); // select our spi device
+	spi_write(port); // write a specified command to ask for data
 	
 	/*typecast this expression from an 8-bit to a 16-bit and shift it 8 bits to the left
 	  meaning the returned value is now in the upper 8 bits rx_data*/
@@ -28,7 +28,7 @@ uint16_t ms5607_read_adc(void)
 	// OR the second byte with the 16-bit variable, the returned value is now in the lower 8 bits of 'rx_data'
 	rx_data |= spi_read(); 
 	
-	spi_deselect(); // end spi exchange
+	spi_select(MS5607_PORT); // end spi exchange
 	
 	return rx_data; // return the 16-bit value
 }
@@ -37,17 +37,17 @@ uint32_t ms5607_convert_d1(void)
 {
 	uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D1
-	spi_select(); // select our spi device
+	spi_select(MS5607_PORT); // select our spi device
 	spi_write(CMD_MS5607_CONVERT_D1); // write a specified command to ask for data
 	delay_ms(10);
-	spi_deselect();
+	spi_select(MS5607_PORT);
 	
-	spi_select();
+	spi_select(MS5607_PORT);
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;
 	rx_data |= (uint32_t) spi_read()<<8;
 	rx_data |= spi_read();
-	spi_deselect();
+	spi_select(MS5607_PORT);
 	
 	return rx_data;
 }
@@ -56,17 +56,17 @@ uint32_t ms5607_convert_d2(void)
 {
 	uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D2
-	spi_select(); // select our spi device
+	spi_select(MS5607_PORT); // select our spi device
 	spi_write(CMD_MS5607_CONVERT_D2); // write a specified command to ask for data
 	delay_ms(10);
-	spi_deselect();
+	spi_select(MS5607_PORT);
 	
-	spi_select();
+	spi_select(MS5607_PORT);
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;
 	rx_data |= (uint32_t) spi_read()<<8;
 	rx_data |= spi_read();
-	spi_deselect();
+	spi_select(MS5607_PORT);
 	
 	return rx_data;
 }

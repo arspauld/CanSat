@@ -10,7 +10,7 @@
 #define MS5607_H_
 
 
-uint16_t ms5607_read_adc(void);
+uint16_t ms5607_read(uint16_t port);
 uint32_t ms5607_convert_d1(void);
 uint32_t ms5607_convert_d2(void);
 

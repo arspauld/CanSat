@@ -16,9 +16,7 @@ void spi_write(uint8_t data);
 
 uint8_t spi_read(void);
 
-void spi_deselect(void);
-
-void spi_select(void);
+void spi_select(uint8_t port);
 
 
 #endif /* SPI_CONTROLLER_H_ */
