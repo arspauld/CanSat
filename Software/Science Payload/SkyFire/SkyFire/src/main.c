@@ -1,16 +1,13 @@
 #include <asf.h>
 #include <math.h>
-#include "uart.h"
-#include "adc.h"
-#include "ms5607.h"
-#include "spi_controller.h"
-#include "RingBuffer.h"
+#include "drivers\uart.h"
+#include "drivers\adc.h"
+#include "drivers\ms5607.h"
+#include "drivers\spi_controller.h"
+//#include "tools\RingBuffer.h"
 
 // GCS Commands
 #define RESET 0xFF
-uint8_t mem_array[10]; 
-RingBufferu8_t gcs_comms;
-rbu8_init(&gcs_comms, mem_array, 10);
 
 
 ///////////////////////// Function Prototypes //////////////////////////
@@ -42,7 +39,18 @@ uint16_t c[] = {0,0,0,0,0,0};
 ////////////////////////////// Functions ///////////////////////////////
 int main (void)
 {
+	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
+	PORTC.OUT = 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
 	system_init();
+	
+	/*
+	uint8_t mem_array[10];
+	RingBufferu8_t gcs_comms;
+	rbu8_init(&gcs_comms, mem_array, 10);
+	*/
+	
+	printf("Initialized\n");
+	
 	while(1){
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -57,13 +65,15 @@ int main (void)
 			default:
 				state = 0;
 				break;
+		}
 		
 		
 		// Check Sensors
 		double press = get_pressure();
-		double temp = get_temperature();
+		double temp = 288.15; //get_temperature();
 		double alt = get_altitude(press);
-		delay_ms(10);
+		printf("%i, %li, %i\n", (int16_t) press, (int32_t) alt, (int16_t) (temp * 100));
+		delay_ms(250);
 	}
 }
 
@@ -77,7 +87,7 @@ void system_init(void){
 	uart_terminal_init();
 	delay_ms(2);
 	
-	adc_init();
+//	adc_init();
 	delay_ms(2);
 	
 	spi_init();
@@ -91,8 +101,8 @@ void system_init(void){
 	
 	
 	// Initialization of variables
-	ground_p = get_pressure();
-	ground_t = get_temperature();
+	//ground_p = get_pressure();
+	//ground_t = get_temperature();
 	ground_a = get_altitude(ground_p);
 }
 
@@ -105,12 +115,14 @@ void ms5607_init(void){
 	delay_ms(2);
 	
 	// records the constants
-	c[0] = ms5607_read(0xA2);
+	uint16_t a = ms5607_read(0xA2);
 	c[1] = ms5607_read(0xA4);
 	c[2] = ms5607_read(0xA6);
 	c[3] = ms5607_read(0xA8);
 	c[4] = ms5607_read(0xAA);
 	c[5] = ms5607_read(0xAC);
+	
+	printf("%d,%d,%d,%d,%d,%d\n", a,c[1],c[2],c[3],c[4],c[5]);
 }
 
 double get_pressure(void){
@@ -121,7 +133,7 @@ double get_pressure(void){
 	double off = (uint64_t) c[1] * 131072 + ((uint64_t) c[3] * dt) / 64;
 	double sens = (uint64_t) c[0] * 65536 + ((uint64_t) c[2] * dt) / 128;
 	val = (long) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
-	return double(val) / 100000;	// returns pressure in Pa
+	return (double)(val) / 100000;	// returns pressure in Pa
 }
 
 double get_temperature(void){
@@ -149,5 +161,6 @@ void record(double alt, double temp, double press){
 }
 
 void transmit(double alt, double temp, double press){
-	
+	 uint8_t a = 0;
+	 a = 1;
 }

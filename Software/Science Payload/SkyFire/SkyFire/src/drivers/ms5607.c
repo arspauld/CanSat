@@ -15,11 +15,11 @@
 #define CMD_MS5607_CONVERT_D2	0x58
 #define MS5607_PORT				0x10
 
-uint16_t ms5607_read(uint16_t port = CMD_MS5607_READ_ADC)
+uint16_t ms5607_read(uint16_t comm)
 {
 	uint16_t rx_data = 0; // temporary 16-bit value
 	spi_select(MS5607_PORT); // select our spi device
-	spi_write(port); // write a specified command to ask for data
+	spi_write(comm); // write a specified command to ask for data
 	
 	/*typecast this expression from an 8-bit to a 16-bit and shift it 8 bits to the left
 	  meaning the returned value is now in the upper 8 bits rx_data*/

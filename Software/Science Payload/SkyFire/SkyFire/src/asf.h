@@ -93,6 +93,9 @@
 #include <sleepmgr.h>
 #include <xmega/sleepmgr.h>
 
+// From module: Standard serial I/O (stdio) - XMEGA implementation
+#include <stdio_serial.h>
+
 // From module: System Clock Control - XMEGA A1U/A3U/A3BU/A4U/B/C implementation
 #include <sysclk.h>
 
