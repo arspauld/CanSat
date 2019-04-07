@@ -4,10 +4,15 @@
 #include "drivers\adc.h"
 #include "drivers\ms5607.h"
 #include "drivers\spi_controller.h"
-//#include "tools\RingBuffer.h"
+#include "tools\RingBuffer.h"
 
 // GCS Commands
-#define RESET 0xFF
+#define RESET				0xFF
+#define CALIBRATE			0xEE
+#define CALIBRATE_CAMERA	0xDD
+#define CALIBRATE_ALTITUDE  0xCC
+#define CALIBRATE_ANGLE		0xBB
+#define GPS					0xAA
 
 
 ///////////////////////// Function Prototypes //////////////////////////
@@ -16,6 +21,7 @@ void ms5607_init(void);				// Collects the sensors constants
 double get_pressure(void);			// kilo Pascals
 double get_temperature(void);		// Kelvin
 double get_altitude(double press);	// meters
+double get_velocity(RingBuffer16_t altitudes, uint8_t frequency);		// Approximates velocity of CanSat
 void report(double alt, double temp, double press);
 void record(double alt, double temp, double press);
 void transmit(double alt, double temp, double press);
@@ -39,9 +45,11 @@ uint16_t c[] = {0,0,0,0,0,0};
 ////////////////////////////// Functions ///////////////////////////////
 int main (void)
 {
-	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
-	PORTC.OUT = 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
 	system_init();
+	
+	int16_t alt_array[10];
+	RingBuffer16_t altitudes;	// in centimeters
+	rb16_init(&altitudes, alt_array, (uint16_t) 10);
 	
 	/*
 	uint8_t mem_array[10];
@@ -72,8 +80,12 @@ int main (void)
 		double press = get_pressure();
 		double temp = 288.15; //get_temperature();
 		double alt = get_altitude(press);
-		printf("%i, %li, %i\n", (int16_t) press, (int32_t) alt, (int16_t) (temp * 100));
-		delay_ms(250);
+		int16_t a = (int16_t) alt*100;
+		rb16_write(&altitudes, &a, 1);
+		double velocity = get_velocity(altitudes, 2);
+		//printf("%li\n",(int32_t)press);
+		printf("%li, %i, %i\n", (int32_t) (press*10), (int16_t) (alt * 100), (int16_t) (temp * 100));
+		delay_ms(500);
 	}
 }
 
@@ -84,6 +96,12 @@ void system_init(void){
 	sysclk_init(); // initializes the system clock
 	delay_ms(2); // delays the rest of the processes to ensure a started clock
 	
+	// Initialization of pins
+	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
+	PORTC.OUT = 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
+	PMIC.CTRL = PMIC_LOLVLEN_bm; // enables lo level interrupts
+	
+	// Driver Initialization
 	uart_terminal_init();
 	delay_ms(2);
 	
@@ -97,11 +115,8 @@ void system_init(void){
 	delay_ms(2);
 	
 	
-	// Initialization of pins
-	
-	
 	// Initialization of variables
-	//ground_p = get_pressure();
+	ground_p = get_pressure();
 	//ground_t = get_temperature();
 	ground_a = get_altitude(ground_p);
 }
@@ -115,25 +130,26 @@ void ms5607_init(void){
 	delay_ms(2);
 	
 	// records the constants
-	uint16_t a = ms5607_read(0xA2);
+	c[0] = ms5607_read(0xA2);
 	c[1] = ms5607_read(0xA4);
 	c[2] = ms5607_read(0xA6);
 	c[3] = ms5607_read(0xA8);
 	c[4] = ms5607_read(0xAA);
 	c[5] = ms5607_read(0xAC);
 	
-	printf("%d,%d,%d,%d,%d,%d\n", a,c[1],c[2],c[3],c[4],c[5]);
+	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 double get_pressure(void){
-	uint16_t val = 0;
+	double val = 0;
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
+	//printf("%li,%li\n",d1,d2);
 	double dt = d2 - (uint64_t)c[4] * 256;
 	double off = (uint64_t) c[1] * 131072 + ((uint64_t) c[3] * dt) / 64;
 	double sens = (uint64_t) c[0] * 65536 + ((uint64_t) c[2] * dt) / 128;
-	val = (long) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
-	return (double)(val) / 100000;	// returns pressure in Pa
+	val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
+	return (val);	// returns pressure in Pa
 }
 
 double get_temperature(void){
@@ -142,13 +158,25 @@ double get_temperature(void){
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
 	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	val = (uint16_t) (100 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
-	return val / 100; //returns the temperature in kelvin
+	return val / 100.0; //returns the temperature in kelvin
 }
 
 double get_altitude(double press){
 	double val = 0;
 	val = ground_t * (pow(ground_p / press, R * L / g_0) - 1) / L;
 	return val;		//returns altitude in meters
+}
+
+// Approximates the Velocity from past five altitudes
+double get_velocity(RingBuffer16_t altitudes, uint8_t frequency){
+	double vel = 0;
+	for(uint8_t i = 0; i < 5; i++){
+		int16_t new = rb16_get_nth(&altitudes,i);
+		int16_t old = rb16_get_nth(&altitudes,i+1);
+		vel += (double) ((new - old) * frequency);
+	}
+	vel /= 5.0;
+	return vel;
 }
 
 void report(double alt, double temp, double press){

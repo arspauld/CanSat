@@ -16,7 +16,7 @@ void spi_init(void)
 
 void spi_select(uint8_t port)
 {
-	PORTC.OUT ^= port; //switches SS low
+	PORTC.OUT ^= port; //switches SS
 }
 
 uint8_t spi_read(void)

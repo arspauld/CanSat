@@ -59,7 +59,7 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/ASF/xmega/drivers/usart/usart.h ../src/config/conf_usart_serial.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\math.h \
  ../src/drivers\uart.h ../src/drivers\adc.h ../src/drivers\ms5607.h \
- ../src/drivers\spi_controller.h
+ ../src/drivers\spi_controller.h ../src/tools\RingBuffer.h
 
 ../src/asf.h:
 
@@ -202,3 +202,5 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 ../src/drivers\ms5607.h:
 
 ../src/drivers\spi_controller.h:
+
+../src/tools\RingBuffer.h:
