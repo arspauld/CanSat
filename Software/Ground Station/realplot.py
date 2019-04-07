@@ -61,7 +61,7 @@ def realtimetest():
     points = int(input("How many random points?\n"))
     start = time.time()
     for i in range(points):
-        update(plot, i, random.randint(0,points,))
+        update(app, plot, i, random.randint(0,points,))
     end = time.time()
     runtime = end - start
     print("Runtime: %5.2f" %(runtime))
@@ -71,7 +71,7 @@ def realtimetest():
 
 x_val = []                              #storage of x values
 y_val = []                              #storage of y values
-def update(plot, x, y):
+def update(app, plot, x, y):
     plot.clear()                        #empties plot to get rid of old info
     x_val.append(x)                     #adds the new point
     y_val.append(y)

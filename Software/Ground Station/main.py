@@ -3,7 +3,8 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 from pyqtgraph import console
 from pyqtgraph.dockarea import *
-from realplot import RealTimePlot
+from realplot import RealTimePlot, update
+from csv_creation import csv_write
 import random
 import time
 
@@ -64,12 +65,13 @@ directiond.addWidget(direction.plot)
 
 # Buttons
 w = QtGui.QWidget()                             # Creates a large widget to hold the others
-btn = QtGui.QPushButton('halt plot')            # A checkable box
-btn.setCheckable(True)                          # Allows for a button to stay pressed
 
+halt = QtGui.QPushButton('halt plot')            # A checkable box
 calibrate = QtGui.QPushButton("Calibrate Payload")
 sys_check = QtGui.QPushButton("Check Systems")
 reset_btn = QtGui.QPushButton("RESET")
+
+halt.setCheckable(True)                          # Allows for a button to stay pressed
 calibrate.setCheckable(True)
 sys_check.setCheckable(True)
 reset_btn.setCheckable(True)
@@ -81,7 +83,7 @@ w.setLayout(layout2)                            # Adds the layout to the large w
 messages.addWidget(w)                                 # Adds the large widget to the dock
 
 layout2.addWidget(reset_btn,    0, 0, 1, 2)     # button goes in row 0, column 0, spanning 1 row and 2 columns
-layout2.addWidget(btn,          2, 0, 1, 2)     # text edit goes in middle-left
+layout2.addWidget(halt,          2, 0, 1, 2)     # text edit goes in middle-left
 layout2.addWidget(listw,        1, 0, 1, 2)     # list widget goes in upper-left
 layout2.addWidget(calibrate,    3, 0, 1, 1)
 layout2.addWidget(sys_check,    3, 1, 1, 1)
@@ -96,7 +98,7 @@ listw.addItem(telem_form)
 points = 1
 going = True
 while True:
-    while going:
+    while going: #Loop for random plotting
         altitude.add(   points-1, random.randint(0, points))   #adds a point x = number of points, y = random integer from 0 to x
         pressure.add(   points-1, random.randint(0, points))
         temp.add(       points-1, random.randint(0, points))
@@ -111,7 +113,7 @@ while True:
             listw.addItem("Restarted")
             break
 
-        if btn.isChecked():
+        if halt.isChecked():
             listw.addItem("Ended")
             break
 
@@ -128,17 +130,42 @@ while True:
         direction.clear()
 
 
-    if btn.isChecked():
+    if halt.isChecked():
         break
 
+
+
+#"""
+#while True:
 #	while going:
-#		update(altitude, x, y)
-#		update(pressure, x ,y)
-#		update(temp, x, y)
-#		update(voltage, x ,y)
-#		update(flight, x, y)
-#		update(gps, x, y)
-#		update(spin, x, y)
-#		update(direction, x, y)
+#		update(app, altitude, x, y)
+#		update(app, pressure, x, y)
+#		update(app, temp, x, y)
+#		update(app, voltage, x, y)
+#		update(app, flight, x, y)
+#		update(app, gps, x, y)
+#		update(app, spin, x, y)
+#		update(app, direction, x, y)
+#"""
+
+
+
+
+
 		
 app.exec_()                                     # Executes application
+
+
+
+
+
+#   Commands
+"""For use with the ground station to control the GUI"""
+RESET=0xFF
+CALIBRATE=0xEE
+CALIBRATE_CAMERA=0xDD
+CALIBRATE_ALTITUDE=0xCC
+CALIBRATE_ANGLE=0xBB
+GPS=0xAA
+
+

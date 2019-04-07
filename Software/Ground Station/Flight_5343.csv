@@ -1,0 +1,2 @@
+Team ID,Mission Time,Packet Count,Altitude,Pressure,Temperature,Voltage,GPS Time,GPS Latitude,GPS Longitude,GPS Altitude,GPS Sats,Pitch,Roll,Blade Spin Rate,Flight State,Bonus Direction
+5343,200,12,450.5,100000,25.6,5.0,83.50000,39.50000,-111.2,1000,3,0.1,0.5,60,2,10
