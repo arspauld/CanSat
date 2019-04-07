@@ -8,7 +8,7 @@ from csv_creation import csv_write
 import random
 import time
 
-f = open("Telemetry/Flight_0115.csv", "w")      # Creates a file for the telemetry data
+f = open("Telemetry/Flight_5343.csv", "w")      # Creates a file for the telemetry data
 telem_form = "TEAM ID,MISSION TIME,PACKET COUNT,ALTITUDE,PRESSURE,TEMP,VOLTAGE,GPS TIME,GPS LATITUDE,GPS LONGITUDE,GPS ALTITUDE,GPS SATS,PITCH,ROLL,BLADE SPIN RATE,SOFTWARE STATE,BONUS DIRECTION"
 f.write(telem_form)                             # Creates column headers for the csv file
 
