@@ -16,15 +16,17 @@
 
 
 ///////////////////////// Function Prototypes //////////////////////////
-void system_init(void);				// Starts the system
-void ms5607_init(void);				// Collects the sensors constants
-double get_pressure(void);			// kilo Pascals
-double get_temperature(void);		// Kelvin
-double get_altitude(double press);	// meters
+void system_init(void);													// Starts the system
+void ms5607_init(void);													// Collects the sensors constants
+double get_pressure(void);												// Pascals
+double get_temperature(void);											// Kelvin
+double get_altitude(double press);										// meters
 double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency);		// Approximates velocity of CanSat
-void report(double alt, double temp, double press);
-void record(double alt, double temp, double press);
-void transmit(double alt, double temp, double press);
+void data_collect(double* alt, double* press, double* temp);			// Handles data collection
+double data_check(double* vals, uint8_t length);						// Function that averages values and compares with stdev
+void report(char* string);												// Records and Transmits
+void record(char* string);												// Writes data into 
+void transmit(char* string);											// Sends Radio communication
 
 
 /////////////////////////// Global Variables ///////////////////////////
@@ -80,12 +82,16 @@ int main (void)
 		double press = get_pressure();
 		double temp = 288.15; //get_temperature();
 		double alt = get_altitude(press);
-		int16_t a[] = {(int16_t) (alt*100)};
+		
+		// Calculates velocity
+		int16_t a[0] = (int16_t) (alt*100);
 		rb16_write(&altitudes, &a, 1);
-		printf("%i\n", a[0]);
 		double velocity = get_velocity(&altitudes, 2);
-		//printf("%li\n",(int32_t)press);
-		printf("Pressure (Pa): %li, Altitude (cm): %i, Velocity (cm/s): %i\n", (int32_t) (press*10), (int16_t) (alt * 100), (int16_t) velocity);
+		
+		// Prints information
+		char* str;
+		sprintf(str, "Pressure (Pa): %li, Altitude (cm): %i, Velocity (cm/s): %i\n", (int32_t) (press), (int16_t) (alt * 100), (int16_t) velocity);
+		record(str);
 		delay_ms(500);
 	}
 }
@@ -169,28 +175,92 @@ double get_altitude(double press){
 }
 
 // Approximates the Velocity from past five altitudes
+uint8_t data_samples = 3;
 double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency){
 	double vel = 0;
-	for(uint16_t i = 0; i < 5; i++){
+	for(uint16_t i = 0; i < data_samples; i++){
 		int16_t new = rb16_get_nth(altitudes,i);
 		int16_t old = rb16_get_nth(altitudes,i+1);
-		vel += (double) ((new - old) * frequency);
-		printf("Old: %5i, New: %5i, Vel: %5i\n", old, new, (int16_t) (vel/5.0));
+		int16_t oldest = rb16_get_nth(altitudes,i+2);
+		vel += ((3*new - 4*old + oldest) * frequency / 2.0); // O(h^2) approximation of backwards derivative (Thanks MAE284, you're good for something)
 	}
-	vel /= 5.0;
+	vel /= data_samples;
 	return vel;
 }
 
-void report(double alt, double temp, double press){
-	record(alt,temp,press);
-	transmit(alt,temp,press);
+void data_collect(double* alt, double* press, double* temp){
+	double a = {0,0,0,0,0};
+	double p = {0,0,0,0,0};
+	double t = {0,0,0,0,0};
+	for(uint8_t i = 0; i < 5; i++){
+		t[i] = get_temperature();
+		p[i] = get_pressure();
+		a[i] = get_altitude(p[i]);
+	}
+	alt* = data_check(a,5);
+	press* = data_check(p,5);
+	temp* = data_check(t,5);
 }
 
-void record(double alt, double temp, double press){
-	printf("5343, %8.4f, %8.4f, %8.4f\n", alt, temp, press);
+double data_check(double* vals, uint8_t length){
+	// Calculates average of data
+	double mean = 0;
+	for(uint8_t i = 0; i < length; i++){
+		mean += (vals[i]/length);
+	}
+	
+	// Calculates standard deviation of data
+	double stdev = 0;
+	for(uint8_t i = 0; i < length; i++){
+		stdev += pow(vals[i]-mean, 2);
+	}
+	stdev /= (length - 1);
+	
+	// Throws out data that is farther than standard deviation from average
+	double result = 0;
+	uint8_t nums = 0;
+	for(uint8_t i = 0; i < length; i++){
+		if(abs(vals[i] - mean) <= stdev){
+			result += vals[i];
+			nums++;
+		}
+	}
+	
+	if(nums == 0){
+		result = -1;
+	}
+	else{
+		result /= nums; // Averages the new values
+	}
+	return result;
 }
 
-void transmit(double alt, double temp, double press){
+void report(char* string){
+	record(string);
+	transmit(string);
+}
+
+void record(char* string){
+	printf(string);
+}
+
+void transmit(char* string){
 	 uint8_t a = 0;
 	 a = 1;
+}
+
+void clock_init(void){
+	sysclk_enable_peripheral_clock(&TCE1); // starts peripheral clock
+	sysclk_enable_module(SYSCLK_PORT_E, SYSCLK_HIRES); // necessary
+
+	TCE1.CTRLA = 0x07; // divisor set to 1024
+	TCE1.CTRLB = 0x13; // single wave form and CCA enabled
+	TCE1.PER = 31249; // 1 Hz
+	TCE1.INTCTRLB = TC_CCAINTLVL_LO_gc; // CCA int flag Lo level
+}
+
+uint16_t time = 0;
+ISR(TCE1_CCA_vect){
+	time++;
+	printf("Time: %i\n", time);
 }
