@@ -21,7 +21,7 @@ void ms5607_init(void);				// Collects the sensors constants
 double get_pressure(void);			// kilo Pascals
 double get_temperature(void);		// Kelvin
 double get_altitude(double press);	// meters
-double get_velocity(RingBuffer16_t altitudes, uint8_t frequency);		// Approximates velocity of CanSat
+double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency);		// Approximates velocity of CanSat
 void report(double alt, double temp, double press);
 void record(double alt, double temp, double press);
 void transmit(double alt, double temp, double press);
@@ -80,11 +80,12 @@ int main (void)
 		double press = get_pressure();
 		double temp = 288.15; //get_temperature();
 		double alt = get_altitude(press);
-		int16_t a = (int16_t) alt*100;
+		int16_t a[] = {(int16_t) (alt*100)};
 		rb16_write(&altitudes, &a, 1);
-		double velocity = get_velocity(altitudes, 2);
+		printf("%i\n", a[0]);
+		double velocity = get_velocity(&altitudes, 2);
 		//printf("%li\n",(int32_t)press);
-		printf("%li, %i, %i\n", (int32_t) (press*10), (int16_t) (alt * 100), (int16_t) (temp * 100));
+		printf("Pressure (Pa): %li, Altitude (cm): %i, Velocity (cm/s): %i\n", (int32_t) (press*10), (int16_t) (alt * 100), (int16_t) velocity);
 		delay_ms(500);
 	}
 }
@@ -168,12 +169,13 @@ double get_altitude(double press){
 }
 
 // Approximates the Velocity from past five altitudes
-double get_velocity(RingBuffer16_t altitudes, uint8_t frequency){
+double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency){
 	double vel = 0;
-	for(uint8_t i = 0; i < 5; i++){
-		int16_t new = rb16_get_nth(&altitudes,i);
-		int16_t old = rb16_get_nth(&altitudes,i+1);
+	for(uint16_t i = 0; i < 5; i++){
+		int16_t new = rb16_get_nth(altitudes,i);
+		int16_t old = rb16_get_nth(altitudes,i+1);
 		vel += (double) ((new - old) * frequency);
+		printf("Old: %5i, New: %5i, Vel: %5i\n", old, new, (int16_t) (vel/5.0));
 	}
 	vel /= 5.0;
 	return vel;
