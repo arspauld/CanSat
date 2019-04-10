@@ -11,8 +11,8 @@
 
 // this is a # define, it's a way to define a constant like a command that will never change
 #define CMD_MS5607_READ_ADC		0x00
-#define CMD_MS5607_CONVERT_D1	0x48
-#define CMD_MS5607_CONVERT_D2	0x58
+#define CMD_MS5607_CONVERT_D1	0x46
+#define CMD_MS5607_CONVERT_D2	0x56
 #define MS5607_PORT				0x10
 
 uint16_t ms5607_read(uint16_t comm)
@@ -39,7 +39,7 @@ uint32_t ms5607_convert_d1(void)
 	// CONVERT D1
 	spi_select(MS5607_PORT); // select our spi device
 	spi_write(CMD_MS5607_CONVERT_D1); // write a specified command to ask for data
-	delay_ms(10);
+	delay_ms(5);
 	spi_select(MS5607_PORT);
 	
 	spi_select(MS5607_PORT);
@@ -58,7 +58,7 @@ uint32_t ms5607_convert_d2(void)
 	// CONVERT D2
 	spi_select(MS5607_PORT); // select our spi device
 	spi_write(CMD_MS5607_CONVERT_D2); // write a specified command to ask for data
-	delay_ms(10);
+	delay_ms(5);
 	spi_select(MS5607_PORT);
 	
 	spi_select(MS5607_PORT);
