@@ -9,16 +9,19 @@
 #include "ms5607.h"
 #include "spi_controller.h"
 
-// this is a # define, it's a way to define a constant like a command that will never change
-#define CMD_MS5607_READ_ADC		0x00
-#define CMD_MS5607_CONVERT_D1	0x46
-#define CMD_MS5607_CONVERT_D2	0x56
-#define MS5607_PORT				0x10
+void ms5607_init(void){
+	// Resets the ms5607
+	flip_ms5607();
+	spi_write(CMD_MS5607_RESET);
+	delay_ms(3);
+	flip_ms5607();
+	delay_ms(2);
+}
 
 uint16_t ms5607_read(uint16_t comm)
 {
 	uint16_t rx_data = 0; // temporary 16-bit value
-	spi_select(MS5607_PORT); // select our spi device
+	flip_ms5607(); // select our spi device
 	spi_write(comm); // write a specified command to ask for data
 	
 	/*typecast this expression from an 8-bit to a 16-bit and shift it 8 bits to the left
@@ -28,7 +31,7 @@ uint16_t ms5607_read(uint16_t comm)
 	// OR the second byte with the 16-bit variable, the returned value is now in the lower 8 bits of 'rx_data'
 	rx_data |= spi_read(); 
 	
-	spi_select(MS5607_PORT); // end spi exchange
+	flip_ms5607(); // end spi exchange
 	
 	return rx_data; // return the 16-bit value
 }
@@ -37,17 +40,17 @@ uint32_t ms5607_convert_d1(void)
 {
 	uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D1
-	spi_select(MS5607_PORT); // select our spi device
-	spi_write(CMD_MS5607_CONVERT_D1); // write a specified command to ask for data
-	delay_ms(5);
-	spi_select(MS5607_PORT);
+	flip_ms5607(); // select our spi device
+	spi_write(CMD_MS5607_D1_4096); // write a specified command to ask for data
+	delay_ms(10);
+	flip_ms5607();
 	
-	spi_select(MS5607_PORT);
+	flip_ms5607();
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;
 	rx_data |= (uint32_t) spi_read()<<8;
 	rx_data |= spi_read();
-	spi_select(MS5607_PORT);
+	flip_ms5607();
 	
 	return rx_data;
 }
@@ -56,17 +59,37 @@ uint32_t ms5607_convert_d2(void)
 {
 	uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D2
-	spi_select(MS5607_PORT); // select our spi device
-	spi_write(CMD_MS5607_CONVERT_D2); // write a specified command to ask for data
-	delay_ms(5);
-	spi_select(MS5607_PORT);
+	flip_ms5607(); // select our spi device
+	spi_write(CMD_MS5607_D2_4096); // write a specified command to ask for data
+	delay_ms(10);
+	flip_ms5607();
 	
-	spi_select(MS5607_PORT);
+	flip_ms5607();
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;
 	rx_data |= (uint32_t) spi_read()<<8;
 	rx_data |= spi_read();
-	spi_select(MS5607_PORT);
+	flip_ms5607();
 	
 	return rx_data;
+}
+
+void ms5607_write_unprotected(uint8_t comm){
+	flip_ms5607(); // select our spi device
+	spi_write(comm); // write a specified command to ask for data
+	flip_ms5607();
+}
+
+uint32_t ms5607_read_unprotected(void){
+	uint32_t rx_data = 0; // temporary 16-bit value
+	flip_ms5607(); // select our spi device
+	spi_write(CMD_MS5607_READ_ADC); // write a specified command to ask for data
+	rx_data  = (uint32_t) spi_read()<<16;
+	rx_data |= (uint32_t) spi_read()<<8;
+	rx_data |= spi_read();
+	flip_ms5607();
+}
+
+void flip_ms5607(void){
+	MS5607_PORT.OUT ^= MS5607_PIN;
 }

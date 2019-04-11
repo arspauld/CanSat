@@ -8,7 +8,7 @@
 #include <asf.h>
 #include "uart.h"
 
-void uart_terminal_init()
+void data_terminal_init()
 {
 	sysclk_enable_peripheral_clock(UART_TERMINAL_SERIAL);	// enable the USART's clock
 	// initialize a configuration struct with USART settings
