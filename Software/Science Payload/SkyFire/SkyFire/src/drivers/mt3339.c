@@ -11,7 +11,7 @@
 void gps_uart_init(void){
 	sysclk_enable_peripheral_clock(GPS_TERMINAL_SERIAL);	// enable the USART's clock
 	// initialize a configuration struct with USART settings
-	static usart_serial_options_t usart_config = {
+	static usart_serial_options_t gps_config = {
 		.baudrate	=	GPS_TERMINAL_SERIAL_BAUDRATE,
 		.charlength =	GPS_TERMINAL_SERIAL_CHAR_LEN,
 		.paritytype =	GPS_TERMINAL_SERIAL_PARITY,
@@ -19,8 +19,10 @@ void gps_uart_init(void){
 	};
 	
 	GPS_TERMINAL_PORT.DIR |= GPS_TERMINAL_TX_PIN; // Puts pin to output
+	
+	//usart_serial_init(GPS_TERMINAL_PORT,&gps_config);
 }
 
-void gps_command(void){
-	
+void gps_command(uint8_t* data){
+	//usart_serial_write_packet(GPS_TERMINAL_PORT, data, sizeof(data));
 }

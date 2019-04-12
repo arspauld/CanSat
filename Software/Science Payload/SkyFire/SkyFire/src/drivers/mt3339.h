@@ -10,7 +10,7 @@
 #ifndef MT3339_H_
 #define MT3339_H_
 
-#define GPS_TERMINAL_SERIAL				&USARTE0 //&USARTC0
+#define GPS_TERMINAL_SERIAL				&USARTD0 //&USARTC0
 #define GPS_TERMINAL_SERIAL_BAUDRATE	9600
 #define GPS_TERMINAL_SERIAL_CHAR_LEN	USART_CHSIZE_8BIT_gc
 #define GPS_TERMINAL_SERIAL_PARITY		USART_PMODE_DISABLED_gc
@@ -23,6 +23,6 @@
 #define GPS_NMEA_SENTENCE				"$PMTK314,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0*2D<CR><LF>"
 
 void gps_uart_init(void);
-void gps_command(void);
+void gps_command(uint8_t* data);
 
 #endif /* MT3339_H_ */

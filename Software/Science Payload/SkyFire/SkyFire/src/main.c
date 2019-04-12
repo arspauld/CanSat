@@ -24,17 +24,20 @@ double	get_altitude(double press);										// meters
 double	get_velocity(RingBuffer16_t* altitudes, uint8_t frequency);		// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
+void	state_check(void);												// Returns the current state
 void	reset_ground(void);												// Resets the ground variables
 void	report(char** string);											// Records and Transmits
 void	record(char** string);											// Writes data into 
 void	transmit(char** string);										// Sends Radio communication
+void	servo_timer_init(void);											// Starts PWM wave for fin servos
+void	servo_timer_alt(void);											// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
 
 
 /////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
-double ground_p = 101.325;		// Pascals standard sea level pressure
-double ground_t = 15.00;		// 15 C
+double ground_p = 101325;		// Pascals standard sea level pressure
+double ground_t = 288.15;		// 15 C
 double ground_a = 0;			// Assumes ground altitude at launch
 
 // Altitude calculation variables
@@ -48,6 +51,9 @@ uint16_t c[] = {0,0,0,0,0,0};
 // Time and Packets
 uint16_t timer = 0;
 uint16_t packets = 0;
+
+// Fin Servo
+uint16_t servo_on_time_us = 1500;
 
 // Initializes variables
 double press = 0;			// Pressure (Pa)
@@ -94,22 +100,12 @@ int main (void)
 		}
 		
 		// Check Sensors
-		//data_collect();
-		
-		// Stores the pressure
-		
-		
-		// Stores Altitude
-		a = (int16_t) (alt*100);
-		rb16_write(&altitudes, &a, 1); // Writes altitude in buffer
-		
-		// Calculates Velocity
-		velocity = get_velocity(&altitudes, 8);
+		data_collect(&altitudes,&pressures);		
 		
 		packets++;
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		printf("%i,%i,%li,%u,%i,%i\n", timer, packets, (int32_t) (press), (uint16_t) (temp * 100), (int16_t) (alt*100), (int16_t) (velocity*100)); // Data Logging Test
+		printf("%i,%i,%li,%u,%i,%i\n", timer, packets, (int32_t) (press), (uint16_t) (temp * 100), (int16_t) (alt), (int16_t) (velocity)); // Data Logging Test
 		//printf("P (Pa): %5li, T (K/100): %5u, A (m): %5i, V (m/s): %5i\n", (int32_t) (press), (uint16_t) (temp * 100), (int16_t) (alt*100), (int16_t) (velocity*100));
 		//printf("Time: %i, Packet: %i\n", time, packets);
 		//record(&str);
@@ -143,6 +139,7 @@ void system_init(void){
 	delay_ms(2);
 	
 	clock_init();
+	servo_timer_init();
 	
 	delay_ms(10);
 	
@@ -192,14 +189,14 @@ double get_pressure(void){
 }
 
 double get_temperature(void){
-	double val = 28815;
+	double val = 288.15;
 	/*
 	uint16_t reading = adc_read();
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
 	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	val = (uint16_t) (100 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
 	*/
-	return (val / 100.0) - 273.15; //returns the temperature in kelvin
+	return val; //returns the temperature in kelvin
 }
 
 double get_altitude(double press){
@@ -227,21 +224,29 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 	int32_t p_i = (int32_t) p;
 	rb32_write(presses,&p_i,1);
 	double p_s = data_check(presses);
+	double a = get_altitude(p_s);
 	
 	if(p_s != -1){
-		press	= p_s;					// Pulls middle value of pressures
-		alt		= get_altitude(p_s);	// Uses the corrected pressure to calculate the altitude
-		temp	= get_temperature();	// Grabs the temperature once
+		press = p_s;					// Pulls middle value of pressures
+		alt	= get_altitude(p_s);	// Uses the corrected pressure to calculate the altitude
+		
+		// Stores Altitude
+		int16_t a = (int16_t) (alt*100);
+		rb16_write(alts, &a, 1); // Writes altitude in buffer
+		
+		// Calculates Velocity
+		velocity = get_velocity(alts, 10);
 	}
+	temp = get_temperature();	// Grabs the temperature once
 }
 
-double data_check(RingBuffer32_t* presses){ ////////////////////Change to working off of Ring Buffers
+double data_check(RingBuffer32_t* presses){
 	// Calculates average of data
 	uint8_t length = 5;
 	double mean = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		if(p > 10000 && p < 1000000){
+		if(p > 10000 && p < 1000000){ // Checks to make certain value makes sense
 			mean += ((double) p)/length;
 		}
 	}
@@ -269,9 +274,13 @@ double data_check(RingBuffer32_t* presses){ ////////////////////Change to workin
 		result = -1;
 	}
 	else{
-		result /= nums; // Averages the new values
+		result /= (double) nums; // Averages the new values
 	}
 	return result;
+}
+
+void state_check(void){
+	
 }
 
 void reset_ground(void){
@@ -292,6 +301,20 @@ void record(char** string){
 void transmit(char** string){
 	 uint8_t a = 0;
 	 printf("%u\n", a);
+}
+
+void servo_timer_init(void){
+	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
+	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
+
+	TCD0.CTRLA = 0x05; // sets the clock's divisor to 1024
+	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
+	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+}
+
+void servo_timer_alt(void){
+	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
 }
 
 void clock_init(void){
