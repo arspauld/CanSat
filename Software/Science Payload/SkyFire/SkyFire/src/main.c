@@ -14,6 +14,10 @@
 #define CALIBRATE_ANGLE		0xBB
 #define SEND_GPS_LOCATION	0xAA
 
+// Tolerances for Flight State
+#define EPSILON_VELOCITY	5
+#define EPSILON_ALTITUDE	10
+
 
 ///////////////////////// Function Prototypes //////////////////////////
 void	system_init(void);												// Starts the system
@@ -26,9 +30,9 @@ void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles dat
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
 void	state_check(void);												// Returns the current state
 void	reset_ground(void);												// Resets the ground variables
-void	report(char** string);											// Records and Transmits
-void	record(char** string);											// Writes data into 
-void	transmit(char** string);										// Sends Radio communication
+void	report(char* string);											// Records and Transmits
+void	record(char* string);											// Writes data into 
+void	transmit(char* string);											// Sends Radio communication
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
 void	servo_timer_alt(void);											// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
@@ -36,6 +40,7 @@ void	clock_init(void);												// Starts a timer to count the seconds
 
 /////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
+uint8_t released = 0;
 double ground_p = 101325;		// Pascals standard sea level pressure
 double ground_t = 288.15;		// 15 C
 double ground_a = 0;			// Assumes ground altitude at launch
@@ -51,6 +56,7 @@ uint16_t c[] = {0,0,0,0,0,0};
 // Time and Packets
 uint16_t timer = 0;
 uint16_t packets = 0;
+uint16_t rate = 10;
 
 // Fin Servo
 uint16_t servo_on_time_us = 1500;
@@ -69,7 +75,7 @@ int main (void)
 {
 	system_init();
 	
-	printf("time, pressure, temperature, altitude, velocity\n");
+	printf("time, packets, rate, pressure, temp, altitude, velocity, state\n");
 	
 	uint8_t mem_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBufferu8_t gcs_comms;
@@ -84,6 +90,12 @@ int main (void)
 	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
 	while(1){
+		// Check Sensors
+		data_collect(&altitudes,&pressures);
+		
+		// Checks State
+		state_check();
+		
 		//Gives each flight state their unique tasks
 		switch(state){
 			case 0:
@@ -97,19 +109,15 @@ int main (void)
 			default:
 				state = 0;
 				break;
-		}
-		
-		// Check Sensors
-		data_collect(&altitudes,&pressures);		
+		}	
 		
 		packets++;
+		if(timer != 0){
+			rate = 10 * packets / timer;
+		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		printf("%i,%i,%li,%u,%i,%i\n", timer, packets, (int32_t) (press), (uint16_t) (temp * 100), (int16_t) (alt), (int16_t) (velocity)); // Data Logging Test
-		//printf("P (Pa): %5li, T (K/100): %5u, A (m): %5i, V (m/s): %5i\n", (int32_t) (press), (uint16_t) (temp * 100), (int16_t) (alt*100), (int16_t) (velocity*100));
-		//printf("Time: %i, Packet: %i\n", time, packets);
-		//record(&str);
-		//delay_ms(240);
+		printf("%i,%i,%i,%li,%i,%i,%i,%i\n", timer, packets, rate, (int32_t) (press), (int16_t) ((temp-273.15)), (int16_t) (100*alt), (int16_t) (100*velocity), state); // Data Logging Test
 	}
 }
 
@@ -119,6 +127,7 @@ void system_init(void){
 	// Initialization of systems
 	sysclk_init(); // initializes the system clock
 	delay_ms(2); // delays the rest of the processes to ensure a started clock
+	sei();
 	
 	// Initialization of pins
 	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
@@ -224,7 +233,6 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 	int32_t p_i = (int32_t) p;
 	rb32_write(presses,&p_i,1);
 	double p_s = data_check(presses);
-	double a = get_altitude(p_s);
 	
 	if(p_s != -1){
 		press = p_s;					// Pulls middle value of pressures
@@ -235,7 +243,7 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		rb16_write(alts, &a, 1); // Writes altitude in buffer
 		
 		// Calculates Velocity
-		velocity = get_velocity(alts, 10);
+		velocity = get_velocity(alts, rate);
 	}
 	temp = get_temperature();	// Grabs the temperature once
 }
@@ -255,7 +263,9 @@ double data_check(RingBuffer32_t* presses){
 	double stdev = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		stdev += pow(p-mean, 2);
+		if(p > 10000 && p < 1000000){
+			stdev += pow(p-mean, 2);
+		}
 	}
 	stdev /= (length - 1);
 	
@@ -264,9 +274,11 @@ double data_check(RingBuffer32_t* presses){
 	uint8_t nums = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		if(abs(p - mean) <= stdev){
-			result += p;
-			nums++;
+		if(p > 10000 && p < 1000000){
+			if(abs(p - mean) <= stdev){
+				result += p;
+				nums++;
+			}
 		}
 	}
 	
@@ -280,7 +292,21 @@ double data_check(RingBuffer32_t* presses){
 }
 
 void state_check(void){
-	
+	if(abs(velocity)>EPSILON_VELOCITY){
+		state = 1;
+		if(velocity < 0){
+			state = 2;
+		}
+	}
+	else{
+		state = 0;
+		if(alt > 50){
+			state = 1;
+		}
+		if(released){	// only change this to true in flight state 2
+			state = 3;
+		}
+	}
 }
 
 void reset_ground(void){
@@ -289,16 +315,16 @@ void reset_ground(void){
 	ground_t = get_temperature();
 }
 
-void report(char** string){
+void report(char* string){
 	record(string);
 	transmit(string);
 }
 
-void record(char** string){
-	printf(*string);
+void record(char* string){
+	printf("%s", string);
 }
 
-void transmit(char** string){
+void transmit(char* string){
 	 uint8_t a = 0;
 	 printf("%u\n", a);
 }
@@ -319,7 +345,6 @@ void servo_timer_alt(void){
 
 void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
-	sei();
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024
 	TCE0.PER = 31249; // 1 Hz

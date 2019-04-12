@@ -77,10 +77,10 @@ uint32_t ms5607_convert_d2(void)
 void ms5607_write_unprotected(uint8_t comm){
 	flip_ms5607(); // select our spi device
 	spi_write(comm); // write a specified command to ask for data
-	flip_ms5607();
 }
 
 uint32_t ms5607_read_unprotected(void){
+	flip_ms5607(); // deselects from the write
 	uint32_t rx_data = 0; // temporary 16-bit value
 	flip_ms5607(); // select our spi device
 	spi_write(CMD_MS5607_READ_ADC); // write a specified command to ask for data

@@ -24,5 +24,6 @@
 
 void gps_uart_init(void);
 void gps_command(uint8_t* data);
+void gps_read_GPGGA(uint8_t* data);
 
 #endif /* MT3339_H_ */

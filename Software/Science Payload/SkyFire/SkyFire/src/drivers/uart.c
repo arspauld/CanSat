@@ -22,5 +22,4 @@ void data_terminal_init()
 	UART_TERMINAL_PORT.DIR |= UART_TERMINAL_TX_PIN;	// set the USART transmit pin to output
 	
 	stdio_serial_init(UART_TERMINAL_SERIAL, &usart_config); // function maps the serial output to printf, not necessary to know how it works
-	
 }

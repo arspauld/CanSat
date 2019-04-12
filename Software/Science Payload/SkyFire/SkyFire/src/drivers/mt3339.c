@@ -20,9 +20,13 @@ void gps_uart_init(void){
 	
 	GPS_TERMINAL_PORT.DIR |= GPS_TERMINAL_TX_PIN; // Puts pin to output
 	
-	//usart_serial_init(GPS_TERMINAL_PORT,&gps_config);
+	usart_serial_init(GPS_TERMINAL_SERIAL,&gps_config);
 }
 
 void gps_command(uint8_t* data){
-	//usart_serial_write_packet(GPS_TERMINAL_PORT, data, sizeof(data));
+	usart_serial_write_packet(GPS_TERMINAL_SERIAL, data, sizeof(data));
+}
+
+void gps_read_GPGGA(uint8_t* data){
+	usart_serial_read_packet(GPS_TERMINAL_SERIAL, data, 70);
 }
