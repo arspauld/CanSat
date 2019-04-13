@@ -411,10 +411,16 @@
     <Compile Include="src\drivers\adc.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\drivers\mt3339.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\drivers\ms5607.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\ms5607.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\mt3339.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\spi_controller.c">
