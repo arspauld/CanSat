@@ -1,0 +1,31 @@
+Solid Edge Translation To IFC
+Date: Sunday,April 07,2019 03:01PM
+Output File: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\3_PIN_HEADER.ifc
+Author: Unknown
+Organization: Unknown
+Source System: Solid Edge
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+Operating System: Windows 8
+Installed Memory: 7.87 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+IFC Adapter Version: 3.0.52
+Solid Edge Version: 110.00.00.107 x64
+
+Export IFC Options
+Export IFC Version: IFC2X3
+Export Part Component Names As Unicode: Off
+Export Construction Sheets: Off
+Export Construction Solids: Off
+Export Construction Wires: Off
+Export Displayed Parts Only: Off
+Export IFC Property Set: Off
+Export Units: Millimeters
+
+Phase 1 of 1 Translating Parasolid to foreign data types...
+Translation process completed
+Time required to translate:00 : 00 : 01
