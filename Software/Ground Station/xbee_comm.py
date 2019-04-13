@@ -7,7 +7,7 @@ import digi.xbee.devices as digi
 local_xbee = digi.XBeeDevice('COM9', 115200)
 
 #Define the remote device (64 bit hex address) based off of the local one
-remote_xbee = digi.RemoteXBeeDevice(local_xbee, digi.XBee64BitAddress.from_hex_string("13A200410711D9"))
+remote_xbee = digi.RemoteXBeeDevice(local_xbee, digi.XBee64BitAddress.from_hex_string('13A200410711D9'))
 
 #Opens the local device
 local_xbee.open()
