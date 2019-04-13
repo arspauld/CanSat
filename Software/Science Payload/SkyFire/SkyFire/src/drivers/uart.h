@@ -19,6 +19,6 @@
 #define UART_TERMINAL_TX_PIN			PIN3_bm
 #define UART_TERMINAL_PORT				PORTE  //PORTC for data logging
 
-void uart_terminal_init(void);
+void data_terminal_init(void);
 
 #endif //UART_H_

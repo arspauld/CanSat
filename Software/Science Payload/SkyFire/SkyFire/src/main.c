@@ -12,25 +12,37 @@
 #define CALIBRATE_CAMERA	0xDD
 #define CALIBRATE_ALTITUDE  0xCC
 #define CALIBRATE_ANGLE		0xBB
-#define GPS					0xAA
+#define SEND_GPS_LOCATION	0xAA
+
+// Tolerances for Flight State
+#define EPSILON_VELOCITY	5
+#define EPSILON_ALTITUDE	10
 
 
 ///////////////////////// Function Prototypes //////////////////////////
-void system_init(void);				// Starts the system
-void ms5607_init(void);				// Collects the sensors constants
-double get_pressure(void);			// kilo Pascals
-double get_temperature(void);		// Kelvin
-double get_altitude(double press);	// meters
-double get_velocity(RingBuffer16_t altitudes, uint8_t frequency);		// Approximates velocity of CanSat
-void report(double alt, double temp, double press);
-void record(double alt, double temp, double press);
-void transmit(double alt, double temp, double press);
+void	system_init(void);												// Starts the system
+void	pressure_init(void);											// Collects the sensors constants
+double	get_pressure(void);												// Pascals
+double	get_temperature(void);											// Celsius
+double	get_altitude(double press);										// meters
+double	get_velocity(RingBuffer16_t* altitudes, uint8_t frequency);		// Approximates velocity of CanSat
+void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
+double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
+void	state_check(void);												// Returns the current state
+void	reset_ground(void);												// Resets the ground variables
+void	report(char* string);											// Records and Transmits
+void	record(char* string);											// Writes data into 
+void	transmit(char* string);											// Sends Radio communication
+void	servo_timer_init(void);											// Starts PWM wave for fin servos
+void	servo_timer_alt(void);											// Function that alters the position of the fins
+void	clock_init(void);												// Starts a timer to count the seconds
 
 
 /////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
-double ground_p = 101.325;		// Pascals standard sea level pressure
-double ground_t = 288.15;		// 288.15 K is Kelvin 15 C
+uint8_t released = 0;
+double ground_p = 101325;		// Pascals standard sea level pressure
+double ground_t = 288.15;		// 15 C
 double ground_a = 0;			// Assumes ground altitude at launch
 
 // Altitude calculation variables
@@ -40,6 +52,22 @@ double g_0 = 9.80665;
 
 // Pressure Calculation variables
 uint16_t c[] = {0,0,0,0,0,0};
+	
+// Time and Packets
+uint16_t timer = 0;
+uint16_t packets = 0;
+uint16_t rate = 10;
+
+// Fin Servo
+uint16_t servo_on_time_us = 1500;
+
+// Initializes variables
+double press = 0;			// Pressure (Pa)
+double temp	 = 0;			// Temperature (C)
+double alt	 = 0;			// Altitude (m)
+int16_t a = 0;				// Integer Altitude (cm)
+double velocity = 0;		// Velocity (cm/s)
+char* str;					// Output String
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -47,19 +75,27 @@ int main (void)
 {
 	system_init();
 	
-	int16_t alt_array[10];
+	printf("time, packets, rate, pressure, temp, altitude, velocity, state\n");
+	
+	uint8_t mem_array[] = {0,0,0,0,0,0,0,0,0,0};
+	RingBufferu8_t gcs_comms;
+	rbu8_init(&gcs_comms, mem_array, (uint16_t) 10);
+	
+	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
 	rb16_init(&altitudes, alt_array, (uint16_t) 10);
 	
-	/*
-	uint8_t mem_array[10];
-	RingBufferu8_t gcs_comms;
-	rbu8_init(&gcs_comms, mem_array, 10);
-	*/
-	
-	printf("Initialized\n");
+	int32_t press_array[] = {0,0,0,0,0,0,0,0,0,0};
+	RingBuffer32_t pressures;	// in centimeters
+	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
 	while(1){
+		// Check Sensors
+		data_collect(&altitudes,&pressures);
+		
+		// Checks State
+		state_check();
+		
 		//Gives each flight state their unique tasks
 		switch(state){
 			case 0:
@@ -73,19 +109,15 @@ int main (void)
 			default:
 				state = 0;
 				break;
+		}	
+		
+		packets++;
+		if(timer != 0){
+			rate = 10 * packets / timer;
 		}
-		
-		
-		// Check Sensors
-		double press = get_pressure();
-		double temp = 288.15; //get_temperature();
-		double alt = get_altitude(press);
-		int16_t a = (int16_t) alt*100;
-		rb16_write(&altitudes, &a, 1);
-		double velocity = get_velocity(altitudes, 2);
-		//printf("%li\n",(int32_t)press);
-		printf("%li, %i, %i\n", (int32_t) (press*10), (int16_t) (alt * 100), (int16_t) (temp * 100));
-		delay_ms(500);
+		// Prints information
+		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
+		printf("%i,%i,%i,%li,%i,%i,%i,%i\n", timer, packets, rate, (int32_t) (press), (int16_t) ((temp-273.15)), (int16_t) (100*alt), (int16_t) (100*velocity), state); // Data Logging Test
 	}
 }
 
@@ -95,6 +127,7 @@ void system_init(void){
 	// Initialization of systems
 	sysclk_init(); // initializes the system clock
 	delay_ms(2); // delays the rest of the processes to ensure a started clock
+	sei();
 	
 	// Initialization of pins
 	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
@@ -102,7 +135,7 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm; // enables lo level interrupts
 	
 	// Driver Initialization
-	uart_terminal_init();
+	data_terminal_init();
 	delay_ms(2);
 	
 //	adc_init();
@@ -111,32 +144,30 @@ void system_init(void){
 	spi_init();
 	delay_ms(2);
 	
-	ms5607_init();
+	pressure_init();
 	delay_ms(2);
 	
+	clock_init();
+	servo_timer_init();
+	
+	delay_ms(10);
 	
 	// Initialization of variables
 	ground_p = get_pressure();
-	//ground_t = get_temperature();
-	ground_a = get_altitude(ground_p);
+	ground_t = get_temperature();
+	ground_a = get_altitude(get_pressure());
 }
 
-void ms5607_init(void){
-	// Resets the ms5607
-	spi_select(0x10);
-	spi_write(0x1E);
-	delay_ms(3);
-	spi_select(0x10);
-	delay_ms(2);
+void pressure_init(void){
+	ms5607_init();
 	
 	// records the constants
-	c[0] = ms5607_read(0xA2);
-	c[1] = ms5607_read(0xA4);
-	c[2] = ms5607_read(0xA6);
-	c[3] = ms5607_read(0xA8);
-	c[4] = ms5607_read(0xAA);
-	c[5] = ms5607_read(0xAC);
-	
+	c[0] = ms5607_read(CMD_MS5607_READ_C1);
+	c[1] = ms5607_read(CMD_MS5607_READ_C2);
+	c[2] = ms5607_read(CMD_MS5607_READ_C3);
+	c[3] = ms5607_read(CMD_MS5607_READ_C4);
+	c[4] = ms5607_read(CMD_MS5607_READ_C5);
+	c[5] = ms5607_read(CMD_MS5607_READ_C6);
 	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
@@ -145,20 +176,36 @@ double get_pressure(void){
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
-	double dt = d2 - (uint64_t)c[4] * 256;
-	double off = (uint64_t) c[1] * 131072 + ((uint64_t) c[3] * dt) / 64;
-	double sens = (uint64_t) c[0] * 65536 + ((uint64_t) c[2] * dt) / 128;
+	double dt = d2 - (uint64_t)c[4] * 256.0;
+	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
+	double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
+	double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
+	
+	/*
+	if(temp < 20){
+		double t2 = ((uint64_t) dt * dt) / 2147483648.0;
+		double off2 = 61 * pow((temp - 2000),2.0) / 16.0;
+		double sens2 = 2 * pow(temp - 2000, 2.0);
+		
+		temp -= t2;
+		off -= off2;
+		sens -= sens2;
+	}
+	*/
+	
 	val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
 	return (val);	// returns pressure in Pa
 }
 
 double get_temperature(void){
-	double val = 0;
+	double val = 288.15;
+	/*
 	uint16_t reading = adc_read();
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
 	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	val = (uint16_t) (100 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
-	return val / 100.0; //returns the temperature in kelvin
+	*/
+	return val; //returns the temperature in kelvin
 }
 
 double get_altitude(double press){
@@ -168,27 +215,142 @@ double get_altitude(double press){
 }
 
 // Approximates the Velocity from past five altitudes
-double get_velocity(RingBuffer16_t altitudes, uint8_t frequency){
+uint8_t data_samples = 3;
+double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency){
 	double vel = 0;
-	for(uint8_t i = 0; i < 5; i++){
-		int16_t new = rb16_get_nth(&altitudes,i);
-		int16_t old = rb16_get_nth(&altitudes,i+1);
-		vel += (double) ((new - old) * frequency);
+	for(uint16_t i = 0; i < data_samples; i++){
+		int32_t new = rb16_get_nth(altitudes,i);
+		int32_t old = rb16_get_nth(altitudes,i+1);
+		int32_t oldest = rb16_get_nth(altitudes,i+2);
+		vel += ((3*new - 4*old + oldest) * frequency / 2.0); // O(h^2) approximation of backwards derivative (Thanks MAE284, you're good for something)
 	}
-	vel /= 5.0;
-	return vel;
+	vel /= data_samples;
+	return (vel/100);
 }
 
-void report(double alt, double temp, double press){
-	record(alt,temp,press);
-	transmit(alt,temp,press);
+void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
+	double p = get_pressure();
+	int32_t p_i = (int32_t) p;
+	rb32_write(presses,&p_i,1);
+	double p_s = data_check(presses);
+	
+	if(p_s != -1){
+		press = p_s;					// Pulls middle value of pressures
+		alt	= get_altitude(p_s);	// Uses the corrected pressure to calculate the altitude
+		
+		// Stores Altitude
+		int16_t a = (int16_t) (alt*100);
+		rb16_write(alts, &a, 1); // Writes altitude in buffer
+		
+		// Calculates Velocity
+		velocity = get_velocity(alts, rate);
+	}
+	temp = get_temperature();	// Grabs the temperature once
 }
 
-void record(double alt, double temp, double press){
-	printf("5343, %8.4f, %8.4f, %8.4f\n", alt, temp, press);
+double data_check(RingBuffer32_t* presses){
+	// Calculates average of data
+	uint8_t length = 5;
+	double mean = 0;
+	for(uint8_t i = 0; i < length; i++){
+		int32_t p = rb32_get_nth(presses, i);
+		if(p > 10000 && p < 1000000){ // Checks to make certain value makes sense
+			mean += ((double) p)/length;
+		}
+	}
+	
+	// Calculates standard deviation of data
+	double stdev = 0;
+	for(uint8_t i = 0; i < length; i++){
+		int32_t p = rb32_get_nth(presses, i);
+		if(p > 10000 && p < 1000000){
+			stdev += pow(p-mean, 2);
+		}
+	}
+	stdev /= (length - 1);
+	
+	// Throws out data that is farther than standard deviation from average
+	double result = 0;
+	uint8_t nums = 0;
+	for(uint8_t i = 0; i < length; i++){
+		int32_t p = rb32_get_nth(presses, i);
+		if(p > 10000 && p < 1000000){
+			if(abs(p - mean) <= stdev){
+				result += p;
+				nums++;
+			}
+		}
+	}
+	
+	if(nums == 0){
+		result = -1;
+	}
+	else{
+		result /= (double) nums; // Averages the new values
+	}
+	return result;
 }
 
-void transmit(double alt, double temp, double press){
+void state_check(void){
+	if(abs(velocity)>EPSILON_VELOCITY){
+		state = 1;
+		if(velocity < 0){
+			state = 2;
+		}
+	}
+	else{
+		state = 0;
+		if(alt > 50){
+			state = 1;
+		}
+		if(released){	// only change this to true in flight state 2
+			state = 3;
+		}
+	}
+}
+
+void reset_ground(void){
+	ground_p = get_pressure();
+	ground_a = get_altitude(ground_p);
+	ground_t = get_temperature();
+}
+
+void report(char* string){
+	record(string);
+	transmit(string);
+}
+
+void record(char* string){
+	printf("%s", string);
+}
+
+void transmit(char* string){
 	 uint8_t a = 0;
-	 a = 1;
+	 printf("%u\n", a);
+}
+
+void servo_timer_init(void){
+	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
+	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
+
+	TCD0.CTRLA = 0x05; // sets the clock's divisor to 1024
+	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
+	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+}
+
+void servo_timer_alt(void){
+	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+}
+
+void clock_init(void){
+	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
+
+	TCE0.CTRLA = 0x07; // divisor set to 1024
+	TCE0.PER = 31249; // 1 Hz
+	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
+}
+
+ISR(TCE0_OVF_vect){
+	timer++;
 }

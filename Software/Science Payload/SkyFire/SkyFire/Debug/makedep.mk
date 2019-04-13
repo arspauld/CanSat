@@ -16,6 +16,8 @@ src\ASF\xmega\drivers\usart\usart.c
 
 src\drivers\adc.c
 
+src\drivers\mt3339.c
+
 src\drivers\ms5607.c
 
 src\drivers\spi_controller.c
