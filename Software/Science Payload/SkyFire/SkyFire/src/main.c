@@ -1,8 +1,11 @@
 #include <asf.h>
 #include <math.h>
+#include <string.h>
 #include "drivers\uart.h"
 #include "drivers\adc.h"
 #include "drivers\ms5607.h"
+#include "drivers\mt3339.h"
+#include "drivers\xbee.h"
 #include "drivers\spi_controller.h"
 #include "tools\RingBuffer.h"
 
@@ -22,6 +25,8 @@
 ///////////////////////// Function Prototypes //////////////////////////
 void	system_init(void);												// Starts the system
 void	pressure_init(void);											// Collects the sensors constants
+void	gps_init(void);													// Starts the GPS
+void	xbee_init(void);												// Starts the Xbee
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
@@ -61,13 +66,16 @@ uint16_t rate = 10;
 // Fin Servo
 uint16_t servo_on_time_us = 1500;
 
+// Xbee shit
+
+
 // Initializes variables
 double press = 0;			// Pressure (Pa)
 double temp	 = 0;			// Temperature (C)
 double alt	 = 0;			// Altitude (m)
-int16_t a = 0;				// Integer Altitude (cm)
 double velocity = 0;		// Velocity (cm/s)
 char* str;					// Output String
+uint8_t gps[70];			// GPS sentences
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -86,7 +94,7 @@ int main (void)
 	rb16_init(&altitudes, alt_array, (uint16_t) 10);
 	
 	int32_t press_array[] = {0,0,0,0,0,0,0,0,0,0};
-	RingBuffer32_t pressures;	// in centimeters
+	RingBuffer32_t pressures;	// in Pascals / 10
 	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
 	while(1){
@@ -94,7 +102,7 @@ int main (void)
 		data_collect(&altitudes,&pressures);
 		
 		// Checks State
-		state_check();
+		//state_check();
 		
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -113,11 +121,21 @@ int main (void)
 		
 		packets++;
 		if(timer != 0){
-			rate = 10 * packets / timer;
+			rate = packets / timer;
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		printf("%i,%i,%i,%li,%i,%i,%i,%i\n", timer, packets, rate, (int32_t) (press), (int16_t) ((temp-273.15)), (int16_t) (100*alt), (int16_t) (100*velocity), state); // Data Logging Test
+		//sprintf(str,"%i,%i,%i,%li,%i,%i,%i,%i\n\0", timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
+		//printf(str);
+		//XBEE_write(str);
+		
+		
+		char* mess = "5343,26,20,100,97065,15\0";
+		//printf("Sending...\n%s\n", mess);
+		XBEE_write(mess);
+		
+		
+		delay_ms(500);
 	}
 }
 
@@ -141,21 +159,24 @@ void system_init(void){
 //	adc_init();
 	delay_ms(2);
 	
-	spi_init();
+//	spi_init();
 	delay_ms(2);
 	
-	pressure_init();
+//	pressure_init();
 	delay_ms(2);
+	
+	xbee_init();
+	//gps_init();
 	
 	clock_init();
-	servo_timer_init();
+//	servo_timer_init();
 	
 	delay_ms(10);
 	
 	// Initialization of variables
-	ground_p = get_pressure();
-	ground_t = get_temperature();
-	ground_a = get_altitude(get_pressure());
+//	ground_p = get_pressure();
+//	ground_t = get_temperature();
+//	ground_a = get_altitude(get_pressure());
 }
 
 void pressure_init(void){
@@ -171,8 +192,29 @@ void pressure_init(void){
 	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
+void gps_init(void){
+	gps_uart_init();				// Starts the GPS
+	delay_ms(2);
+
+	gps_command(GPS_UPDATE_RATE);	// Changes the update rate of the GPS
+	delay_ms(2);
+	gps_command(GPS_NMEA_SENTENCE);	// Changes the output NMEA sentences of the GPS
+	delay_ms(2);
+	gps_command(GPS_NMEA_SENTENCE_2);
+	
+	(*GPS_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_LO_gc;
+}
+
+void xbee_init(void){
+	XBEE_uart_init();				// Starts the GPS
+	delay_ms(2);
+	
+	(*XBEE_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_LO_gc;
+}
+
 double get_pressure(void){
-	double val = 0;
+	double val = 101325;
+	/*
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
@@ -191,10 +233,11 @@ double get_pressure(void){
 		off -= off2;
 		sens -= sens2;
 	}
-	*/
+	
 	
 	val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
-	return (val);	// returns pressure in Pa
+	*/
+	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
@@ -230,9 +273,9 @@ double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency){
 
 void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 	double p = get_pressure();
-	int32_t p_i = (int32_t) p;
+	int32_t p_i = (int32_t) (p * 10);
 	rb32_write(presses,&p_i,1);
-	double p_s = data_check(presses);
+	double p_s = data_check(presses)/10.0;
 	
 	if(p_s != -1){
 		press = p_s;					// Pulls middle value of pressures
@@ -254,7 +297,7 @@ double data_check(RingBuffer32_t* presses){
 	double mean = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		if(p > 10000 && p < 1000000){ // Checks to make certain value makes sense
+		if(p > 100000 && p < 10000000){ // Checks to make certain value makes sense
 			mean += ((double) p)/length;
 		}
 	}
@@ -263,7 +306,7 @@ double data_check(RingBuffer32_t* presses){
 	double stdev = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		if(p > 10000 && p < 1000000){
+		if(p > 100000 && p < 10000000){
 			stdev += pow(p-mean, 2);
 		}
 	}
@@ -274,7 +317,7 @@ double data_check(RingBuffer32_t* presses){
 	uint8_t nums = 0;
 	for(uint8_t i = 0; i < length; i++){
 		int32_t p = rb32_get_nth(presses, i);
-		if(p > 10000 && p < 1000000){
+		if(p > 100000 && p < 10000000){
 			if(abs(p - mean) <= stdev){
 				result += p;
 				nums++;
@@ -354,3 +397,35 @@ void clock_init(void){
 ISR(TCE0_OVF_vect){
 	timer++;
 }
+
+ISR(USARTC0_RXC_vect){
+	uint8_t c = usart_getchar(GPS_TERMINAL_SERIAL);
+	printf("%c", c);
+	
+	switch(c){
+		case RESET:
+			printf("RESET\n");
+			break;
+		case CALIBRATE:
+			printf("CALIBRATE\n");
+			break;
+		case CALIBRATE_CAMERA:
+			printf("CALIBRATE_CAMERA\n");
+			break;
+		case CALIBRATE_ALTITUDE:
+			printf("CALIBRATE_ALTITUDE\n");
+			break;
+		case CALIBRATE_ANGLE:
+			printf("CALIBRATE_ANGLE\n");
+			break;
+		case SEND_GPS_LOCATION:
+			printf("SEND_GPS_LOCATION\n");
+			break;
+	}
+}
+
+/*
+ISR(USARTD0_RXC_vect){
+	
+}
+*/

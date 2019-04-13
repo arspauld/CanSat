@@ -86,6 +86,7 @@ C_SRCS +=  \
 ../src/drivers/ms5607.c \
 ../src/drivers/spi_controller.c \
 ../src/drivers/uart.c \
+../src/drivers/xbee.c \
 ../src/tools/RingBuffer.c \
 ../src/ASF/common/services/serial/usart_serial.c \
 ../src/ASF/common/services/ioport/xmega/ioport_compat.c \
@@ -116,6 +117,7 @@ src/drivers/mt3339.o \
 src/drivers/ms5607.o \
 src/drivers/spi_controller.o \
 src/drivers/uart.o \
+src/drivers/xbee.o \
 src/tools/RingBuffer.o \
 src/ASF/common/services/serial/usart_serial.o \
 src/ASF/common/services/ioport/xmega/ioport_compat.o \
@@ -139,6 +141,7 @@ src/drivers/mt3339.o \
 src/drivers/ms5607.o \
 src/drivers/spi_controller.o \
 src/drivers/uart.o \
+src/drivers/xbee.o \
 src/tools/RingBuffer.o \
 src/ASF/common/services/serial/usart_serial.o \
 src/ASF/common/services/ioport/xmega/ioport_compat.o \
@@ -162,6 +165,7 @@ src/drivers/mt3339.d \
 src/drivers/ms5607.d \
 src/drivers/spi_controller.d \
 src/drivers/uart.d \
+src/drivers/xbee.d \
 src/tools/RingBuffer.d \
 src/ASF/common/services/serial/usart_serial.d \
 src/ASF/common/services/ioport/xmega/ioport_compat.d \
@@ -185,6 +189,7 @@ src/drivers/mt3339.d \
 src/drivers/ms5607.d \
 src/drivers/spi_controller.d \
 src/drivers/uart.d \
+src/drivers/xbee.d \
 src/tools/RingBuffer.d \
 src/ASF/common/services/serial/usart_serial.d \
 src/ASF/common/services/ioport/xmega/ioport_compat.d \
@@ -281,6 +286,13 @@ src/drivers/spi_controller.o: ../src/drivers/spi_controller.c
 	
 
 src/drivers/uart.o: ../src/drivers/uart.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -DDEBUG -DBOARD=USER_BOARD  -I"../src/ASF/common/boards/user_board" -I"../src/ASF/common/boards" -I"../src/ASF/xmega/utils/preprocessor" -I"../src/ASF/xmega/utils" -I"../src/ASF/common/utils" -I"../src" -I"../src/config" -I"../src/ASF/xmega/drivers/cpu" -I"../src/ASF/xmega/drivers/nvm" -I"../src/ASF/xmega/drivers/pmic" -I"../src/ASF/xmega/drivers/spi" -I"../src/ASF/common/services/clock" -I"../src/ASF/common/services/ioport" -I"../src/ASF/common/services/serial/xmega_usart" -I"../src/ASF/common/services/serial" -I"../src/ASF/xmega/drivers/usart" -I"../src/ASF/common/services/delay" -I"../src/ASF/common/utils/stdio/stdio_serial" -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include" -I"../src/ASF/xmega/drivers/sleep" -I"../src/ASF/common/services/sleepmgr" -I"../src/ASF/xmega/drivers/adc"  -O1 -fdata-sections -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=atxmega128a1u -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\gcc\dev\atxmega128a1u" -c -std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+src/drivers/xbee.o: ../src/drivers/xbee.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -DDEBUG -DBOARD=USER_BOARD  -I"../src/ASF/common/boards/user_board" -I"../src/ASF/common/boards" -I"../src/ASF/xmega/utils/preprocessor" -I"../src/ASF/xmega/utils" -I"../src/ASF/common/utils" -I"../src" -I"../src/config" -I"../src/ASF/xmega/drivers/cpu" -I"../src/ASF/xmega/drivers/nvm" -I"../src/ASF/xmega/drivers/pmic" -I"../src/ASF/xmega/drivers/spi" -I"../src/ASF/common/services/clock" -I"../src/ASF/common/services/ioport" -I"../src/ASF/common/services/serial/xmega_usart" -I"../src/ASF/common/services/serial" -I"../src/ASF/xmega/drivers/usart" -I"../src/ASF/common/services/delay" -I"../src/ASF/common/utils/stdio/stdio_serial" -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include" -I"../src/ASF/xmega/drivers/sleep" -I"../src/ASF/common/services/sleepmgr" -I"../src/ASF/xmega/drivers/adc"  -O1 -fdata-sections -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g3 -Wall -mmcu=atxmega128a1u -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\gcc\dev\atxmega128a1u" -c -std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

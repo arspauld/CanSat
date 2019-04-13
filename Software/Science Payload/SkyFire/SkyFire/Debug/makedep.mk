@@ -24,6 +24,8 @@ src\drivers\spi_controller.c
 
 src\drivers\uart.c
 
+src\drivers\xbee.c
+
 src\tools\RingBuffer.c
 
 src\ASF\common\services\serial\usart_serial.c

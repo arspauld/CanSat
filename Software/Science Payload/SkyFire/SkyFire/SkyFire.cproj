@@ -111,7 +111,7 @@
       </framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
-    <avrtoolserialnumber>ATML1802021800001465</avrtoolserialnumber>
+    <avrtoolserialnumber>ATML1802021800002028</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x1E974C</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_simulator>
       <ToolOptions>
@@ -146,10 +146,21 @@
         <InterfaceName>PDI</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML1802021800001465</ToolNumber>
+      <ToolNumber>ATML1802021800002028</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
     <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
+    <com_atmel_avrdbg_tool_jtagice3plus>
+      <ToolOptions>
+        <InterfaceProperties>
+          <PdiClock>4000000</PdiClock>
+        </InterfaceProperties>
+        <InterfaceName>PDI</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.jtagice3plus</ToolType>
+      <ToolNumber>J30200001756</ToolNumber>
+      <ToolName>JTAGICE3</ToolName>
+    </com_atmel_avrdbg_tool_jtagice3plus>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -433,6 +444,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\uart.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\xbee.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\xbee.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\tools\RingBuffer.c">
