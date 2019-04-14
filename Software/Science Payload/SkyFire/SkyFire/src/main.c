@@ -2,7 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "drivers\uart.h"
-#include "drivers\adc.h"
+#include "drivers\thermistor.h"
 #include "drivers\ms5607.h"
 #include "drivers\mt3339.h"
 #include "drivers\xbee.h"
@@ -57,25 +57,35 @@ double g_0 = 9.80665;
 
 // Pressure Calculation variables
 uint16_t c[] = {0,0,0,0,0,0};
-	
+
+// Fin Servo
+uint16_t servo_on_time_us = 1500;
+
+// GPS Stuff
+uint8_t gps[70];			// GPS sentences
+
+// Output string
+char* str[100];					// Output String
+
 // Time and Packets
 uint16_t timer = 0;
 uint16_t packets = 0;
 uint16_t rate = 10;
 
-// Fin Servo
-uint16_t servo_on_time_us = 1500;
-
-// Xbee shit
-
-
 // Initializes variables
 double press = 0;			// Pressure (Pa)
-double temp	 = 0;			// Temperature (C)
-double alt	 = 0;			// Altitude (m)
+double temp = 0;			// Temperature (C)
+double alt = 0;				// Altitude (m)
 double velocity = 0;		// Velocity (cm/s)
-char* str;					// Output String
-uint8_t gps[70];			// GPS sentences
+double gps_t = 0;			// GPS Time
+double gps_lat = 0;			// GPS Latitude (+:N,-:S)
+double gps_long = 0;		// GPS Longitude (+:E,-:W)
+double gps_alt = 0;			// GPS Altitude
+uint8_t gps_sats = 0;		// GPS Satellites
+double pitch = 0;			// Pitch Angle
+double roll = 0;			// Roll Angle
+double rpm = 0;				// Calculate RPM of Blades
+double angle = 0;			// Angle of Bonus Direction	
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -84,10 +94,6 @@ int main (void)
 	system_init();
 	
 	printf("time, packets, rate, pressure, temp, altitude, velocity, state\n");
-	
-	uint8_t mem_array[] = {0,0,0,0,0,0,0,0,0,0};
-	RingBufferu8_t gcs_comms;
-	rbu8_init(&gcs_comms, mem_array, (uint16_t) 10);
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -125,9 +131,9 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		//sprintf(str,"%i,%i,%i,%li,%i,%i,%i,%i\n\0", timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
-		//printf(str);
-		//XBEE_write(str);
+		sprintf(str,"%i,%i,%i,%li,%i,%i,%i,%i\n\0", timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
+		printf(str);
+		XBEE_write(str);
 		
 		
 		char* mess = "5343,26,20,100,97065,15\0";
@@ -156,7 +162,7 @@ void system_init(void){
 	data_terminal_init();
 	delay_ms(2);
 	
-//	adc_init();
+//	thermistor_init();
 	delay_ms(2);
 	
 //	spi_init();
@@ -223,7 +229,7 @@ double get_pressure(void){
 	double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
 	double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 	
-	/*
+	
 	if(temp < 20){
 		double t2 = ((uint64_t) dt * dt) / 2147483648.0;
 		double off2 = 61 * pow((temp - 2000),2.0) / 16.0;
@@ -376,14 +382,14 @@ void servo_timer_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	TCD0.CTRLA = 0x05; // sets the clock's divisor to 1024
-	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
-	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
+	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD1.PER = 10000; // sets the period (or the TOP value) to the period
+	TCD1.CCA = (uint16_t) ((TCD1.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
 }
 
 void servo_timer_alt(void){
-	TCD0.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+	TCD1.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
 }
 
 void clock_init(void){

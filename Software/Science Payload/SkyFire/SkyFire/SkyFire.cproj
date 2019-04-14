@@ -416,10 +416,16 @@
     <None Include="src\config\conf_adc.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\drivers\adc.c">
+    <Compile Include="src\drivers\spy_cam.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\drivers\adc.h">
+    <Compile Include="src\drivers\spy_cam.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\thermistor.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\thermistor.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\mt3339.c">
@@ -444,6 +450,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\uart.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\voltage.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\voltage.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\xbee.c">
