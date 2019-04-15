@@ -14,6 +14,8 @@ src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c
 
 src\ASF\xmega\drivers\usart\usart.c
 
+src\drivers\spy_cam.c
+
 src\drivers\thermistor.c
 
 src\drivers\mt3339.c
@@ -23,6 +25,8 @@ src\drivers\ms5607.c
 src\drivers\spi_controller.c
 
 src\drivers\uart.c
+
+src\drivers\voltage.c
 
 src\drivers\xbee.c
 

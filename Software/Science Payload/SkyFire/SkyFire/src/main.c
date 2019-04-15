@@ -7,6 +7,8 @@
 #include "drivers\mt3339.h"
 #include "drivers\xbee.h"
 #include "drivers\spi_controller.h"
+#include "drivers\spy_cam.h"
+#include "drivers\voltage.h"
 #include "tools\RingBuffer.h"
 
 // GCS Commands
@@ -63,9 +65,11 @@ uint16_t servo_on_time_us = 1500;
 
 // GPS Stuff
 uint8_t gps[70];			// GPS sentences
+uint8_t writing;
+uint8_t pos;
 
 // Output string
-char* str[100];					// Output String
+char str[100];					// Output String
 
 // Time and Packets
 uint16_t timer = 0;
@@ -103,6 +107,8 @@ int main (void)
 	RingBuffer32_t pressures;	// in Pascals / 10
 	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
+	char* format = "%i,%i,%i,%li,%i,%i,%i,%i\n\0";
+	
 	while(1){
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
@@ -131,7 +137,7 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		sprintf(str,"%i,%i,%i,%li,%i,%i,%i,%i\n\0", timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
+		sprintf(str,format, timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
 		printf(str);
 		XBEE_write(str);
 		
@@ -430,8 +436,13 @@ ISR(USARTC0_RXC_vect){
 	}
 }
 
-/*
-ISR(USARTD0_RXC_vect){
+
+ISR(USARTD1_RXC_vect){
+	uint8_t c = usart_getchar(GPS_TERMINAL_SERIAL);
+	printf("%c", c);
 	
+	if(c == (uint8_t) '$'){
+		writing = 1;
+		pos = 0;
+	}
 }
-*/

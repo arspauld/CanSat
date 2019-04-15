@@ -11,7 +11,8 @@
 #define SPY_CAM_H_
 
 
-
+void cam_init(void);
+void cam_switch(void);
 
 
 #endif /* SPY_CAM_H_ */
