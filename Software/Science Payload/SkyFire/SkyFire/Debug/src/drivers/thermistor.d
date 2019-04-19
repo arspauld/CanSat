@@ -1,4 +1,5 @@
-src/main.d src/main.o: ../src/main.c ../src/asf.h \
+src/drivers/thermistor.d src/drivers/thermistor.o: \
+ ../src/drivers/thermistor.c ../src/asf.h \
  ../src/ASF/xmega/drivers/adc/adc.h ../src/ASF/xmega/utils/compiler.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\io.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\sfr_defs.h \
@@ -57,12 +58,7 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/ASF/common/services/serial/serial.h \
  ../src/ASF/common/services/serial/xmega_usart/usart_serial.h \
  ../src/ASF/xmega/drivers/usart/usart.h ../src/config/conf_usart_serial.h \
- c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\math.h \
- c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h \
- ../src/drivers\uart.h ../src/drivers\thermistor.h \
- ../src/drivers\ms5607.h ../src/drivers\mt3339.h ../src/drivers\xbee.h \
- ../src/drivers\spi_controller.h ../src/drivers\spy_cam.h \
- ../src/drivers\voltage.h ../src/tools\RingBuffer.h
+ ../src/drivers/thermistor.h
 
 ../src/asf.h:
 
@@ -196,24 +192,4 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 
 ../src/config/conf_usart_serial.h:
 
-c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\math.h:
-
-c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h:
-
-../src/drivers\uart.h:
-
-../src/drivers\thermistor.h:
-
-../src/drivers\ms5607.h:
-
-../src/drivers\mt3339.h:
-
-../src/drivers\xbee.h:
-
-../src/drivers\spi_controller.h:
-
-../src/drivers\spy_cam.h:
-
-../src/drivers\voltage.h:
-
-../src/tools\RingBuffer.h:
+../src/drivers/thermistor.h:
