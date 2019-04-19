@@ -37,9 +37,6 @@ void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles dat
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
 void	state_check(void);												// Returns the current state
 void	reset_ground(void);												// Resets the ground variables
-void	report(char* string);											// Records and Transmits
-void	record(char* string);											// Writes data into 
-void	transmit(char* string);											// Sends Radio communication
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
 void	servo_timer_alt(void);											// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
@@ -80,6 +77,7 @@ uint16_t rate = 10;
 double press = 0;			// Pressure (Pa)
 double temp = 0;			// Temperature (C)
 double alt = 0;				// Altitude (m)
+double volt = 0;			// Battery Terminal Voltage (V)
 double velocity = 0;		// Velocity (cm/s)
 double gps_t = 0;			// GPS Time
 double gps_lat = 0;			// GPS Latitude (+:N,-:S)
@@ -97,7 +95,7 @@ int main (void)
 {
 	system_init();
 	
-	printf("time, packets, rate, pressure, temp, altitude, velocity, state\n");
+	printf("Initialized\n");
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -107,7 +105,7 @@ int main (void)
 	RingBuffer32_t pressures;	// in Pascals / 10
 	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
-	char* format = "%i,%i,%i,%li,%i,%i,%i,%i\n\0";
+	char* format = "5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i\n\0";
 	
 	while(1){
 		// Check Sensors
@@ -137,14 +135,8 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		sprintf(str,format, timer, packets, rate, (int32_t) press, (int16_t) ((temp-273.15)), (int16_t) (alt), (int16_t) (velocity), state); // Data Logging Test
-		printf(str);
-		XBEE_write(str);
-		
-		
-		char* mess = "5343,26,20,100,97065,15\0";
-		//printf("Sending...\n%s\n", mess);
-		XBEE_write(mess);
+		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int32_t)gps_t,(int32_t)gps_lat,(int32_t)gps_long,(int16_t)gps_alt,(int16_t)gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle); // Data Logging Test
+		//printf(str);
 		
 		
 		delay_ms(500);
@@ -171,7 +163,7 @@ void system_init(void){
 //	thermistor_init();
 	delay_ms(2);
 	
-//	spi_init();
+	spi_init();
 	delay_ms(2);
 	
 //	pressure_init();
@@ -181,14 +173,14 @@ void system_init(void){
 	//gps_init();
 	
 	clock_init();
-//	servo_timer_init();
+//  servo_timer_init();
 	
 	delay_ms(10);
 	
 	// Initialization of variables
-//	ground_p = get_pressure();
-//	ground_t = get_temperature();
-//	ground_a = get_altitude(get_pressure());
+	ground_p = get_pressure();
+	ground_t = get_temperature();
+	ground_a = get_altitude(ground_p);
 }
 
 void pressure_init(void){
@@ -235,7 +227,6 @@ double get_pressure(void){
 	double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
 	double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 	
-	
 	if(temp < 20){
 		double t2 = ((uint64_t) dt * dt) / 2147483648.0;
 		double off2 = 61 * pow((temp - 2000),2.0) / 16.0;
@@ -266,7 +257,7 @@ double get_temperature(void){
 double get_altitude(double press){
 	double val = 0;
 	val = ground_t * (pow(ground_p / press, R * L / g_0) - 1) / L;
-	return val;		//returns altitude in meters
+	return (val-ground_a);		//returns altitude in meters
 }
 
 // Approximates the Velocity from past five altitudes
@@ -370,20 +361,6 @@ void reset_ground(void){
 	ground_t = get_temperature();
 }
 
-void report(char* string){
-	record(string);
-	transmit(string);
-}
-
-void record(char* string){
-	printf("%s", string);
-}
-
-void transmit(char* string){
-	 uint8_t a = 0;
-	 printf("%u\n", a);
-}
-
 void servo_timer_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
@@ -408,12 +385,14 @@ void clock_init(void){
 
 ISR(TCE0_OVF_vect){
 	timer++;
+	printf(str);
+	XBEE_write(str);
 }
 
 ISR(USARTC0_RXC_vect){
-	uint8_t c = usart_getchar(GPS_TERMINAL_SERIAL);
+	uint8_t c = usart_getchar(XBEE_TERMINAL_SERIAL);
 	printf("%c", c);
-	
+	/*
 	switch(c){
 		case RESET:
 			printf("RESET\n");
@@ -434,6 +413,7 @@ ISR(USARTC0_RXC_vect){
 			printf("SEND_GPS_LOCATION\n");
 			break;
 	}
+	*/
 }
 
 

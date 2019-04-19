@@ -28,7 +28,7 @@ void XBEE_write(char* data){
 	for(uint8_t i = 0; i < strlen(data); i++){
 		usart_putchar(XBEE_TERMINAL_SERIAL, (uint8_t) data[i]);
 	}
-	usart_putchar(XBEE_TERMINAL_SERIAL, 10);
+	//usart_putchar(XBEE_TERMINAL_SERIAL, 10);
 }
 
 uint8_t XBEE_read(void){
