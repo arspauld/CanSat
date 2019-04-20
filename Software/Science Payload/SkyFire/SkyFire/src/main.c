@@ -95,7 +95,8 @@ int main (void)
 {
 	system_init();
 	
-	printf("Initialized\n");
+	//printf("Initialized\n");
+	cam_switch();
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -112,7 +113,7 @@ int main (void)
 		data_collect(&altitudes,&pressures);
 		
 		// Checks State
-		//state_check();
+		state_check();
 		
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -137,9 +138,6 @@ int main (void)
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
 		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int32_t)gps_t,(int32_t)gps_lat,(int32_t)gps_long,(int16_t)gps_alt,(int16_t)gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle); // Data Logging Test
 		//printf(str);
-		
-		
-		delay_ms(500);
 	}
 }
 
@@ -166,14 +164,15 @@ void system_init(void){
 	spi_init();
 	delay_ms(2);
 	
-//	pressure_init();
+	pressure_init();
 	delay_ms(2);
 	
-	xbee_init();
+	//xbee_init();
 	//gps_init();
 	
 	clock_init();
-//  servo_timer_init();
+    //servo_timer_init();
+	cam_init();
 	
 	delay_ms(10);
 	
