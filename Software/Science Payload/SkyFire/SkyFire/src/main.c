@@ -32,7 +32,7 @@ void	xbee_init(void);												// Starts the Xbee
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
-double	get_velocity(RingBuffer16_t* altitudes, uint8_t frequency);		// Approximates velocity of CanSat
+double	diff(RingBuffer16_t* data, uint8_t frequency);			// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
 void	state_check(void);												// Returns the current state
@@ -161,13 +161,13 @@ void system_init(void){
 //	thermistor_init();
 	delay_ms(2);
 	
-	spi_init();
+	//spi_init();
 	delay_ms(2);
 	
-	pressure_init();
+	//pressure_init();
 	delay_ms(2);
 	
-	//xbee_init();
+	xbee_init();
 	//gps_init();
 	
 	clock_init();
@@ -225,7 +225,7 @@ double get_pressure(void){
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
 	double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
 	double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
-	
+	/*
 	if(temp < 20){
 		double t2 = ((uint64_t) dt * dt) / 2147483648.0;
 		double off2 = 61 * pow((temp - 2000),2.0) / 16.0;
@@ -235,20 +235,20 @@ double get_pressure(void){
 		off -= off2;
 		sens -= sens2;
 	}
-	
-	
-	val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
 	*/
+	
+	//val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
+	
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
 	double val = 288.15;
 	/*
-	uint16_t reading = adc_read();
+	uint16_t reading = thermistor_read();
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
 	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	val = (uint16_t) (100 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
 	*/
 	return val; //returns the temperature in kelvin
 }
@@ -261,16 +261,16 @@ double get_altitude(double press){
 
 // Approximates the Velocity from past five altitudes
 uint8_t data_samples = 3;
-double get_velocity(RingBuffer16_t* altitudes, uint8_t frequency){
-	double vel = 0;
+double diff(RingBuffer16_t* data, uint8_t frequency){
+	double val = 0;
 	for(uint16_t i = 0; i < data_samples; i++){
-		int32_t new = rb16_get_nth(altitudes,i);
-		int32_t old = rb16_get_nth(altitudes,i+1);
-		int32_t oldest = rb16_get_nth(altitudes,i+2);
-		vel += ((3*new - 4*old + oldest) * frequency / 2.0); // O(h^2) approximation of backwards derivative (Thanks MAE284, you're good for something)
+		int32_t new = rb16_get_nth(data,i);
+		int32_t old = rb16_get_nth(data,i+1);
+		int32_t oldest = rb16_get_nth(data,i+2);
+		val += ((3*new - 4*old + oldest) * frequency / 2.0); // O(h^2) approximation of backwards derivative (Thanks MAE284, you're good for something)
 	}
-	vel /= data_samples;
-	return (vel/100);
+	val /= data_samples;
+	return (val/100);
 }
 
 void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
@@ -288,7 +288,7 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		rb16_write(alts, &a, 1); // Writes altitude in buffer
 		
 		// Calculates Velocity
-		velocity = get_velocity(alts, rate);
+		velocity = diff(alts, rate);
 	}
 	temp = get_temperature();	// Grabs the temperature once
 }
