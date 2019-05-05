@@ -1,0 +1,39 @@
+STEP translation to Solid Edge
+Date: Saturday,May 04,2019 02:53PM
+Source File: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame\1692K480_TYPE_302_SS_CONICAL_COMPRESSION_SPRING.STEP
+Author: t2jrg
+Organization: Unknown
+Source System: SolidWorks 2009
+
+Hardware:
+Processor: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+Operating System: Windows 8
+Installed Memory: 7.87 GB
+
+Software Information
+Parasolid Version: 30.0.167
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
+Solid Edge Version: 110.00.00.107 x64
+
+Step Import Options
+Import Faceted Bodies: On
+Import Check Bodies: Off
+Import Curves: On
+Import DoNotSave: On
+Import Multiple Bodies As Single Part File: On
+Import Stitch Surfaces: On
+Import Boolean Solids: On
+Make Base Feature: On
+Simplify Geometry: On
+Import Imprint Curves: On
+Import Drive: C:
+Import Stitch Surfaces: On
+Import Surfaces: On
+Import Output Path: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame
+Import Enable Default Output Path: On
+Import Path: 
+
+Translating to Parasolid data types...
+Translation process completed
+Total time required to translate and post process:00 : 00 : 01
