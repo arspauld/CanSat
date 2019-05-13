@@ -10,14 +10,14 @@ import time
 import serial
 import os
 
-#Open the serial port
+#  Open the serial port
 ser = serial.Serial()
 ser.timeout = 0.02
 ser.baudrate = 9600
 ser.port = 'COM9'
 ser.open()
 
-#   Commands
+#  Commands
 """For use with the ground station to control the GUI"""
 RESET=0xFF
 CALIBRATE=0xEE
@@ -134,10 +134,10 @@ def write2payload():
 
 #Button Functions
 def halt():
-    if not halt_btn.isChecked():
-        timer.start()
-    else:
+    if halt_btn.isChecked():
         timer.stop()
+    else:
+        timer.start()
 
 def reset():
     altitude.clear()
