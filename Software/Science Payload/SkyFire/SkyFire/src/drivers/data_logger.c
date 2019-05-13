@@ -6,7 +6,7 @@
  */ 
 
 #include <asf.h>
-#include "uart.h"
+#include "data_logger.h"
 
 void data_terminal_init()
 {
