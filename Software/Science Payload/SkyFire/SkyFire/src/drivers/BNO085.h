@@ -7,6 +7,8 @@
 
 #include <asf.h>
 
+#define 
+
 #ifndef BNO085_H_
 #define BNO085_H_
 
