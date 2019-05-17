@@ -1,7 +1,7 @@
 #include <asf.h>
 #include <math.h>
 #include <string.h>
-#include "drivers\uart.h"
+#include "drivers\data_logger.h"
 #include "drivers\thermistor.h"
 #include "drivers\ms5607.h"
 #include "drivers\mt3339.h"
@@ -32,13 +32,13 @@ void	xbee_init(void);												// Starts the Xbee
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
-double	diff(RingBuffer16_t* data, uint8_t frequency);			// Approximates velocity of CanSat
+double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
 void	state_check(void);												// Returns the current state
 void	reset_ground(void);												// Resets the ground variables
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
-void	servo_timer_alt(void);											// Function that alters the position of the fins
+void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
 
 
@@ -58,15 +58,15 @@ double g_0 = 9.80665;
 uint16_t c[] = {0,0,0,0,0,0};
 
 // Fin Servo
-uint16_t servo_on_time_us = 1500;
+uint16_t servo_pulse = 1500;
 
 // GPS Stuff
-uint8_t gps[70];			// GPS sentences
+char gps[70];			// GPS sentences
 uint8_t writing;
 uint8_t pos;
 
 // Output string
-char str[100];					// Output String
+char str[70];					// Output String
 
 // Time and Packets
 uint16_t timer = 0;
@@ -106,6 +106,10 @@ int main (void)
 	RingBuffer32_t pressures;	// in Pascals / 10
 	rb32_init(&pressures, press_array, (uint16_t) 10);
 	
+	int16_t direct_array[] = {0,0,0,0,0,0,0,0,0,0};
+	RingBuffer16_t directions;	// in hundreths degrees
+	rb16_init(&directions, direct_array, (uint16_t) 10);
+	
 	char* format = "5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i\n\0";
 	
 	while(1){
@@ -136,7 +140,7 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int32_t)gps_t,(int32_t)gps_lat,(int32_t)gps_long,(int16_t)gps_alt,(int16_t)gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle); // Data Logging Test
+		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int32_t)gps_t,(int32_t)gps_lat,(int32_t)gps_long,(int16_t)gps_alt,gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle); // Data Logging Test
 		//printf(str);
 	}
 }
@@ -367,11 +371,31 @@ void servo_timer_init(void){
 	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD1.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD1.CCA = (uint16_t) ((TCD1.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+	TCD1.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle // 500 ticks per millisecond
 }
 
-void servo_timer_alt(void){
-	TCD1.CCA = (uint16_t) ((TCD0.PER) * (servo_on_time_us / 1000.0)); // makes the waveform be created for a duty cycle
+void servo_pid(RingBuffer16_t* direct){
+	double k_p = 0;
+	double k_i = 0;
+	double k_d = 0;
+	
+	double p = 0;
+	double i = 0;
+	double d = 0;
+	
+	int16_t sum = 0;
+	for(uint8_t i = 0; i < 10; i++){
+		sum += rb32_get_nth(direct,i);
+	}
+	
+	p = k_p * rb16_get_nth(direct, 0) / 100.0;
+	i = k_i * sum/100;
+	d = k_d * diff(direct,rate);
+	
+	double val = p + i + d;
+	servo_pulse = 1500 + val;  // 1500 is the zero position in this model
+	
+	TCD1.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle
 }
 
 void clock_init(void){
@@ -424,4 +448,6 @@ ISR(USARTD1_RXC_vect){
 		writing = 1;
 		pos = 0;
 	}
+	
+	sprintf(gps,"%s%c\0",gps,c);
 }
