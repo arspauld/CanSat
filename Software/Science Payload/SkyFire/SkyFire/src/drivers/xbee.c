@@ -27,6 +27,7 @@ void XBEE_uart_init(void){
 
 void XBEE_spi_init(void){
 	XBEE_SS_PORT.DIR |= XBEE_SS_PIN;
+	XBEE_SS_PORT.OUT |= XBEE_SS_PIN;
 }
 
 void XBEE_uart_write(char* data){

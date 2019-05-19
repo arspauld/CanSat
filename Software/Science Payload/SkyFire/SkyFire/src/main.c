@@ -106,6 +106,9 @@ double rpm = 0;				// Calculate RPM of Blades
 double angle = 0;			// Angle of Bonus Direction	
 
 
+char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i,%i\n\0";
+
+
 ////////////////////////////// Functions ///////////////////////////////
 int main (void)
 {
@@ -123,8 +126,6 @@ int main (void)
 	int16_t direct_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t directions;	// in hundreths degrees
 	rb16_init(&directions, direct_array, (uint16_t) 10);
-	
-	char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i,%i\n\0";
 	
 	uint8_t cam_initialized = 0;
 	uint8_t buzzer_initialized = 0;
@@ -180,7 +181,13 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int16_t)(((int32_t)gps_t)/10000),(int16_t)((((int32_t)gps_t)%10000)/100),(int16_t)(((int32_t)gps_t)%100),(int16_t)gps_lat,((int32_t)(gps_lat*1000000))%1000000,(int16_t)gps_long,abs(((int32_t)(gps_long*1000000))%1000000),(int16_t)gps_alt,((int16_t)(gps_alt)*10)%10,gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle,0); // Data Logging Test
+		sprintf(str,format,timer,packets,
+			(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+			(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+			(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+			(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+			(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+			state,									(int16_t)angle,								0); // Data Logging Test
 		printf(str);
 		//delay_ms(500);
 	}
