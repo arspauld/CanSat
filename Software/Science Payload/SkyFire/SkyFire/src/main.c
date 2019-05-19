@@ -9,15 +9,16 @@
 #include "drivers\spi_controller.h"
 #include "drivers\spy_cam.h"
 #include "drivers\voltage.h"
+#include "drivers\hall.h"
 #include "tools\RingBuffer.h"
 
 // GCS Commands
-#define RESET				0xFF
-#define CALIBRATE			0xEE
-#define CALIBRATE_CAMERA	0xDD
-#define CALIBRATE_ALTITUDE  0xCC
-#define CALIBRATE_ANGLE		0xBB
-#define SEND_GPS_LOCATION	0xAA
+#define RESET				'f'
+#define CALIBRATE			'e'
+#define CALIBRATE_ALTITUDE	'c'
+#define CALIBRATE_ANGLE		'b'
+#define SEND_GPS_LOCATION	'a'
+#define PACKET				'd'
 
 // Tolerances for Flight State
 #define EPSILON_VELOCITY	5
@@ -29,6 +30,7 @@ void	system_init(void);												// Starts the system
 void	pressure_init(void);											// Collects the sensors constants
 void	gps_init(void);													// Starts the GPS
 void	xbee_init(void);												// Starts the Xbee
+void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
@@ -36,15 +38,25 @@ double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates veloci
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
 void	state_check(void);												// Returns the current state
-void	reset_ground(void);												// Resets the ground variables
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
 void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
+void	buzzer_init(void);
+
+//Xbee controls
+void	reset(void);													// Re-initializes the CanSat
+void	calibrate(void);
+void	cali_alt(void);
+void	cali_ang(void);
+void	send_gps(void);
+void	packet(void);
+void	xbee_command(uint8_t c);
 
 
 /////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
 uint8_t released = 0;
+uint8_t reset_received = 0;
 double ground_p = 101325;		// Pascals standard sea level pressure
 double ground_t = 288.15;		// 15 C
 double ground_a = 0;			// Assumes ground altitude at launch
@@ -61,12 +73,16 @@ uint16_t c[] = {0,0,0,0,0,0};
 uint16_t servo_pulse = 1500;
 
 // GPS Stuff
-char gps[70];			// GPS sentences
-uint8_t writing;
-uint8_t pos;
+char gps[15];			// GPS sentences
+char dec[5];
+uint8_t writing = 0;
+uint8_t pos = 0;
+uint8_t word_pos = 0;
+uint8_t commas = 0;
+uint8_t idx = 0;
 
 // Output string
-char str[70];					// Output String
+char str[100];					// Output String
 
 // Time and Packets
 uint16_t timer = 0;
@@ -83,7 +99,7 @@ double gps_t = 0;			// GPS Time
 double gps_lat = 0;			// GPS Latitude (+:N,-:S)
 double gps_long = 0;		// GPS Longitude (+:E,-:W)
 double gps_alt = 0;			// GPS Altitude
-uint8_t gps_sats = 0;		// GPS Satellites
+int16_t gps_sats = 0;		// GPS Satellites
 double pitch = 0;			// Pitch Angle
 double roll = 0;			// Roll Angle
 double rpm = 0;				// Calculate RPM of Blades
@@ -94,9 +110,7 @@ double angle = 0;			// Angle of Bonus Direction
 int main (void)
 {
 	system_init();
-	
-	//printf("Initialized\n");
-	cam_switch();
+	delay_ms(100);
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -110,11 +124,18 @@ int main (void)
 	RingBuffer16_t directions;	// in hundreths degrees
 	rb16_init(&directions, direct_array, (uint16_t) 10);
 	
-	char* format = "5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i\n\0";
+	char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i,%i\n\0";
+	
+	uint8_t cam_initialized = 0;
+	uint8_t buzzer_initialized = 0;
 	
 	while(1){
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
+		//uint8_t c = XBEE_spi_read();
+		//if(c != 0xFF){
+			//xbee_command(c);
+		//}
 		
 		// Checks State
 		state_check();
@@ -124,10 +145,29 @@ int main (void)
 			case 0:
 				break;
 			case 1:
+				if(alt > 600 && !cam_initialized){
+					cam_initialized = 1;
+					cam_switch();
+				}
 				break;
 			case 2:
+				if(!cam_initialized){
+					cam_initialized = 1;
+					cam_switch();
+				}
+				if(abs(alt-450)<EPSILON_ALTITUDE){
+					release();				// Releases the payload
+					hall_sensor_init();		// Starts hall effect sensor to read rpm
+				}
+				if(released){
+					servo_pid(&directions);	// Updates the PID
+				}
 				break;
 			case 3:
+				if(!buzzer_initialized){
+					buzzer_init();
+					buzzer_initialized = 1;
+				}
 				break;
 			default:
 				state = 0;
@@ -140,8 +180,9 @@ int main (void)
 		}
 		// Prints information
 		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
-		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int32_t)gps_t,(int32_t)gps_lat,(int32_t)gps_long,(int16_t)gps_alt,gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle); // Data Logging Test
-		//printf(str);
+		sprintf(str,format,timer,packets,(int16_t)(alt),(int32_t) press,(int16_t)(temp-273.15),(int16_t)volt,(int16_t)(((int32_t)gps_t)/10000),(int16_t)((((int32_t)gps_t)%10000)/100),(int16_t)(((int32_t)gps_t)%100),(int16_t)gps_lat,((int32_t)(gps_lat*1000000))%1000000,(int16_t)gps_long,abs(((int32_t)(gps_long*1000000))%1000000),(int16_t)gps_alt,((int16_t)(gps_alt)*10)%10,gps_sats,(int16_t)pitch,(int16_t)roll,(int16_t)rpm,state,(int16_t)angle,0); // Data Logging Test
+		printf(str);
+		//delay_ms(500);
 	}
 }
 
@@ -154,31 +195,33 @@ void system_init(void){
 	sei();
 	
 	// Initialization of pins
-	PORTC.DIR = 0xBB; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111011)
+	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111100)
 	PORTC.OUT = 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
-	PMIC.CTRL = PMIC_LOLVLEN_bm; // enables lo level interrupts
+	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 	
 	// Driver Initialization
 	data_terminal_init();
-	delay_ms(2);
+	delay_ms(500);
 	
 //	thermistor_init();
 	delay_ms(2);
 	
-	//spi_init();
+	spi_init();
 	delay_ms(2);
 	
-	//pressure_init();
+	pressure_init();
 	delay_ms(2);
 	
 	xbee_init();
-	//gps_init();
+	gps_init();
 	
 	clock_init();
     //servo_timer_init();
 	cam_init();
 	
 	delay_ms(10);
+	
+	state_check();
 	
 	// Initialization of variables
 	ground_p = get_pressure();
@@ -196,39 +239,42 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
 	gps_uart_init();				// Starts the GPS
 	delay_ms(2);
-
-	gps_command(GPS_UPDATE_RATE);	// Changes the update rate of the GPS
-	delay_ms(2);
-	gps_command(GPS_NMEA_SENTENCE);	// Changes the output NMEA sentences of the GPS
-	delay_ms(2);
-	gps_command(GPS_NMEA_SENTENCE_2);
 	
-	(*GPS_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_LO_gc;
+	(*GPS_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_HI_gc;
 }
 
 void xbee_init(void){
+	XBEE_spi_init();
+	/*
 	XBEE_uart_init();				// Starts the GPS
 	delay_ms(2);
 	
-	(*XBEE_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_LO_gc;
+	(*XBEE_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
+	*/
+}
+
+void release(void){
+	// Release payload
+	
+	released = 1;
 }
 
 double get_pressure(void){
 	double val = 101325;
-	/*
+	
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
 	double dt = d2 - (uint64_t)c[4] * 256.0;
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
-	double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
-	double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
+	long double off = (uint64_t) c[1] * 131072.0 + ((uint64_t) c[3] * dt) / 64.0;
+	long double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 	/*
 	if(temp < 20){
 		double t2 = ((uint64_t) dt * dt) / 2147483648.0;
@@ -241,8 +287,8 @@ double get_pressure(void){
 	}
 	*/
 	
-	//val = (double) (((uint64_t) d1 * sens / 2097152 - off) / 32768);
-	
+	val = (double) (((uint64_t) (d1 * sens / 2097152 - off)) / 32768);
+	printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
 
@@ -349,19 +395,13 @@ void state_check(void){
 	}
 	else{
 		state = 0;
-		if(alt > 50){
+		if(alt > 50 || reset_received){
 			state = 1;
 		}
 		if(released){	// only change this to true in flight state 2
 			state = 3;
 		}
 	}
-}
-
-void reset_ground(void){
-	ground_p = get_pressure();
-	ground_a = get_altitude(ground_p);
-	ground_t = get_temperature();
 }
 
 void servo_timer_init(void){
@@ -385,7 +425,7 @@ void servo_pid(RingBuffer16_t* direct){
 	
 	int16_t sum = 0;
 	for(uint8_t i = 0; i < 10; i++){
-		sum += rb32_get_nth(direct,i);
+		sum += rb16_get_nth(direct,i);
 	}
 	
 	p = k_p * rb16_get_nth(direct, 0) / 100.0;
@@ -401,53 +441,251 @@ void servo_pid(RingBuffer16_t* direct){
 void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
-	TCE0.CTRLA = 0x07; // divisor set to 1024
+	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
 	TCE0.PER = 31249; // 1 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
-ISR(TCE0_OVF_vect){
-	timer++;
-	printf(str);
-	XBEE_write(str);
+void buzzer_init(void){
+	//////
 }
 
-ISR(USARTC0_RXC_vect){
-	uint8_t c = usart_getchar(XBEE_TERMINAL_SERIAL);
-	printf("%c", c);
-	/*
+void reset(void){
+	//timer = 0;
+	//packets = 0;
+	//rate = 10;
+	press = 0;			// Pressure (Pa)
+	temp = 0;			// Temperature (C)
+	alt = 0;			// Altitude (m)
+	volt = 0;			// Battery Terminal Voltage (V)
+	velocity = 0;		// Velocity (cm/s)
+	gps_t = 0;			// GPS Time
+	gps_lat = 0;		// GPS Latitude (+:N,-:S)
+	gps_long = 0;		// GPS Longitude (+:E,-:W)
+	gps_alt = 0;		// GPS Altitude
+	gps_sats = 0;		// GPS Satellites
+	pitch = 0;			// Pitch Angle
+	roll = 0;			// Roll Angle
+	rpm = 0;			// Calculate RPM of Blades
+	angle = 0;			// Angle of Bonus Direction
+	
+	state = 0;
+	released = 0;
+	
+	system_init();
+	
+	reset_received = 1;
+}
+
+void calibrate(void){
+	cali_alt();
+	cali_ang();
+}
+
+void cali_alt(void){
+	ground_p = press;
+	ground_a = alt;
+	ground_t = get_temperature();
+}
+
+void cali_ang(void){
+	//////Calibrate angle and stuff///////
+}
+
+char* gps_msg = "%i.%li,%i.%li\n\0";
+void send_gps(void){
+	char msg[70];
+	sprintf(msg,gps_msg,(int16_t)gps_lat,((int32_t)(gps_lat*1000000))%1000000,(int16_t)gps_long,(int32_t)(abs(gps_long)*1000000)%1000000);
+	XBEE_spi_write(msg);
+}
+
+void packet(void){
+	XBEE_spi_write(str);
+}
+
+void xbee_command(uint8_t c){
 	switch(c){
 		case RESET:
-			printf("RESET\n");
+			//printf("RESET\n");
+			reset();
 			break;
 		case CALIBRATE:
-			printf("CALIBRATE\n");
-			break;
-		case CALIBRATE_CAMERA:
-			printf("CALIBRATE_CAMERA\n");
+			calibrate();
+			//printf("CALIBRATE\n");
 			break;
 		case CALIBRATE_ALTITUDE:
-			printf("CALIBRATE_ALTITUDE\n");
+			cali_alt();
+			//printf("CALIBRATE_ALTITUDE\n");
 			break;
 		case CALIBRATE_ANGLE:
-			printf("CALIBRATE_ANGLE\n");
+			cali_ang();
+			//printf("CALIBRATE_ANGLE\n");
 			break;
 		case SEND_GPS_LOCATION:
-			printf("SEND_GPS_LOCATION\n");
+			send_gps();
+			//printf("SEND_GPS_LOCATION\n");
+			break;
+		case PACKET:
+			packet();
+			//printf("PACKET\n");
 			break;
 	}
-	*/
 }
 
+ISR(TCE0_OVF_vect){
+	timer++;
+	//printf(str);
+	XBEE_spi_write(str);
+}
 
+/*
+ISR(USARTC0_RXC_vect){
+	uint8_t c = usart_getchar(XBEE_TERMINAL_SERIAL);
+	//printf("%c\n", c);
+	xbee_command(c);
+}
+*/
+
+// GPS recording
 ISR(USARTD1_RXC_vect){
 	uint8_t c = usart_getchar(GPS_TERMINAL_SERIAL);
-	printf("%c", c);
+	//printf("%c",c);
 	
 	if(c == (uint8_t) '$'){
 		writing = 1;
 		pos = 0;
+		word_pos = 0;
+		commas = 0;
 	}
+	else if(c == (uint8_t) '*'){
+		commas = 0;
+		writing = 0;
+	}
+	else if(c == (uint8_t) ','){
+		gps[0] = 32;
+		if(gps[1] == 32){
+			gps[0] = '0';
+		}
+		int32_t val = 0;
+		int16_t val2 = 0;
+		switch(commas){
+			case 1:			//Time
+				for(uint8_t i = 0; i < 15; i++){
+					if(gps[i] == (uint8_t) '.'){
+						idx = i;
+						break;
+					}
+				}
+				gps[idx] = 32;
+				for(uint8_t i = idx+1; i < 15; i++){
+					if(gps[i] == 32){
+						break;
+					}
+					gps[i] = 32;
+				}
+				sscanf(gps,"%ld",&val);
+				gps_t = (double) val;
+				break;
+			case 2:			//Latitude
+				for(uint8_t i = 0; i < 15; i++){
+					if(gps[i] == (uint8_t) '.'){
+						idx = i;
+						break;
+					}
+				}
+				gps[idx] = 32;
+				for(uint8_t i = idx+1; i < 15; i++){
+					if(gps[i] == 32){
+						break;
+					}
+					dec[i-idx-1] = gps[i];
+					gps[i] = 32;
+				}
+				if(dec[0] == 32){
+					dec[0] = '0';
+				}
+				sscanf(gps,"%ld",&val);
+				sscanf(dec,"%d",&val2);
+				gps_lat = val/100 + ((double)(val%100) + ((double)(val2))/10000) / 60.0;
+				break;
+			case 4:			//Longitude
+				for(uint8_t i = 0; i < 15; i++){
+					if(gps[i] == (uint8_t) '.'){
+						idx = i;
+						break;
+					}
+				}
+				gps[idx] = 32;
+				for(uint8_t i = idx+1; i < 15; i++){
+					if(gps[i] == 32){
+						break;
+					}
+					dec[i-idx-1] = gps[i];
+					gps[i] = 32;
+				}
+				if(dec[0] == 32){
+					dec[0] = '0';
+				}
+				sscanf(gps,"%ld",&val);
+				sscanf(dec,"%d",&val2);
+				gps_long = -(val/100 + ((double)(val%100) + ((double)(val2))/10000) / 60.0);
+				break;
+			case 7:			//Sats
+				sscanf(gps,"%d",&gps_sats);
+				break;
+			case 9:			//Altitude
+				for(uint8_t i = 0; i < 15; i++){
+					if(gps[i] == (uint8_t) '.'){
+						idx = i;
+						break;
+					}
+				}
+				gps[idx] = 32;
+				for(uint8_t i = idx+1; i < 15; i++){
+					if(gps[i] == 32){
+						break;
+					}
+					dec[i-idx-1] = gps[i];
+					gps[i] = 32;
+				}
+				if(dec[0] == 32){
+					dec[0] = '0';
+				}
+				sscanf(gps,"%ld",&val);
+				sscanf(dec,"%d",&val2);
+				gps_alt = (double) val + ((double) val2/10.0);
+				break;
+		}
 	
-	sprintf(gps,"%s%c\0",gps,c);
+		if(writing){
+			idx = 0;
+			commas++;
+			word_pos = 0;
+			for(uint8_t i = 0; i < 15; i++){
+				gps[i] = 32;
+			}
+			for(uint8_t i = 0; i < 5; i++){
+				dec[i] = 32;
+			}
+		}
+	}
+		
+	if(writing){
+		switch(pos){
+			case 3:
+				if(c != 'G'){
+					writing = 0;
+				}
+				break;
+				
+			case 4:
+				if(c != 'G'){
+					writing = 0;
+				}
+				break;
+		}
+		gps[word_pos] = c;
+		word_pos++;
+		pos++;
+	}
 }

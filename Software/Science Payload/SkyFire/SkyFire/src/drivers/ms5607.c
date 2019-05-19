@@ -88,6 +88,8 @@ uint32_t ms5607_read_unprotected(void){
 	rx_data |= (uint32_t) spi_read()<<8;
 	rx_data |= spi_read();
 	flip_ms5607();
+	
+	return rx_data;
 }
 
 void flip_ms5607(void){

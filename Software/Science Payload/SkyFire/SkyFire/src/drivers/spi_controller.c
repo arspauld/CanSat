@@ -21,8 +21,12 @@ void spi_select(uint8_t port)
 
 uint8_t spi_read(void)
 {
+	uint8_t iter_max = 100;
+	uint8_t count = 0;
 	SPIC.DATA = 0xFF; // make the DATA register something we know
-	while(!(SPIC.STATUS>>7)); // wait for the SPI interrupt flag to let us know the transfer is complete
+	while(!(SPIC.STATUS>>7) && count < iter_max){ // wait for the SPI interrupt flag to let us know the transfer is complete
+		count++;	
+	}
 	
 	return SPIC.DATA; // return the data from this function
 }

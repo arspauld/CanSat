@@ -7,7 +7,7 @@
 
 #include <asf.h>
 
-#define 
+#define sentence 5
 
 #ifndef BNO085_H_
 #define BNO085_H_

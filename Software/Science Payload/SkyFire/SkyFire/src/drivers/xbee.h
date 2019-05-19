@@ -6,6 +6,8 @@
  */ 
 
 #include <asf.h>
+#include <string.h>
+#include "spi_controller.h"
 
 #ifndef XBEE_H_
 #define XBEE_H_
@@ -20,9 +22,17 @@
 #define XBEE_TERMINAL_TX_PIN			PIN3_bm
 #define XBEE_TERMINAL_PORT				PORTC
 
+#define XBEE_SPI_PORT					SPIC
+#define XBEE_SS_PIN						PIN2_bm	// PC2
+#define XBEE_SS_PORT					PORTC
+
 void XBEE_uart_init(void);
-void XBEE_write(char* data);
-uint8_t XBEE_read(void);
+void XBEE_spi_init(void);
+void XBEE_uart_write(char* data);
+uint8_t XBEE_uart_read(void);
+void XBEE_spi_write(char* data);
+uint8_t XBEE_spi_read(void);
+void flip_XBEE(void);
 
 
 #endif /* XBEE_H_ */

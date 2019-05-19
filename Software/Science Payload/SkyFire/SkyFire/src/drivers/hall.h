@@ -11,7 +11,7 @@
 #define HALL_H_
 
 
-
+void hall_sensor_init(void);
 
 
 #endif /* HALL_H_ */
