@@ -10,6 +10,9 @@
 #include "spi_controller.h"
 
 void ms5607_init(void){
+	PORTC.OUT |= 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
+	delay_ms(5);
+	
 	// Resets the ms5607
 	flip_ms5607();
 	spi_write(CMD_MS5607_RESET);

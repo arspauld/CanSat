@@ -24,7 +24,28 @@
 #define EPSILON_VELOCITY	5
 #define EPSILON_ALTITUDE	10
 
+// EEPROM stuff
+// uint16_t addr = PAGE | BYTE;
+#define EEPROM_PAGE			0x1000	// Page 0
+#define ALT_ADDR_BYTE0		0x00	// Byte 0
+#define ALT_ADDR_BYTE1		0x01	// Byte 1
+#define PACKET_ADDR_BYTE0	0x0A	// Byte 10
+#define PACKET_ADDR_BYTE1	0x0B	// Byte 11
+#define TIME_ADDR_BYTE0		0x14	// Byte 20
+#define TIME_ADDR_BYTE1		0x15	// Byte 21
 
+#define READ_EEPROM			0x06	// Load CMD, Load ADDR, Load CMDEX
+#define ERASE_EEPROM		0x30	// Load CMD, Load CMDEX, Wait for BUSY flag to drop
+#define	ERASE_PAGE_CMD		0x32	// Load CMD, Load ADDR, Load CMDEX, Wait for BUSY flag to drop
+#define LOAD_BUFFER_CMD		0x33	// Load CMD, Load ADDR0, Load DATA0, Repeat 2-3
+#define	WRITE_PAGE_CMD		0x34	// Load CMD, Load ADDR, Load CMDEX, Wait for BUSY flag to drop
+#define	ATOMIC_WRITE_CMD	0x35	// Load CMD, Load ADDR, Load CMDEX, Wait for BUSY flag to drop
+#define ERASE_BUFFER_CMD	0x36	// Load CMD, Load CMDEX, Wait for BUSY flag to drop
+// BUSY flag is NVM.STATUS>>7
+ 
+#define CTRLA_CMDEX_BYTE	0x01	// Tells NVM to execute the command
+#define CCP_IOREG_MODE		0xD8	// Set CCP to this to allow CMDEX to be changed
+ 
 ///////////////////////// Function Prototypes //////////////////////////
 void	system_init(void);												// Starts the system
 void	pressure_init(void);											// Collects the sensors constants
@@ -51,6 +72,11 @@ void	cali_ang(void);
 void	send_gps(void);
 void	packet(void);
 void	xbee_command(uint8_t c);
+
+// EEPROM commands
+void	eeprom_write(void);
+uint8_t	eeprom_read(uint16_t address);
+void	eeprom_erase(void);	
 
 
 /////////////////////////// Global Variables ///////////////////////////
@@ -202,8 +228,7 @@ void system_init(void){
 	sei();
 	
 	// Initialization of pins
-	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, 1, 0 be output (0b10111100)
-	PORTC.OUT = 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
+	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, and 2 be output (0b10111100)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 	
 	// Driver Initialization
@@ -537,6 +562,19 @@ void xbee_command(uint8_t c){
 			//printf("PACKET\n");
 			break;
 	}
+}
+
+
+void eeprom_write(void){
+	
+}
+
+uint8_t	eeprom_read(uint16_t address){
+	return 0;
+}
+
+void eeprom_erase(void){
+	
 }
 
 ISR(TCE0_OVF_vect){

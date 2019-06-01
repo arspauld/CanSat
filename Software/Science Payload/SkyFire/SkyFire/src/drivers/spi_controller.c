@@ -11,7 +11,8 @@
 void spi_init(void)
 {
 	sysclk_enable_peripheral_clock(&SPIC);
-	SPIC.CTRL = 0x51; //enables SPI and puts a  prescaler of 16
+	SPIC.CTRL = 0x51; //enables SPI and puts a prescaler of 16
+	PORTC.DIR |= 0b10110000; 
 }
 
 void spi_select(uint8_t port)

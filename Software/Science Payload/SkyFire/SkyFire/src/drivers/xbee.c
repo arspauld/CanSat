@@ -28,6 +28,8 @@ void XBEE_uart_init(void){
 void XBEE_spi_init(void){
 	XBEE_SS_PORT.DIR |= XBEE_SS_PIN;
 	XBEE_SS_PORT.OUT |= XBEE_SS_PIN;
+	
+	
 }
 
 void XBEE_uart_write(char* data){
@@ -47,7 +49,7 @@ void XBEE_spi_write(char* data){
 	for(uint8_t i = 0; i < strlen(data); i++){
 		spi_write((uint8_t) data[i]);
 	}
-	delay_ms(5);
+	//delay_ms(5);
 	flip_XBEE();
 	//usart_putchar(XBEE_TERMINAL_SERIAL, 10);
 }
