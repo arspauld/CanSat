@@ -78,7 +78,6 @@ void	eeprom_write(void);
 uint8_t	eeprom_read(uint16_t address);
 void	eeprom_erase(void);	
 
-
 /////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
 uint8_t released = 0;
@@ -566,15 +565,50 @@ void xbee_command(uint8_t c){
 
 
 void eeprom_write(void){
+	uint16_t a = (uint16_t) alt; // creates an unsigned int of the altitude
 	
+	// saves data and addresses in array
+	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF};
+	uint8_t addresses[] = {ALT_ADDR_BYTE0, ALT_ADDR_BYTE1, PACKET_ADDR_BYTE0, PACKET_ADDR_BYTE1, TIME_ADDR_BYTE0, TIME_ADDR_BYTE1};
+	
+	// Writes the NVM Registers to write the buffer
+	NVM.CMD = LOAD_BUFFER_CMD;
+	for(uint8_t i = 0; i < 6; i++){
+		NVM.ADDR0 = addresses[i];
+		NVM.DATA0 = data[i];
+	}
+	
+	// Erases and writes the page buffer
+	NVM.CMD = ATOMIC_WRITE_CMD;
+	NVM.ADDR0 = EEPROM_PAGE & 0xFF;
+	NVM.ADDR1 = EEPROM_PAGE >> 8;
+	CCP = CCP_IOREG_MODE;
+	NVM.CTRLA = CTRLA_CMDEX_BYTE;
+	while(NVM.STATUS>>7);
 }
 
 uint8_t	eeprom_read(uint16_t address){
-	return 0;
+	NVM.CMD = READ_EEPROM;
+	NVM.ADDR0 = address & 0xFF;
+	NVM.ADDR1 = address >> 8;
+	CCP = CCP_IOREG_MODE;
+	NVM.CTRLA = CTRLA_CMDEX_BYTE;
+	delay_ms(1);
+	uint8_t byte = NVM.DATA0;
+	return byte;
 }
 
 void eeprom_erase(void){
+	NVM.CMD = LOAD_BUFFER_CMD
+	for(uint8_t i = 0; i < 32; i++){
+		NVM.ADDR0 = i;
+		NVM.DATA0 = 0xFF;
+	}
 	
+	NVM.CMD = ERASE_EEPROM;
+	CCP = CCP_IOREG_MODE;
+	NVM.CTRLA = CTRLA_CMDEX_BYTE;
+	while(NVM.STATUS>>7);
 }
 
 ISR(TCE0_OVF_vect){

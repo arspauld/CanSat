@@ -432,6 +432,9 @@
     <Compile Include="src\drivers\BNO085\sh2_hal.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_hal_impl.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\drivers\BNO085\sh2_SensorValue.c">
       <SubType>compile</SubType>
     </Compile>

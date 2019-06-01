@@ -47,7 +47,7 @@ void writeu16(uint8_t * p, uint16_t value)
 
 uint32_t readu32(const uint8_t *p)
 {
-	uint32_t retval = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
+	uint32_t retval = p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
 	return retval;
 }
 
