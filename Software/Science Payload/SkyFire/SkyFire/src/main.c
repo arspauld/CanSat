@@ -213,7 +213,7 @@ int main (void)
 			(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 			(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 			state,									(int16_t)angle,								0); // Data Logging Test
-		printf(str);
+		//printf(str);
 		//delay_ms(500);
 	}
 }
