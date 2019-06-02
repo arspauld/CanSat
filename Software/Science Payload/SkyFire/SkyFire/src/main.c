@@ -131,7 +131,7 @@ double rpm = 0;				// Calculate RPM of Blades
 double angle = 0;			// Angle of Bonus Direction	
 
 
-char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i,%i\n\0";
+char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -158,13 +158,8 @@ int main (void)
 	while(1){
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
-		//uint8_t c = XBEE_spi_read();
-		//if(c != 0xFF){
-			//xbee_command(c);
-		//}
-		
-		// Checks State
 		state_check();
+		// IMU Check
 		
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -212,7 +207,7 @@ int main (void)
 			(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 			(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 			(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-			state,									(int16_t)angle,								0); // Data Logging Test
+			state,									(int16_t)angle); // Data Logging Test
 		//printf(str);
 		//delay_ms(500);
 	}
@@ -270,7 +265,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -533,6 +528,13 @@ void send_gps(void){
 
 void packet(void){
 	//XBEE_spi_write(str);
+	sprintf(str,format,timer,packets,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+	state,									(int16_t)angle); // Data Logging Test
 	printf(str);
 }
 
@@ -615,6 +617,13 @@ void eeprom_erase(void){
 
 ISR(TCE0_OVF_vect){
 	timer++;
+	sprintf(str,format,timer,packets,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+	state,									(int16_t)angle); // Data Logging Test
 	printf(str);
 	//XBEE_spi_write(str);
 }
