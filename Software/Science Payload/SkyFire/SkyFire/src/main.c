@@ -318,7 +318,7 @@ double get_pressure(void){
 	}
 	*/
 	
-	val = (double) (((uint64_t) (d1 * sens / 2097152 - off)) / 32768);
+	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
