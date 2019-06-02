@@ -27,12 +27,12 @@
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
 #define EEPROM_PAGE			0x1000	// Page 0
-#define ALT_ADDR_BYTE0		0x00	// Byte 0
-#define ALT_ADDR_BYTE1		0x01	// Byte 1
-#define PACKET_ADDR_BYTE0	0x0A	// Byte 10
-#define PACKET_ADDR_BYTE1	0x0B	// Byte 11
-#define TIME_ADDR_BYTE0		0x14	// Byte 20
-#define TIME_ADDR_BYTE1		0x15	// Byte 21
+#define ALT_ADDR_BYTE0		0x01	// Byte 1
+#define ALT_ADDR_BYTE1		0x00	// Byte 0
+#define PACKET_ADDR_BYTE0	0x0B	// Byte 11
+#define PACKET_ADDR_BYTE1	0x0A	// Byte 10
+#define TIME_ADDR_BYTE0		0x15	// Byte 21
+#define TIME_ADDR_BYTE1		0x14	// Byte 20
 
 #define READ_EEPROM			0x06	// Load CMD, Load ADDR, Load CMDEX
 #define ERASE_EEPROM		0x30	// Load CMD, Load CMDEX, Wait for BUSY flag to drop
@@ -207,7 +207,7 @@ int main (void)
 			(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 			(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 			(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-			state,									(int16_t)angle); // Data Logging Test
+			state,									(int16_t) angle); // Data Logging Test
 		//printf(str);
 		//delay_ms(500);
 	}
@@ -227,6 +227,7 @@ void system_init(void){
 	
 	// Driver Initialization
 	data_terminal_init();
+	gps_init();
 	delay_ms(500);
 	
 //	thermistor_init();
@@ -239,7 +240,6 @@ void system_init(void){
 	delay_ms(2);
 	
 	xbee_init();
-	gps_init();
 	
 	clock_init();
     //servo_timer_init();
@@ -569,11 +569,11 @@ void xbee_command(uint8_t c){
 
 
 void eeprom_write(void){
-	uint16_t a = (uint16_t) alt; // creates an unsigned int of the altitude
+	uint16_t a = (uint16_t) ((int16_t) alt); // creates an unsigned int of the altitude
 	
 	// saves data and addresses in array
 	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF};
-	uint8_t addresses[] = {ALT_ADDR_BYTE0, ALT_ADDR_BYTE1, PACKET_ADDR_BYTE0, PACKET_ADDR_BYTE1, TIME_ADDR_BYTE0, TIME_ADDR_BYTE1};
+	uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0};
 	
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
@@ -625,7 +625,16 @@ ISR(TCE0_OVF_vect){
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t)angle); // Data Logging Test
 	printf(str);
-	//XBEE_spi_write(str);
+	
+	// Updates EEPROM
+	eeprom_write();
+	
+	/* Checks the EEPROM write
+	uint8_t byte0 = eeprom_read(EEPROM_PAGE | PACKET_ADDR_BYTE0);
+	uint8_t byte1 = eeprom_read(EEPROM_PAGE | PACKET_ADDR_BYTE1);
+	uint16_t a = (uint16_t) ((byte1<<8) | byte0);
+	printf("%u\n", a);
+	*/
 }
 
 ISR(USARTE0_RXC_vect){
