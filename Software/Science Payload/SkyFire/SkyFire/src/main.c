@@ -281,13 +281,13 @@ void gps_init(void){
 }
 
 void xbee_init(void){
-	XBEE_spi_init();
+	//XBEE_spi_init();
 	/*
 	XBEE_uart_init();				// Starts the GPS
 	delay_ms(2);
-	
-	(*XBEE_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
 	*/
+	(*UART_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
+	
 }
 
 void release(void){
@@ -319,7 +319,7 @@ double get_pressure(void){
 	*/
 	
 	val = (double) (((uint64_t) (d1 * sens / 2097152 - off)) / 32768);
-	printf("%li\n",(int32_t) val);
+	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
 
@@ -527,11 +527,13 @@ char* gps_msg = "%i.%li,%i.%li\n\0";
 void send_gps(void){
 	char msg[70];
 	sprintf(msg,gps_msg,(int16_t)gps_lat,((int32_t)(gps_lat*1000000))%1000000,(int16_t)gps_long,(int32_t)(abs(gps_long)*1000000)%1000000);
-	XBEE_spi_write(msg);
+	//XBEE_spi_write(msg);
+	printf(msg);
 }
 
 void packet(void){
-	XBEE_spi_write(str);
+	//XBEE_spi_write(str);
+	printf(str);
 }
 
 void xbee_command(uint8_t c){
@@ -599,7 +601,7 @@ uint8_t	eeprom_read(uint16_t address){
 }
 
 void eeprom_erase(void){
-	NVM.CMD = LOAD_BUFFER_CMD
+	NVM.CMD = LOAD_BUFFER_CMD;
 	for(uint8_t i = 0; i < 32; i++){
 		NVM.ADDR0 = i;
 		NVM.DATA0 = 0xFF;
@@ -613,17 +615,16 @@ void eeprom_erase(void){
 
 ISR(TCE0_OVF_vect){
 	timer++;
-	//printf(str);
-	XBEE_spi_write(str);
+	printf(str);
+	//XBEE_spi_write(str);
 }
 
-/*
-ISR(USARTC0_RXC_vect){
-	uint8_t c = usart_getchar(XBEE_TERMINAL_SERIAL);
+ISR(USARTE0_RXC_vect){
+	uint8_t c = usart_getchar(UART_TERMINAL_SERIAL);
 	//printf("%c\n", c);
 	xbee_command(c);
 }
-*/
+
 
 // GPS recording
 ISR(USARTD1_RXC_vect){
