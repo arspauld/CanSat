@@ -206,9 +206,6 @@ int main (void)
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
 				}
-				if(alt<400){
-					PORTD.DIR ^= 0x01;
-				}
 				break;
 			case 3:
 				if(!buzzer_initialized){
