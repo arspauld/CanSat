@@ -91,7 +91,6 @@ void	cali_alt(void);
 void	cali_ang(void);
 void	send_gps(void);
 void	packet(void);
-void	xbee_command(uint8_t c);
 
 // EEPROM commands
 void	eeprom_write_const(void);
@@ -163,7 +162,7 @@ char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i
 int main (void)
 {
 	system_init();
-	delay_ms(100);
+	//delay_ms(100);
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -246,25 +245,18 @@ void system_init(void){
 	
 	// Driver Initialization
 	data_terminal_init();
-	gps_init();
 	delay_ms(500);
+	xbee_init();
+	gps_init();
 	
 //	thermistor_init();
-	delay_ms(2);
-	
 	spi_init();
-	delay_ms(2);
-	
 	pressure_init();
-	delay_ms(2);
-	
-	xbee_init();
-	
-	clock_init();
+	bno085_init();
     release_servo_init();
 	cam_init();
-	
-	delay_ms(10);
+	clock_init();
+
 	
 	state_check();
 	
@@ -297,12 +289,13 @@ void gps_init(void){
 }
 
 void xbee_init(void){
-	//XBEE_spi_init();
+	//XBEE_spi_init();z
 	/*
 	XBEE_uart_init();				// Starts the GPS
 	delay_ms(2);
 	*/
-	(*UART_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
+	printf("Starting Interrupt\n");
+	USARTE0.CTRLA = USART_RXCINTLVL_MED_gc;
 	
 }
 
@@ -314,7 +307,7 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-	
+	/*
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
@@ -332,9 +325,10 @@ double get_pressure(void){
 		off -= off2;
 		sens -= sens2;
 	}
-	*/
+	
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
+	*/
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
@@ -436,7 +430,7 @@ double data_check(RingBuffer32_t* presses){
 #define EPSILON		1E-14
 void quaternion2euler(double w, double x, double y, double z){
 	// roll (x-axis rotation)
-	double sinr_cosp = +2.0 * (w  x + y * z);
+	double sinr_cosp = +2.0 * (w * x + y * z);
 	double cosr_cosp = +1.0 - 2.0 * (x * x + y * y);
 	double bank = atan2(sinr_cosp, cosr_cosp);
 
@@ -592,35 +586,6 @@ void packet(void){
 	printf(str);
 }
 
-void xbee_command(uint8_t c){
-	switch(c){
-		case RESET:
-			//printf("RESET\n");
-			reset();
-			break;
-		case CALIBRATE:
-			calibrate();
-			//printf("CALIBRATE\n");
-			break;
-		case CALIBRATE_ALTITUDE:
-			cali_alt();
-			//printf("CALIBRATE_ALTITUDE\n");
-			break;
-		case CALIBRATE_ANGLE:
-			cali_ang();
-			//printf("CALIBRATE_ANGLE\n");
-			break;
-		case SEND_GPS_LOCATION:
-			send_gps();
-			//printf("SEND_GPS_LOCATION\n");
-			break;
-		case PACKET:
-			packet();
-			//printf("PACKET\n");
-			break;
-	}
-}
-
 void eeprom_write_const(void){
 	uint64_t g_p = (uint64_t) ground_p;
 	uint64_t g_t = (uint64_t) ground_t;
@@ -729,8 +694,34 @@ ISR(TCE0_OVF_vect){
 
 ISR(USARTE0_RXC_vect){
 	uint8_t c = usart_getchar(UART_TERMINAL_SERIAL);
-	//printf("%c\n", c);
-	xbee_command(c);
+	printf("%c\n", c);
+	
+	switch(c){
+		case RESET:
+		//printf("RESET\n");
+		reset();
+		break;
+		case CALIBRATE:
+		calibrate();
+		//printf("CALIBRATE\n");
+		break;
+		case CALIBRATE_ALTITUDE:
+		cali_alt();
+		//printf("CALIBRATE_ALTITUDE\n");
+		break;
+		case CALIBRATE_ANGLE:
+		cali_ang();
+		//printf("CALIBRATE_ANGLE\n");
+		break;
+		case SEND_GPS_LOCATION:
+		send_gps();
+		//printf("SEND_GPS_LOCATION\n");
+		break;
+		case PACKET:
+		packet();
+		//printf("PACKET\n");
+		break;
+	}
 }
 
 

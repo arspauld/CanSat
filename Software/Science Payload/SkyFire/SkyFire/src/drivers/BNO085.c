@@ -6,6 +6,7 @@
  */ 
 
 #include <asf.h>
+#include "spi_controller.h"
 #include "BNO085.h"
 
 uint8_t SeqNum = 0;
@@ -53,7 +54,7 @@ void bno085_init(void){
 
 void bno085_read(uint8_t* data){
 	spi_select(BNO085_SS_PIN);
-	for(uint8_t i = 0; i < 14; i++){
+	for(uint8_t i = 0; i < 18; i++){
 		data[i] = spi_read();
 	}
 	spi_select(BNO085_SS_PIN);
