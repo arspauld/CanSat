@@ -11,7 +11,7 @@
 void spi_init(void)
 {
 	sysclk_enable_peripheral_clock(&SPIC);
-	SPIC.CTRL = 0x51; //enables SPI and puts a prescaler of 16
+	SPIC.CTRL = 0x5C; //enables SPI and puts a prescaler of 16 idling high and transmitting MSB first on rising signal
 	PORTC.DIR |= 0b10110000; 
 }
 

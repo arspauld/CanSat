@@ -14,7 +14,11 @@ src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c
 
 src\ASF\xmega\drivers\usart\usart.c
 
+src\drivers\BNO085.c
+
 src\drivers\BNO085\sh2.c
+
+src\drivers\BNO085\sh2_hal.c
 
 src\drivers\BNO085\sh2_SensorValue.c
 

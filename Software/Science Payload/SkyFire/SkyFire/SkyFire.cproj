@@ -110,10 +110,9 @@
         <board id="board.user_board.xmegaau" value="Add" config="" content-id="Atmel.ASF" />
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>
-    </avrtool>
+    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
     <avrtoolserialnumber>ATML1802021800001405</avrtoolserialnumber>
-    <avrdeviceexpectedsignature>0x1E974C</avrdeviceexpectedsignature>
+    <avrdeviceexpectedsignature>0x1E9746</avrdeviceexpectedsignature>
     <com_atmel_avrdbg_tool_simulator>
       <ToolOptions>
         <InterfaceProperties>
@@ -126,8 +125,7 @@
       </ToolNumber>
       <ToolName>Simulator</ToolName>
     </com_atmel_avrdbg_tool_simulator>
-    <avrtoolinterface>
-    </avrtoolinterface>
+    <avrtoolinterface>PDI</avrtoolinterface>
     <custom>
       <ToolOptions xmlns="">
         <InterfaceProperties>
@@ -381,7 +379,6 @@
     <Folder Include="src\ASF\xmega\utils\preprocessor\" />
     <Folder Include="src\config\" />
     <Folder Include="src\drivers" />
-    <Folder Include="src\drivers\BNO085" />
     <Folder Include="src\tools" />
   </ItemGroup>
   <ItemGroup>
@@ -430,46 +427,10 @@
     <None Include="src\config\conf_adc.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\drivers\BNO085\HcBin.h">
+    <Compile Include="src\drivers\BNO085.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\drivers\BNO085\sh2.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_err.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_hal.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_hal_impl.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_SensorValue.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_SensorValue.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_util.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\sh2_util.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\shtp.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\shtp.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\worldTare.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\drivers\BNO085\worldTare.h">
+    <Compile Include="src\drivers\BNO085.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\hall.c">

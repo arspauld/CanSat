@@ -9,6 +9,7 @@
 #include "drivers\spy_cam.h"
 #include "drivers\voltage.h"
 #include "drivers\hall.h"
+#include "drivers\BNO085.h"
 #include "tools\RingBuffer.h"
 
 // GCS Commands
@@ -75,6 +76,7 @@ double	get_altitude(double press);										// meters
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
+void	quaternion2euler(double w, double x, double y, double z);		// Converts the quaternion data to euler angles
 void	state_check(void);												// Returns the current state
 void	release_servo_init(void);										// Starts Release Servo Rate
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
@@ -97,7 +99,7 @@ void	eeprom_write(void);
 uint8_t	eeprom_read(uint16_t address);
 void	eeprom_erase(void);	
 
-/////////////////////////// Global Variables ///////////////////////////
+/////////////////////////// Global Variables ///////////////////////////0
 uint8_t state = 0;
 uint8_t released = 0;
 uint8_t reset_received = 0;
@@ -431,6 +433,33 @@ double data_check(RingBuffer32_t* presses){
 	return result;
 }
 
+#define EPSILON		1E-14
+void quaternion2euler(double w, double x, double y, double z){
+	// roll (x-axis rotation)
+	double sinr_cosp = +2.0 * (w  x + y * z);
+	double cosr_cosp = +1.0 - 2.0 * (x * x + y * y);
+	double bank = atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	double attitude = 0;
+	double sinp = +2.0 * (w * y - z * x);
+	if (fabs(sinp) >= 1){
+		attitude = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	}
+	else{
+		attitude = asin(sinp);
+	}
+
+	// yaw (z-axis rotation)
+	double siny_cosp = +2.0 * (w * z + x * y);
+	double cosy_cosp = +1.0 - 2.0 * (y * y + z * z);
+	double heading = atan2(siny_cosp, cosy_cosp);
+	
+	// Figure out roll, pitch, and yaw
+	roll = heading;
+	pitch = sqrt(bank*bank + attitude*attitude);
+}
+
 void state_check(void){
 	if(abs(velocity)>EPSILON_VELOCITY){
 		state = 1;
@@ -661,6 +690,18 @@ void eeprom_erase(void){
 	CCP = CCP_IOREG_MODE;
 	NVM.CTRLA = CTRLA_CMDEX_BYTE;
 	while(NVM.STATUS>>7);
+}
+
+ISR(TCC0_OVF_vect){
+	uint8_t data[14];
+	bno085_read(data);
+	
+	double x = ((data[5]<<8) | data[4]) * QSCALE;
+	double y = ((data[7]<<8) | data[6]) * QSCALE;
+	double z = ((data[9]<<8) | data[8]) * QSCALE;
+	double w = ((data[11]<<8) | data[10]) * QSCALE;
+	
+	quaternion2euler(w, x, y, z);
 }
 
 ISR(TCE0_OVF_vect){
