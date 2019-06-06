@@ -1,5 +1,5 @@
 Solid Edge Translation to STL
-Date: Thursday,June 06,2019 10:02AM
+Date: Thursday,June 06,2019 10:14AM
 Source File:D:\GitHub\CanSat\mechanical\SolidEdge\ROTOR_HUB_V2_bottom.par
 Output File: D:\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame\ROTOR_HUB_V2_bottom.stl
 Source System: SOLID EDGE
@@ -25,6 +25,7 @@ Export Surface Plane Angle Value:0.523599
 
 Translation progress:
 Phase 1 of 2 Fetching Parasolid information...
+Phase 2 of 2 Translating Parasolid to foreign data types...
 Number of STL file Created : 1
 Translation process completed
 Time required to translate:00 : 00 : 00
