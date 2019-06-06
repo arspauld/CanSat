@@ -14,15 +14,7 @@ src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c
 
 src\ASF\xmega\drivers\usart\usart.c
 
-src\drivers\BNO085\sh2.c
-
-src\drivers\BNO085\sh2_SensorValue.c
-
-src\drivers\BNO085\sh2_util.c
-
-src\drivers\BNO085\shtp.c
-
-src\drivers\BNO085\worldTare.c
+src\drivers\BNO085.c
 
 src\drivers\hall.c
 

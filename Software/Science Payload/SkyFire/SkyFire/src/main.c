@@ -9,6 +9,7 @@
 #include "drivers\spy_cam.h"
 #include "drivers\voltage.h"
 #include "drivers\hall.h"
+#include "drivers\BNO085.h"
 #include "tools\RingBuffer.h"
 
 // GCS Commands
@@ -75,6 +76,7 @@ double	get_altitude(double press);										// meters
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
+void	quaternion2euler(double w, double x, double y, double z);		// Converts the quaternion data to euler angles
 void	state_check(void);												// Returns the current state
 void	release_servo_init(void);										// Starts Release Servo Rate
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
@@ -89,7 +91,6 @@ void	cali_alt(void);
 void	cali_ang(void);
 void	send_gps(void);
 void	packet(void);
-void	xbee_command(uint8_t c);
 
 // EEPROM commands
 void	eeprom_write_const(void);
@@ -97,7 +98,7 @@ void	eeprom_write(void);
 uint8_t	eeprom_read(uint16_t address);
 void	eeprom_erase(void);	
 
-/////////////////////////// Global Variables ///////////////////////////
+/////////////////////////// Global Variables ///////////////////////////0
 uint8_t state = 0;
 uint8_t released = 0;
 uint8_t reset_received = 0;
@@ -161,7 +162,7 @@ char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i
 int main (void)
 {
 	system_init();
-	delay_ms(100);
+	//delay_ms(100);
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -244,25 +245,18 @@ void system_init(void){
 	
 	// Driver Initialization
 	data_terminal_init();
-	gps_init();
 	delay_ms(500);
+	xbee_init();
+	gps_init();
 	
 //	thermistor_init();
-	delay_ms(2);
-	
 	spi_init();
-	delay_ms(2);
-	
 	pressure_init();
-	delay_ms(2);
-	
-	xbee_init();
-	
-	clock_init();
+	bno085_init();
     release_servo_init();
 	cam_init();
-	
-	delay_ms(10);
+	clock_init();
+
 	
 	state_check();
 	
@@ -295,12 +289,13 @@ void gps_init(void){
 }
 
 void xbee_init(void){
-	//XBEE_spi_init();
+	//XBEE_spi_init();z
 	/*
 	XBEE_uart_init();				// Starts the GPS
 	delay_ms(2);
 	*/
-	(*UART_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
+	printf("Starting Interrupt\n");
+	USARTE0.CTRLA = USART_RXCINTLVL_MED_gc;
 	
 }
 
@@ -312,7 +307,7 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-	
+	/*
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
@@ -330,9 +325,10 @@ double get_pressure(void){
 		off -= off2;
 		sens -= sens2;
 	}
-	*/
+	
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
+	*/
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
@@ -429,6 +425,33 @@ double data_check(RingBuffer32_t* presses){
 		result /= (double) nums; // Averages the new values
 	}
 	return result;
+}
+
+#define EPSILON		1E-14
+void quaternion2euler(double w, double x, double y, double z){
+	// roll (x-axis rotation)
+	double sinr_cosp = +2.0 * (w * x + y * z);
+	double cosr_cosp = +1.0 - 2.0 * (x * x + y * y);
+	double bank = atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	double attitude = 0;
+	double sinp = +2.0 * (w * y - z * x);
+	if (fabs(sinp) >= 1){
+		attitude = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	}
+	else{
+		attitude = asin(sinp);
+	}
+
+	// yaw (z-axis rotation)
+	double siny_cosp = +2.0 * (w * z + x * y);
+	double cosy_cosp = +1.0 - 2.0 * (y * y + z * z);
+	double heading = atan2(siny_cosp, cosy_cosp);
+	
+	// Figure out roll, pitch, and yaw
+	roll = heading;
+	pitch = sqrt(bank*bank + attitude*attitude);
 }
 
 void state_check(void){
@@ -563,35 +586,6 @@ void packet(void){
 	printf(str);
 }
 
-void xbee_command(uint8_t c){
-	switch(c){
-		case RESET:
-			//printf("RESET\n");
-			reset();
-			break;
-		case CALIBRATE:
-			calibrate();
-			//printf("CALIBRATE\n");
-			break;
-		case CALIBRATE_ALTITUDE:
-			cali_alt();
-			//printf("CALIBRATE_ALTITUDE\n");
-			break;
-		case CALIBRATE_ANGLE:
-			cali_ang();
-			//printf("CALIBRATE_ANGLE\n");
-			break;
-		case SEND_GPS_LOCATION:
-			send_gps();
-			//printf("SEND_GPS_LOCATION\n");
-			break;
-		case PACKET:
-			packet();
-			//printf("PACKET\n");
-			break;
-	}
-}
-
 void eeprom_write_const(void){
 	uint64_t g_p = (uint64_t) ground_p;
 	uint64_t g_t = (uint64_t) ground_t;
@@ -663,6 +657,18 @@ void eeprom_erase(void){
 	while(NVM.STATUS>>7);
 }
 
+ISR(TCC0_OVF_vect){
+	uint8_t data[14];
+	bno085_read(data);
+	
+	double x = ((data[5]<<8) | data[4]) * QSCALE;
+	double y = ((data[7]<<8) | data[6]) * QSCALE;
+	double z = ((data[9]<<8) | data[8]) * QSCALE;
+	double w = ((data[11]<<8) | data[10]) * QSCALE;
+	
+	quaternion2euler(w, x, y, z);
+}
+
 ISR(TCE0_OVF_vect){
 	timer++;
 	packets++;
@@ -688,8 +694,34 @@ ISR(TCE0_OVF_vect){
 
 ISR(USARTE0_RXC_vect){
 	uint8_t c = usart_getchar(UART_TERMINAL_SERIAL);
-	//printf("%c\n", c);
-	xbee_command(c);
+	printf("%c\n", c);
+	
+	switch(c){
+		case RESET:
+		//printf("RESET\n");
+		reset();
+		break;
+		case CALIBRATE:
+		calibrate();
+		//printf("CALIBRATE\n");
+		break;
+		case CALIBRATE_ALTITUDE:
+		cali_alt();
+		//printf("CALIBRATE_ALTITUDE\n");
+		break;
+		case CALIBRATE_ANGLE:
+		cali_ang();
+		//printf("CALIBRATE_ANGLE\n");
+		break;
+		case SEND_GPS_LOCATION:
+		send_gps();
+		//printf("SEND_GPS_LOCATION\n");
+		break;
+		case PACKET:
+		packet();
+		//printf("PACKET\n");
+		break;
+	}
 }
 
 
