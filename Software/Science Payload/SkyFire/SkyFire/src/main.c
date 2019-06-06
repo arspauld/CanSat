@@ -73,6 +73,7 @@ void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
+double	get_voltage(void);												// Volts
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
@@ -154,7 +155,7 @@ double roll = 0;			// Roll Angle
 double rpm = 0;				// Calculate RPM of Blades
 double angle = 0;			// Angle of Bonus Direction	
 
-
+double ref_ang = 0;
 char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
 
 
@@ -218,7 +219,7 @@ int main (void)
 				state = 0;
 				break;
 	}
-	
+	double d = get_voltage();
 	data_packets++;
 		if(timer != 0){
 			rate = data_packets / timer;
@@ -238,34 +239,48 @@ void system_init(void){
 	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, and 2 be output (0b10111100)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 	
-	// Check EEPROM
-	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
-		// Restart
-	}
-	
 	// Driver Initialization
 	data_terminal_init();
 	delay_ms(500);
 	xbee_init();
 	gps_init();
 	
+	release_servo_init();
+	
 //	thermistor_init();
 	spi_init();
 	pressure_init();
 	bno085_init();
-    release_servo_init();
 	cam_init();
 	clock_init();
 
+	delay_ms(10);
 	
 	state_check();
 	
+	// Check EEPROM
+	/*
+	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
+		ground_p = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 | 
+										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 | 
+										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 | 
+										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0)));
+		ground_t = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
+										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
+										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
+										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0)));
+		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
+		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
+		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
+	}
+	else{
+	*/
 	// Initialization of variables
-	ground_p = get_pressure();
-	ground_t = get_temperature();
-	ground_a = get_altitude(ground_p);
+		ground_p = get_pressure();
+		ground_t = get_temperature();
 	
-	eeprom_write_const();
+		eeprom_write_const();
+	//}
 }
 
 void pressure_init(void){
@@ -278,7 +293,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -289,12 +304,6 @@ void gps_init(void){
 }
 
 void xbee_init(void){
-	//XBEE_spi_init();z
-	/*
-	XBEE_uart_init();				// Starts the GPS
-	delay_ms(2);
-	*/
-	printf("Starting Interrupt\n");
 	USARTE0.CTRLA = USART_RXCINTLVL_MED_gc;
 	
 }
@@ -307,7 +316,7 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-	/*
+	
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
@@ -325,10 +334,10 @@ double get_pressure(void){
 		off -= off2;
 		sens -= sens2;
 	}
-	
+	*/
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-	*/
+	
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
@@ -348,6 +357,14 @@ double get_altitude(double press){
 	double val = 0;
 	val = ground_t * (pow(ground_p / press, R * L / g_0) - 1) / L;
 	return (val-ground_a);		//returns altitude in meters
+}
+
+double get_voltage(void){
+	uint16_t reading = voltage_read();
+	printf("%i\n", reading);
+	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
+	//voltage = voltage * (scaling); // 6720 is the resistance of the steady resistor
+	return voltage;
 }
 
 // Approximates the Velocity from past five altitudes
@@ -450,8 +467,8 @@ void quaternion2euler(double w, double x, double y, double z){
 	double heading = atan2(siny_cosp, cosy_cosp);
 	
 	// Figure out roll, pitch, and yaw
-	roll = heading;
-	pitch = sqrt(bank*bank + attitude*attitude);
+	roll = heading * 180.0 / M_PI;
+	pitch = sqrt(bank*bank + attitude*attitude) * 180.0 / M_PI;
 }
 
 void state_check(void){
@@ -473,10 +490,10 @@ void state_check(void){
 }
 
 void release_servo_init(void){
-	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
+	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR = 0x01;
+	PORTD.DIR |= 0x01;
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
@@ -484,7 +501,7 @@ void release_servo_init(void){
 }
 
 void servo_timer_init(void){
-	PORTD.DIR = 0x02;
+	PORTD.DIR |= 0x02;
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -520,34 +537,26 @@ void clock_init(void){
 }
 
 void buzzer_init(void){
-	//////
+	sysclk_enable_peripheral_clock(&TCD1); //enables peripheral clock for TCD0
+	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
+
+	PORTD.DIR |= 0x10;
+	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
+	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD1.PER = 2500; // sets the period (or the TOP value) to the period
+	TCD1.CCA = 1250;
 }
 
 void reset(void){
-	//timer = 0;
-	//packets = 0;
-	//rate = 10;
-	press = 0;			// Pressure (Pa)
-	temp = 0;			// Temperature (C)
-	alt = 0;			// Altitude (m)
-	volt = 0;			// Battery Terminal Voltage (V)
-	velocity = 0;		// Velocity (cm/s)
-	gps_t = 0;			// GPS Time
-	gps_lat = 0;		// GPS Latitude (+:N,-:S)
-	gps_long = 0;		// GPS Longitude (+:E,-:W)
-	gps_alt = 0;		// GPS Altitude
-	gps_sats = 0;		// GPS Satellites
-	pitch = 0;			// Pitch Angle
-	roll = 0;			// Roll Angle
-	rpm = 0;			// Calculate RPM of Blades
-	angle = 0;			// Angle of Bonus Direction
+	eeprom_erase();
 	
-	state = 0;
-	released = 0;
-	
-	system_init();
-	
-	reset_received = 1;
+	uint8_t oldInterruptState = SREG;	// no real need to store the interrupt context as the reset will pre-empt its restoration
+	cli();		                        // Disable interrupts
+
+	CCP = 0xD8;							// Configuration change protection: allow protected IO regiser write
+	RST.CTRL = RST_SWRST_bm;			// Request software reset by writing to protected IO register
+
+	SREG=oldInterruptState;
 }
 
 void calibrate(void){
@@ -557,7 +566,7 @@ void calibrate(void){
 
 void cali_alt(void){
 	ground_p = press;
-	ground_a = alt;
+	//ground_a = alt;
 	ground_t = get_temperature();
 }
 
@@ -658,8 +667,13 @@ void eeprom_erase(void){
 }
 
 ISR(TCC0_OVF_vect){
-	uint8_t data[14];
+	//printf("In Bosch Interrupt\n");
+	uint8_t data[18];
 	bno085_read(data);
+	//for(uint8_t i = 0; i < 18; i++){
+		//printf("%u ", data[i]);
+	//}
+	//printf("\n");
 	
 	double x = ((data[5]<<8) | data[4]) * QSCALE;
 	double y = ((data[7]<<8) | data[6]) * QSCALE;
@@ -679,7 +693,7 @@ ISR(TCE0_OVF_vect){
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	printf(str);
+	//printf(str);
 	
 	// Updates EEPROM
 	eeprom_write();
@@ -694,7 +708,7 @@ ISR(TCE0_OVF_vect){
 
 ISR(USARTE0_RXC_vect){
 	uint8_t c = usart_getchar(UART_TERMINAL_SERIAL);
-	printf("%c\n", c);
+	//printf("%c\n", c);
 	
 	switch(c){
 		case RESET:
