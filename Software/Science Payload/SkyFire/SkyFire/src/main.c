@@ -156,7 +156,7 @@ double rpm = 0;				// Calculate RPM of Blades
 double angle = 0;			// Angle of Bonus Direction	
 
 double ref_ang = 0;
-char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
+char* format = "5343,%i.%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -164,6 +164,8 @@ int main (void)
 {
 	system_init();
 	//delay_ms(100);
+	
+	buzzer_init();
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -182,8 +184,11 @@ int main (void)
 	
 	while(1){
 		// Check Sensors
+		//printf("Time: %i\nPressure: %li\n", timer/10, (int32_t) press);
 		data_collect(&altitudes,&pressures);
+		
 		state_check();
+		
 		// IMU Check
 		 
 		//Gives each flight state their unique tasks
@@ -218,9 +223,9 @@ int main (void)
 			default:
 				state = 0;
 				break;
-	}
-	double d = get_voltage();
-	data_packets++;
+		}
+		
+		data_packets++;
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
@@ -244,10 +249,11 @@ void system_init(void){
 	delay_ms(500);
 	xbee_init();
 	gps_init();
+	delay_ms(100);
 	
 	release_servo_init();
 	
-//	thermistor_init();
+	thermistor_init();
 	spi_init();
 	pressure_init();
 	bno085_init();
@@ -277,6 +283,7 @@ void system_init(void){
 	*/
 	// Initialization of variables
 		ground_p = get_pressure();
+		//printf("%li\n", (int32_t) ground_p);
 		ground_t = get_temperature();
 	
 		eeprom_write_const();
@@ -293,7 +300,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -315,10 +322,14 @@ void release(void){
 }
 
 double get_pressure(void){
+	//printf("Time: %i\n", timer/10);
 	double val = 101325;
 	
+	delay_ms(8);
 	uint32_t d1 = ms5607_convert_d1();
-	uint32_t d2 = ms5607_convert_d2();
+	delay_ms(8);
+	uint32_t d2 = ms5607_convert_d2();	
+	//while(d1 == 0xffffffff | d2 == 0xffffffff);
 	//printf("%li,%li\n",d1,d2);
 	double dt = d2 - (uint64_t)c[4] * 256.0;
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
@@ -337,19 +348,17 @@ double get_pressure(void){
 	*/
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-	
+	//printf("Pressure: %li\n", (int32_t) val);
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
 	double val = 288.15;
-	/*
 	uint16_t reading = thermistor_read();
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
-	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
-	*/
+	//double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
 	return val; //returns the temperature in kelvin
 }
 
@@ -361,9 +370,9 @@ double get_altitude(double press){
 
 double get_voltage(void){
 	uint16_t reading = voltage_read();
-	printf("%i\n", reading);
-	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
-	//voltage = voltage * (scaling); // 6720 is the resistance of the steady resistor
+	//printf("%i\n", reading);
+	double voltage = (.0004966 * reading - .096364766); // m and b are collected from testing
+	voltage = voltage * (13000.0 / 30000.0) + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
 }
 
@@ -497,7 +506,7 @@ void release_servo_init(void){
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = 750; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
+	TCD0.CCA = 800; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
 }
 
 void servo_timer_init(void){
@@ -532,7 +541,7 @@ void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
-	TCE0.PER = 31249; // 1 Hz
+	TCE0.PER = 15624; // 5 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
@@ -543,8 +552,8 @@ void buzzer_init(void){
 	PORTD.DIR |= 0x10;
 	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
-	TCD1.PER = 2500; // sets the period (or the TOP value) to the period
-	TCD1.CCA = 1250;
+	TCD1.PER = 184; // 2700hz
+	TCD1.CCA = 92;
 }
 
 void reset(void){
@@ -585,7 +594,7 @@ void send_gps(void){
 void packet(void){
 	//XBEE_spi_write(str);
 	packets++;
-	sprintf(str,format,timer,packets,
+	sprintf(str,format,timer/10,timer%10,packets,
 	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
@@ -684,16 +693,16 @@ ISR(TCC0_OVF_vect){
 }
 
 ISR(TCE0_OVF_vect){
-	timer++;
+	timer+=5;
 	packets++;
-	sprintf(str,format,timer,packets,
+	sprintf(str,format,timer/10,timer%10,packets,
 	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	//printf(str);
+	printf(str);
 	
 	// Updates EEPROM
 	eeprom_write();
