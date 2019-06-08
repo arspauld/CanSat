@@ -72,7 +72,7 @@ altituded.addWidget(altitude.plot)          # Adds the widgets to the layout
 pressured.addWidget(pressure.plot)
 tempd.addWidget(temp.plot)
 voltaged.addWidget(voltage.plot)
-pitchd.addWidget(pitch.plot)
+pitchd.addWidget(pitch.plot) 
 rolld.addWidget(roll.plot)
 gpsd.addWidget(gps.plot)
 spind.addWidget(spin.plot)
@@ -139,8 +139,12 @@ win.show()
 
 #GUI Functions
 def addItem():
-    listw.addItem(cmdw.text())
-    cmdw.setText('')
+    if cmdw.text() == 'clear':
+        listw.clear()
+        cmdw.setText('')
+    else:
+        listw.addItem(cmdw.text())
+        cmdw.setText('')
 
 def write2payload():
     text = cmdw.text()
@@ -167,6 +171,9 @@ def reset():
     gps.clear()
 
     listw.clear()
+
+    global count
+    count = 0
 
     if reset_btn.isChecked():
         reset_btn.toggle()
@@ -210,19 +217,24 @@ def get_gps():
     gps_btn.toggle()
 
     listw.addItem('GET_GPS')
-    parse_serial()
+    listw.addItem(str(datapoints[9]) + ',' + str(datapoints[8]))
+    #parse_serial()
     ser.write(b'a')
 
 #Write to .csv file
-w = open('Flight_5343.csv','w+')
-
 def csv_write(line):
+    z = open('Flight_5343.csv','a')
     line.split(',')
-    w.write(line)
+    z.write(line)
+    z.close()
 
 headers = 'Team ID,Mission Time,Packet Count,Altitude,Pressure,Temperature,Voltage,GPS Time,GPS Latitude,GPS Longitude,GPS Altitude,GPS Sats,Pitch,Roll,Blade Spin Rate,Flight State,Bonus Direction\n'
 
+w = open('Flight_5343.csv','w+')
+
 csv_write(headers)
+
+w.close()
 
 #Graphing and Data Functions
 def graph(datapoints):
@@ -234,22 +246,25 @@ def graph(datapoints):
     roll.add(           float(datapoints[1]),  float(datapoints[13]))
     spin.add(           float(datapoints[1]),  float(datapoints[14]))
     direction.add(      float(datapoints[1]),  float(datapoints[16]))
-    gps.add(            float(datapoints[9]),  float(datapoints[8]))
+    if float(datapoints[8]) != 0 and float(datapoints[9]) != 0:
+        gps.add(            float(datapoints[9]),  float(datapoints[8]))
 
 def parse_serial():
     binary = ser.readline()
-    line1 = str(binary, encoding='ascii')
+    lines = str(binary, encoding='ascii')
     
-    line = line1.strip()
+    line = lines.strip()
 
     datapoints = line.split(',') #This is the actual data that can be written into the .csv file
 
     if datapoints[0] == '5343' or len(datapoints) == 2:
+        #if count % 2 == 0:
         listw.addItem(line)
 
     if datapoints[0] == '5343' and len(datapoints) > 2:
+        csv_write(lines)
+        #if count % 2 == 0:
         graph(datapoints)
-        csv_write(line1)
         mission_timew.setText('<b>Mission Time (s): </b>' + str(datapoints[1]))
         packetsw.setText('<b>Packets: </b>' + str(datapoints[2]))
         flight_statew.setText('<b>Flight State: </b>' + str(datapoints[15]))
@@ -257,10 +272,18 @@ def parse_serial():
         gps_altw.setText('<b>GPS Altitude (m): </b>' + str(datapoints[10]))
         gps_satsw.setText('<b>GPS Sats: </b>' + str(datapoints[11]))
 
+#Counter for graphing
+count = 0
+
+def counter():
+    global count
+    count += 1
+
 #Timer
 timer = QtCore.QTimer()
 timer.setInterval(100)
 timer.timeout.connect(parse_serial)
+#timer.timeout.connect(counter)
 timer.start()
 
 #Connect Signals with Events (Functions)
@@ -281,7 +304,6 @@ reset_btn.clicked.connect(reset)
 
 #Execute the GUI application
 app.exec_()
-#Close the .csv file
-w.close()
+
 #Close the serial port
 ser.close()
