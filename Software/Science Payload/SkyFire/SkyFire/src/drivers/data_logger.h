@@ -20,6 +20,5 @@
 #define UART_TERMINAL_PORT				PORTE
 
 void data_terminal_init(void);
-void uart_write(char* data);
 
 #endif //UART_H_

@@ -11,7 +11,7 @@
 void spi_init(void)
 {
 	sysclk_enable_peripheral_clock(&SPIC);
-	SPIC.CTRL = 0x5C; //enables SPI and puts a prescaler of 16 idling high and transmitting MSB first on rising signal
+	SPIC.CTRL = 0x51; //enables SPI and puts a prescaler of 16
 	PORTC.DIR |= 0b10110000; 
 }
 
@@ -22,11 +22,11 @@ void spi_select(uint8_t port)
 
 uint8_t spi_read(void)
 {
+	uint8_t iter_max = 100;
 	uint8_t count = 0;
-	uint8_t counter = 100;
 	SPIC.DATA = 0xFF; // make the DATA register something we know
-	while(!(SPIC.STATUS>>7) & (count < counter)){
-		//count++;
+	while(!(SPIC.STATUS>>7) && count < iter_max){ // wait for the SPI interrupt flag to let us know the transfer is complete
+		count++;	
 	}
 	
 	return SPIC.DATA; // return the data from this function

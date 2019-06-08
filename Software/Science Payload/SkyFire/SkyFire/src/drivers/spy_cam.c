@@ -9,10 +9,9 @@
 #include <asf.h>
 
 void cam_init(void){
-	PORTA.DIR |= PIN3_bm; // Sets A3 to output
-	cam_switch();
+	PORTA.DIR |= 0x08; // Sets A3 to output
 }
 
 void cam_switch(void){
-	PORTA.OUT ^= PIN3_bm; // Changes A3 from high to low or vice-versa
+	PORTA.OUT ^= 0x08; // Changes A3 from high to low or vice-versa
 }

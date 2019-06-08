@@ -1,31 +1,30 @@
-Solid Edge Translation to STL
-Date: Sunday,June 02,2019 12:46PM
-Source File:C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame\PCB_CASE_V3_FRONT.par
-Output File: C:\Users\Zac's Machine\Documents\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame\PCB_CASE_V3_FRONT.stl
-Source System: SOLID EDGE
+Solid Edge Translation to STEP
+Date: Thursday,May 23,2019 11:28AM
+Output File: \\alpha\mechanical\Marcus\ZAC\CanSat\mechanical\SolidEdge\3D Printed frame\PCB_CASE_V3_FRONT.stp
+Author: Unknown
+Organization: Unknown
+Source System: Solid Edge
 
 Hardware:
-Processor: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+Processor: Intel(R) Core(TM) i3-2100 CPU @ 3.10GHz
 Operating System: Windows 8
-Memory: 7.87 GB
+Installed Memory: 7.98 GB
 
-Software Information:
+Software Information
 Parasolid Version: 30.0.167
-Bodyshop Version: 30.0.81
+PSBodyShop Version: 30.0.81
+Step Adapter Version: 3.0.52
 Solid Edge Version: 110.00.00.107 x64
 
-STL Export Options:
-Output File Format:BINARY
-Export Displayed Parts:Off
-structureOption: Monolithic
-Export Units:Inch
-Export Tolerance Value:0.050000
-Export Tolerance Type:Custom
-Export Surface Plane Angle Value:0.523599
+STEP Export Options
+Export Format: AP214
+Export Construction Sheets: Off
+Export Construction Solids: Off
+Export Construction Wires: Off
+Export Displayed Parts Only: Off
+Export Units: Millimeters
+Export Part Component Names As Unicode: Off
 
-Translation progress:
-Phase 1 of 2 Fetching Parasolid information...
-Phase 2 of 2 Translating Parasolid to foreign data types...
-Number of STL file Created : 1
+Phase 1 of 1 Translating Parasolid to foreign data types...
 Translation process completed
-Time required to translate:00 : 00 : 00
+Time required to translate:00 : 00 : 01

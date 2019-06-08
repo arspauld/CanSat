@@ -34,9 +34,8 @@
           <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.utils.stdio.stdio_serial" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="xmega.drivers.adc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="xmega.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="xmega.drivers.adc" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations />
         <files>
@@ -142,7 +141,7 @@
     <com_atmel_avrdbg_tool_edbg>
       <ToolOptions>
         <InterfaceProperties>
-          <PdiClock>4000000</PdiClock>
+          <PdiClock>0</PdiClock>
         </InterfaceProperties>
         <InterfaceName>PDI</InterfaceName>
       </ToolOptions>
@@ -150,11 +149,11 @@
       <ToolNumber>ATML1802021800001405</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
-    <avrtoolinterfaceclock>1000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_jtagice3plus>
       <ToolOptions>
         <InterfaceProperties>
-          <PdiClock>1000000</PdiClock>
+          <PdiClock>2000000</PdiClock>
         </InterfaceProperties>
         <InterfaceName>PDI</InterfaceName>
       </ToolOptions>
@@ -162,17 +161,6 @@
       <ToolNumber>J30200001756</ToolNumber>
       <ToolName>JTAGICE3</ToolName>
     </com_atmel_avrdbg_tool_jtagice3plus>
-    <com_atmel_avrdbg_tool_atmelice>
-      <ToolOptions>
-        <InterfaceProperties>
-          <PdiClock>0</PdiClock>
-        </InterfaceProperties>
-        <InterfaceName>PDI</InterfaceName>
-      </ToolOptions>
-      <ToolType>com.atmel.avrdbg.tool.atmelice</ToolType>
-      <ToolNumber>J41800010510</ToolNumber>
-      <ToolName>Atmel-ICE</ToolName>
-    </com_atmel_avrdbg_tool_atmelice>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -380,6 +368,7 @@
     <Folder Include="src\ASF\xmega\utils\preprocessor\" />
     <Folder Include="src\config\" />
     <Folder Include="src\drivers" />
+    <Folder Include="src\drivers\BNO085" />
     <Folder Include="src\tools" />
   </ItemGroup>
   <ItemGroup>
@@ -428,10 +417,46 @@
     <None Include="src\config\conf_adc.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\drivers\BNO085.c">
+    <Compile Include="src\drivers\BNO085\HcBin.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\drivers\BNO085.h">
+    <Compile Include="src\drivers\BNO085\sh2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_err.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_hal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_hal_impl.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_SensorValue.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_SensorValue.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_util.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\sh2_util.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\shtp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\shtp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\worldTare.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\drivers\BNO085\worldTare.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\drivers\hall.c">
