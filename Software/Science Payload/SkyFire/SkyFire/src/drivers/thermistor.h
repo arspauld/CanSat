@@ -13,7 +13,7 @@
 
 #define THERMISTOR_SERIAL		ADCA
 #define THERMISTOR_CHANNEL		CH0
-#define THERMISTOR_PIN			0x30 // pin 6
+#define THERMISTOR_PIN			(uint8_t)(PIN6_bm<<3) // pin 6
 
 
 void thermistor_init(void);

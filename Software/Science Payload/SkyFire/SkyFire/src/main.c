@@ -165,7 +165,10 @@ int main (void)
 	system_init();
 	//delay_ms(100);
 	
-	buzzer_init();
+	PORTD.DIR |= PIN3_bm;
+	PORTD.OUT |= PIN3_bm;
+	
+	//buzzer_init();
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -198,13 +201,13 @@ int main (void)
 			case 1:
 				if(alt > 600 && !cam_initialized){
 					cam_initialized = 1;
-					cam_switch();
+					//cam_switch();
 				}
 				break;
 			case 2:
 				if(!cam_initialized){
 					cam_initialized = 1;
-					cam_switch();
+					//cam_switch();
 				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
@@ -216,7 +219,7 @@ int main (void)
 				break;
 			case 3:
 				if(!buzzer_initialized){
-					buzzer_init();
+					//buzzer_init();
 					buzzer_initialized = 1;
 				}
 				break;
@@ -227,7 +230,7 @@ int main (void)
 		
 		data_packets++;
 		if(timer != 0){
-			rate = data_packets / timer;
+			rate = 10 * data_packets / timer;
 		}
 	}
 }
@@ -244,6 +247,7 @@ void system_init(void){
 	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, and 2 be output (0b10111100)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 	
+	cam_init();
 	// Driver Initialization
 	data_terminal_init();
 	delay_ms(500);
@@ -254,10 +258,11 @@ void system_init(void){
 	release_servo_init();
 	
 	thermistor_init();
+	voltage_init();
 	spi_init();
 	pressure_init();
-	bno085_init();
-	cam_init();
+	//bno085_init();
+	cam_switch();
 	clock_init();
 
 	delay_ms(10);
@@ -354,11 +359,12 @@ double get_pressure(void){
 }
 
 double get_temperature(void){
-	double val = 288.15;
+	double val = 303.15; // Change to 15 degrees C
 	uint16_t reading = thermistor_read();
-	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
-	//double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	//printf("%u\n", reading);
+	double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
+	double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
 	return val; //returns the temperature in kelvin
 }
 
@@ -370,9 +376,9 @@ double get_altitude(double press){
 
 double get_voltage(void){
 	uint16_t reading = voltage_read();
-	//printf("%i\n", reading);
+	printf("%u\n", reading);
 	double voltage = (.0004966 * reading - .096364766); // m and b are collected from testing
-	voltage = voltage * (13000.0 / 30000.0) + voltage; // 6720 is the resistance of the steady resistor
+	voltage = voltage * (29800.0 / 13000.0) + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
 }
 
@@ -408,6 +414,7 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		velocity = diff(alts, rate);
 	}
 	temp = get_temperature();	// Grabs the temperature once
+	volt = get_voltage();
 }
 
 double data_check(RingBuffer32_t* presses){
@@ -502,7 +509,9 @@ void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR |= 0x01;
+	PORTA.DIR |= 0x02;
+	PORTA.OUT |= 0x02;
+	PORTD.DIR |= 0x07;
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
@@ -541,7 +550,7 @@ void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
-	TCE0.PER = 15624; // 5 Hz
+	TCE0.PER = 3124; // 5 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
@@ -693,8 +702,9 @@ ISR(TCC0_OVF_vect){
 }
 
 ISR(TCE0_OVF_vect){
-	timer+=5;
+	timer+=1;
 	packets++;
+	/*
 	sprintf(str,format,timer/10,timer%10,packets,
 	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
@@ -703,7 +713,7 @@ ISR(TCE0_OVF_vect){
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
 	printf(str);
-	
+	*/
 	// Updates EEPROM
 	eeprom_write();
 	
