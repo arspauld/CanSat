@@ -1,7 +1,7 @@
 Solid Edge Translation to STL
-Date: Saturday,June 08,2019 12:04PM
+Date: Saturday,June 08,2019 12:19PM
 Source File:D:\GitHub\CanSat\mechanical\SolidEdge\RELEASE_ARM.par
-Output File: D:\GitHub\CanSat\mechanical\SolidEdge\3D Printed frame\RELEASE_ARM.stl
+Output File: D:\GitHub\CanSat\mechanical\SolidEdge\RELEASE_ARM.stl
 Source System: SOLID EDGE
 
 Hardware:
@@ -28,4 +28,4 @@ Phase 1 of 2 Fetching Parasolid information...
 Phase 2 of 2 Translating Parasolid to foreign data types...
 Number of STL file Created : 1
 Translation process completed
-Time required to translate:00 : 00 : 01
+Time required to translate:00 : 00 : 00
