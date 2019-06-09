@@ -58,6 +58,15 @@ src/drivers/BNO085.d src/drivers/BNO085.o: ../src/drivers/BNO085.c \
  ../src/ASF/common/services/serial/serial.h \
  ../src/ASF/common/services/serial/xmega_usart/usart_serial.h \
  ../src/ASF/xmega/drivers/usart/usart.h ../src/config/conf_usart_serial.h \
+ ../src/ASF/common/services/twi/twi_master.h \
+ ../src/ASF/common/services/twi/xmega_twi/twi_master.h \
+ ../src/ASF/xmega/drivers/twi/twim.h ../src/config/conf_twim.h \
+ ../src/ASF/xmega/drivers/twi/twi_common.h \
+ ../src/ASF/common/services/twi/twi_slave.h \
+ ../src/ASF/common/services/twi/xmega_twi/twi_slave.h \
+ ../src/ASF/xmega/drivers/twi/twis.h \
+ ../src/ASF/common/services/twi/xmega_twi/twi_master.h \
+ ../src/ASF/common/services/twi/xmega_twi/twi_slave.h \
  ../src/drivers/spi_controller.h ../src/drivers/BNO085.h
 
 ../src/asf.h:
@@ -191,6 +200,26 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 ../src/ASF/xmega/drivers/usart/usart.h:
 
 ../src/config/conf_usart_serial.h:
+
+../src/ASF/common/services/twi/twi_master.h:
+
+../src/ASF/common/services/twi/xmega_twi/twi_master.h:
+
+../src/ASF/xmega/drivers/twi/twim.h:
+
+../src/config/conf_twim.h:
+
+../src/ASF/xmega/drivers/twi/twi_common.h:
+
+../src/ASF/common/services/twi/twi_slave.h:
+
+../src/ASF/common/services/twi/xmega_twi/twi_slave.h:
+
+../src/ASF/xmega/drivers/twi/twis.h:
+
+../src/ASF/common/services/twi/xmega_twi/twi_master.h:
+
+../src/ASF/common/services/twi/xmega_twi/twi_slave.h:
 
 ../src/drivers/spi_controller.h:
 

@@ -11,7 +11,6 @@
 
 void ms5607_init(void){
 	PORTC.OUT |= 0x10; // makes the 4th pin on Port C be set on high (0b00010000)
-	delay_ms(5);
 	
 	// Resets the ms5607
 	flip_ms5607();
@@ -47,7 +46,7 @@ uint32_t ms5607_convert_d1(void)
 	spi_write(CMD_MS5607_D1_4096); // write a specified command to ask for data
 	delay_ms(10);
 	flip_ms5607();
-	delay_ms(2);
+	
 	flip_ms5607();
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;
@@ -66,7 +65,7 @@ uint32_t ms5607_convert_d2(void)
 	spi_write(CMD_MS5607_D2_4096); // write a specified command to ask for data
 	delay_ms(10);
 	flip_ms5607();
-	delay_ms(2);
+	
 	flip_ms5607();
 	spi_write(CMD_MS5607_READ_ADC);
 	rx_data  = (uint32_t) spi_read()<<16;

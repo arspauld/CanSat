@@ -10,7 +10,7 @@ import serial
 ser = serial.Serial()
 ser.timeout = 0.02
 ser.baudrate = 9600
-ser.port = 'COM12'
+ser.port = 'COM16'
 ser.open()
 
 #  Commands
