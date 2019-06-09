@@ -5,11 +5,11 @@
 #include "drivers\thermistor.h"
 #include "drivers\ms5607.h"
 #include "drivers\mt3339.h"
+#include "drivers\xbee.h"
 #include "drivers\spi_controller.h"
 #include "drivers\spy_cam.h"
 #include "drivers\voltage.h"
 #include "drivers\hall.h"
-#include "drivers\BNO085.h"
 #include "tools\RingBuffer.h"
 
 // GCS Commands
@@ -29,28 +29,10 @@
 #define EEPROM_PAGE			0x1000	// Page 0
 #define ALT_ADDR_BYTE0		0x00	// Byte 0
 #define ALT_ADDR_BYTE1		0x01	// Byte 1
-#define PACKET_ADDR_BYTE0	0x03	// Byte 3
-#define PACKET_ADDR_BYTE1	0x04	// Byte 4
-#define TIME_ADDR_BYTE0		0x06	// Byte 6
-#define TIME_ADDR_BYTE1		0x07	// Byte 7
-
-// Ground Constants byte addresses
-#define GROUND_PRESS_ADDR0  0x09	// Byte 9
-#define GROUND_PRESS_ADDR1  0x0A	// Byte 10
-#define GROUND_PRESS_ADDR2  0x0B	// Byte 11
-#define GROUND_PRESS_ADDR3  0x0C	// Byte 12
-#define GROUND_PRESS_ADDR4  0x0D	// Byte 13
-#define GROUND_PRESS_ADDR5  0x0E	// Byte 14
-#define GROUND_PRESS_ADDR6  0x0F	// Byte 15
-#define GROUND_PRESS_ADDR7  0x10	// Byte 16
-#define GROUND_TEMP_ADDR0	0x12	// Byte 18
-#define GROUND_TEMP_ADDR1	0x13	// Byte 19
-#define GROUND_TEMP_ADDR2	0x14	// Byte 20
-#define GROUND_TEMP_ADDR3	0x15	// Byte 21
-#define GROUND_TEMP_ADDR4	0x16	// Byte 22
-#define GROUND_TEMP_ADDR5	0x17	// Byte 23
-#define GROUND_TEMP_ADDR6	0x18	// Byte 24
-#define GROUND_TEMP_ADDR7	0x19	// Byte 25
+#define PACKET_ADDR_BYTE0	0x0A	// Byte 10
+#define PACKET_ADDR_BYTE1	0x0B	// Byte 11
+#define TIME_ADDR_BYTE0		0x14	// Byte 20
+#define TIME_ADDR_BYTE1		0x15	// Byte 21
 
 #define READ_EEPROM			0x06	// Load CMD, Load ADDR, Load CMDEX
 #define ERASE_EEPROM		0x30	// Load CMD, Load CMDEX, Wait for BUSY flag to drop
@@ -73,13 +55,10 @@ void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
 double	get_altitude(double press);										// meters
-double	get_voltage(void);												// Volts
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
-void	quaternion2euler(double w, double x, double y, double z);		// Converts the quaternion data to euler angles
 void	state_check(void);												// Returns the current state
-void	release_servo_init(void);										// Starts Release Servo Rate
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
 void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
@@ -92,14 +71,14 @@ void	cali_alt(void);
 void	cali_ang(void);
 void	send_gps(void);
 void	packet(void);
+void	xbee_command(uint8_t c);
 
 // EEPROM commands
-void	eeprom_write_const(void);
 void	eeprom_write(void);
 uint8_t	eeprom_read(uint16_t address);
 void	eeprom_erase(void);	
 
-/////////////////////////// Global Variables ///////////////////////////0
+/////////////////////////// Global Variables ///////////////////////////
 uint8_t state = 0;
 uint8_t released = 0;
 uint8_t reset_received = 0;
@@ -114,9 +93,6 @@ double g_0 = 9.80665;
 
 // Pressure Calculation variables
 uint16_t c[] = {0,0,0,0,0,0};
-
-// Release
-uint16_t release_pulse = 1500; // microseconds (0 position)
 
 // Fin Servo
 uint16_t servo_pulse = 1500;
@@ -135,7 +111,6 @@ char str[100];					// Output String
 
 // Time and Packets
 uint16_t timer = 0;
-uint16_t data_packets = 0;
 uint16_t packets = 0;
 uint16_t rate = 10;
 
@@ -144,7 +119,7 @@ double press = 0;			// Pressure (Pa)
 double temp = 0;			// Temperature (C)
 double alt = 0;				// Altitude (m)
 double volt = 0;			// Battery Terminal Voltage (V)
-double velocity = 0;		// Velocity (m/s)
+double velocity = 0;		// Velocity (cm/s)
 double gps_t = 0;			// GPS Time
 double gps_lat = 0;			// GPS Latitude (+:N,-:S)
 double gps_long = 0;		// GPS Longitude (+:E,-:W)
@@ -155,17 +130,15 @@ double roll = 0;			// Roll Angle
 double rpm = 0;				// Calculate RPM of Blades
 double angle = 0;			// Angle of Bonus Direction	
 
-double ref_ang = 0;
-char* format = "5343,%i.%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
+
+char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
 
 
 ////////////////////////////// Functions ///////////////////////////////
 int main (void)
 {
 	system_init();
-	//delay_ms(100);
-	
-	buzzer_init();
+	delay_ms(100);
 	
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
@@ -184,13 +157,10 @@ int main (void)
 	
 	while(1){
 		// Check Sensors
-		//printf("Time: %i\nPressure: %li\n", timer/10, (int32_t) press);
 		data_collect(&altitudes,&pressures);
-		
 		state_check();
-		
 		// IMU Check
-		 
+		
 		//Gives each flight state their unique tasks
 		switch(state){
 			case 0:
@@ -210,7 +180,7 @@ int main (void)
 					release();				// Releases the payload
 					hall_sensor_init();		// Starts hall effect sensor to read rpm
 				}
-				else if(released){
+				if(released){
 					servo_pid(&directions);	// Updates the PID
 				}
 				break;
@@ -223,12 +193,23 @@ int main (void)
 			default:
 				state = 0;
 				break;
-		}
+		}	
 		
-		data_packets++;
+		packets++;
 		if(timer != 0){
-			rate = data_packets / timer;
+			rate = packets / timer;
 		}
+		// Prints information
+		//printf("5343,%i,%i,%i,%li,%i,%i,%li,%li,%li,%i,%i,%i,%i,%i,%i,%i",time,packets,(int16_t)alt*10,(int32_t) press,(int16_t) temp*10,volt,gps_t,gps_lat,gps_long,gps_alt,gps_sats,pitch,roll,rpm,state,angle)
+		sprintf(str,format,timer,packets,
+			(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+			(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+			(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+			(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+			(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+			state,									(int16_t)angle); // Data Logging Test
+		//printf(str);
+		//delay_ms(500);
 	}
 }
 
@@ -247,47 +228,31 @@ void system_init(void){
 	// Driver Initialization
 	data_terminal_init();
 	delay_ms(500);
+	
+//	thermistor_init();
+	delay_ms(2);
+	
+	spi_init();
+	delay_ms(2);
+	
+	pressure_init();
+	delay_ms(2);
+	
 	xbee_init();
 	gps_init();
-	delay_ms(100);
 	
-	release_servo_init();
-	
-	thermistor_init();
-	spi_init();
-	pressure_init();
-	bno085_init();
-	cam_init();
 	clock_init();
-
+    //servo_timer_init();
+	cam_init();
+	
 	delay_ms(10);
 	
 	state_check();
 	
-	// Check EEPROM
-	/*
-	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
-		ground_p = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 | 
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 | 
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 | 
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0)));
-		ground_t = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0)));
-		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
-		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
-		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
-	}
-	else{
-	*/
 	// Initialization of variables
-		ground_p = get_pressure();
-		//printf("%li\n", (int32_t) ground_p);
-		ground_t = get_temperature();
-	
-		eeprom_write_const();
-	//}
+	ground_p = get_pressure();
+	ground_t = get_temperature();
+	ground_a = get_altitude(ground_p);
 }
 
 void pressure_init(void){
@@ -300,7 +265,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -311,25 +276,26 @@ void gps_init(void){
 }
 
 void xbee_init(void){
-	USARTE0.CTRLA = USART_RXCINTLVL_MED_gc;
+	//XBEE_spi_init();
+	/*
+	XBEE_uart_init();				// Starts the GPS
+	delay_ms(2);
+	*/
+	(*UART_TERMINAL_SERIAL).CTRLA = USART_RXCINTLVL_MED_gc;
 	
 }
 
 void release(void){
-	TCD0.CCA = 1200;
+	// Release payload
 	
 	released = 1;
 }
 
 double get_pressure(void){
-	//printf("Time: %i\n", timer/10);
 	double val = 101325;
 	
-	delay_ms(8);
 	uint32_t d1 = ms5607_convert_d1();
-	delay_ms(8);
-	uint32_t d2 = ms5607_convert_d2();	
-	//while(d1 == 0xffffffff | d2 == 0xffffffff);
+	uint32_t d2 = ms5607_convert_d2();
 	//printf("%li,%li\n",d1,d2);
 	double dt = d2 - (uint64_t)c[4] * 256.0;
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
@@ -348,17 +314,18 @@ double get_pressure(void){
 	*/
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-	//printf("Pressure: %li\n", (int32_t) val);
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
 	double val = 288.15;
+	/*
 	uint16_t reading = thermistor_read();
 	double voltage = (.000495 * reading + .5016); // m and b are collected from testing
-	//double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	double resistance = 6720 * (3.3 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	*/
 	return val; //returns the temperature in kelvin
 }
 
@@ -366,14 +333,6 @@ double get_altitude(double press){
 	double val = 0;
 	val = ground_t * (pow(ground_p / press, R * L / g_0) - 1) / L;
 	return (val-ground_a);		//returns altitude in meters
-}
-
-double get_voltage(void){
-	uint16_t reading = voltage_read();
-	//printf("%i\n", reading);
-	double voltage = (.0004966 * reading - .096364766); // m and b are collected from testing
-	voltage = voltage * (13000.0 / 30000.0) + voltage; // 6720 is the resistance of the steady resistor
-	return voltage;
 }
 
 // Approximates the Velocity from past five altitudes
@@ -453,33 +412,6 @@ double data_check(RingBuffer32_t* presses){
 	return result;
 }
 
-#define EPSILON		1E-14
-void quaternion2euler(double w, double x, double y, double z){
-	// roll (x-axis rotation)
-	double sinr_cosp = +2.0 * (w * x + y * z);
-	double cosr_cosp = +1.0 - 2.0 * (x * x + y * y);
-	double bank = atan2(sinr_cosp, cosr_cosp);
-
-	// pitch (y-axis rotation)
-	double attitude = 0;
-	double sinp = +2.0 * (w * y - z * x);
-	if (fabs(sinp) >= 1){
-		attitude = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-	}
-	else{
-		attitude = asin(sinp);
-	}
-
-	// yaw (z-axis rotation)
-	double siny_cosp = +2.0 * (w * z + x * y);
-	double cosy_cosp = +1.0 - 2.0 * (y * y + z * z);
-	double heading = atan2(siny_cosp, cosy_cosp);
-	
-	// Figure out roll, pitch, and yaw
-	roll = heading * 180.0 / M_PI;
-	pitch = sqrt(bank*bank + attitude*attitude) * 180.0 / M_PI;
-}
-
 void state_check(void){
 	if(abs(velocity)>EPSILON_VELOCITY){
 		state = 1;
@@ -498,19 +430,14 @@ void state_check(void){
 	}
 }
 
-void release_servo_init(void){
-	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
+void servo_timer_init(void){
+	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TC E0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR |= 0x01;
-	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
-	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
-	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = 800; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
-}
-
-void servo_timer_init(void){
-	PORTD.DIR |= 0x02;
+	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
+	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD1.PER = 10000; // sets the period (or the TOP value) to the period
+	TCD1.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle // 500 ticks per millisecond
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -534,38 +461,46 @@ void servo_pid(RingBuffer16_t* direct){
 	double val = p + i + d;
 	servo_pulse = 1500 + val;  // 1500 is the zero position in this model
 	
-	TCD0.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle
+	TCD1.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle
 }
 
 void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
-	TCE0.PER = 15624; // 5 Hz
+	TCE0.PER = 31249; // 1 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
 void buzzer_init(void){
-	sysclk_enable_peripheral_clock(&TCD1); //enables peripheral clock for TCD0
-	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
-
-	PORTD.DIR |= 0x10;
-	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
-	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
-	TCD1.PER = 184; // 2700hz
-	TCD1.CCA = 92;
+	//////
 }
 
 void reset(void){
-	eeprom_erase();
+	//timer = 0;
+	//packets = 0;
+	//rate = 10;
+	press = 0;			// Pressure (Pa)
+	temp = 0;			// Temperature (C)
+	alt = 0;			// Altitude (m)
+	volt = 0;			// Battery Terminal Voltage (V)
+	velocity = 0;		// Velocity (cm/s)
+	gps_t = 0;			// GPS Time
+	gps_lat = 0;		// GPS Latitude (+:N,-:S)
+	gps_long = 0;		// GPS Longitude (+:E,-:W)
+	gps_alt = 0;		// GPS Altitude
+	gps_sats = 0;		// GPS Satellites
+	pitch = 0;			// Pitch Angle
+	roll = 0;			// Roll Angle
+	rpm = 0;			// Calculate RPM of Blades
+	angle = 0;			// Angle of Bonus Direction
 	
-	uint8_t oldInterruptState = SREG;	// no real need to store the interrupt context as the reset will pre-empt its restoration
-	cli();		                        // Disable interrupts
-
-	CCP = 0xD8;							// Configuration change protection: allow protected IO regiser write
-	RST.CTRL = RST_SWRST_bm;			// Request software reset by writing to protected IO register
-
-	SREG=oldInterruptState;
+	state = 0;
+	released = 0;
+	
+	system_init();
+	
+	reset_received = 1;
 }
 
 void calibrate(void){
@@ -575,7 +510,7 @@ void calibrate(void){
 
 void cali_alt(void){
 	ground_p = press;
-	//ground_a = alt;
+	ground_a = alt;
 	ground_t = get_temperature();
 }
 
@@ -593,47 +528,52 @@ void send_gps(void){
 
 void packet(void){
 	//XBEE_spi_write(str);
-	packets++;
-	sprintf(str,format,timer/10,timer%10,packets,
+	sprintf(str,format,timer,packets,
 	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
+	state,									(int16_t)angle); // Data Logging Test
 	printf(str);
 }
 
-void eeprom_write_const(void){
-	uint64_t g_p = (uint64_t) ground_p;
-	uint64_t g_t = (uint64_t) ground_t;
-	
-	uint8_t data[] = {	g_p&0xFF, (g_p>>8)&0xFF, (g_p>>16)&0xFF, (g_p>>24)&0xFF, (g_p>>32)&0xFF, (g_p>>40)&0xFF, (g_p>>48)&0xFF, (g_p>>56), 
-						g_t&0xFF, (g_t>>8)&0xFF, (g_t>>16)&0xFF, (g_t>>24)&0xFF, (g_t>>32)&0xFF, (g_t>>40)&0xFF, (g_t>>48)&0xFF, (g_t>>56)};
-	uint8_t addresses[] = {	GROUND_PRESS_ADDR0, GROUND_PRESS_ADDR1, GROUND_PRESS_ADDR2, GROUND_PRESS_ADDR3, GROUND_PRESS_ADDR4, GROUND_PRESS_ADDR5, GROUND_PRESS_ADDR6, GROUND_PRESS_ADDR7,
-							GROUND_TEMP_ADDR0,  GROUND_TEMP_ADDR1,  GROUND_TEMP_ADDR2,  GROUND_TEMP_ADDR3,  GROUND_TEMP_ADDR4,  GROUND_TEMP_ADDR5,  GROUND_TEMP_ADDR6,  GROUND_TEMP_ADDR7};
-	
-	NVM.CMD = LOAD_BUFFER_CMD;
-	for(uint8_t i = 0; i < 16; i++){
-		NVM.ADDR0 = addresses[i];
-		NVM.DATA0 = data[i];
+void xbee_command(uint8_t c){
+	switch(c){
+		case RESET:
+			//printf("RESET\n");
+			reset();
+			break;
+		case CALIBRATE:
+			calibrate();
+			//printf("CALIBRATE\n");
+			break;
+		case CALIBRATE_ALTITUDE:
+			cali_alt();
+			//printf("CALIBRATE_ALTITUDE\n");
+			break;
+		case CALIBRATE_ANGLE:
+			cali_ang();
+			//printf("CALIBRATE_ANGLE\n");
+			break;
+		case SEND_GPS_LOCATION:
+			send_gps();
+			//printf("SEND_GPS_LOCATION\n");
+			break;
+		case PACKET:
+			packet();
+			//printf("PACKET\n");
+			break;
 	}
-	
-	// Erases and writes the page buffer
-	NVM.CMD = ATOMIC_WRITE_CMD;
-	NVM.ADDR0 = EEPROM_PAGE & 0xFF;
-	NVM.ADDR1 = EEPROM_PAGE >> 8;
-	CCP = CCP_IOREG_MODE;
-	NVM.CTRLA = CTRLA_CMDEX_BYTE;
-	while(NVM.STATUS>>7);
 }
 
+
 void eeprom_write(void){
-	uint16_t a = (uint16_t) ((int16_t) alt); // creates an unsigned int of the altitude
+	uint16_t a = (uint16_t) alt; // creates an unsigned int of the altitude
 	
 	// saves data and addresses in array
 	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF};
-	uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0};
+	uint8_t addresses[] = {ALT_ADDR_BYTE0, ALT_ADDR_BYTE1, PACKET_ADDR_BYTE0, PACKET_ADDR_BYTE1, TIME_ADDR_BYTE0, TIME_ADDR_BYTE1};
 	
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
@@ -675,76 +615,23 @@ void eeprom_erase(void){
 	while(NVM.STATUS>>7);
 }
 
-ISR(TCC0_OVF_vect){
-	//printf("In Bosch Interrupt\n");
-	uint8_t data[18];
-	bno085_read(data);
-	//for(uint8_t i = 0; i < 18; i++){
-		//printf("%u ", data[i]);
-	//}
-	//printf("\n");
-	
-	double x = ((data[5]<<8) | data[4]) * QSCALE;
-	double y = ((data[7]<<8) | data[6]) * QSCALE;
-	double z = ((data[9]<<8) | data[8]) * QSCALE;
-	double w = ((data[11]<<8) | data[10]) * QSCALE;
-	
-	quaternion2euler(w, x, y, z);
-}
-
 ISR(TCE0_OVF_vect){
-	timer+=5;
-	packets++;
-	sprintf(str,format,timer/10,timer%10,packets,
+	timer++;
+	sprintf(str,format,timer,packets,
 	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
+	state,									(int16_t)angle); // Data Logging Test
 	printf(str);
-	
-	// Updates EEPROM
-	eeprom_write();
-	
-	/* Checks the EEPROM write
-	uint8_t byte0 = eeprom_read(EEPROM_PAGE | PACKET_ADDR_BYTE0);
-	uint8_t byte1 = eeprom_read(EEPROM_PAGE | PACKET_ADDR_BYTE1);
-	uint16_t a = (uint16_t) ((byte1<<8) | byte0);
-	printf("%u\n", a);
-	*/
+	//XBEE_spi_write(str);
 }
 
 ISR(USARTE0_RXC_vect){
 	uint8_t c = usart_getchar(UART_TERMINAL_SERIAL);
 	//printf("%c\n", c);
-	
-	switch(c){
-		case RESET:
-		//printf("RESET\n");
-		reset();
-		break;
-		case CALIBRATE:
-		calibrate();
-		//printf("CALIBRATE\n");
-		break;
-		case CALIBRATE_ALTITUDE:
-		cali_alt();
-		//printf("CALIBRATE_ALTITUDE\n");
-		break;
-		case CALIBRATE_ANGLE:
-		cali_ang();
-		//printf("CALIBRATE_ANGLE\n");
-		break;
-		case SEND_GPS_LOCATION:
-		send_gps();
-		//printf("SEND_GPS_LOCATION\n");
-		break;
-		case PACKET:
-		packet();
-		//printf("PACKET\n");
-		break;
-	}
+	xbee_command(c);
 }
 
 
