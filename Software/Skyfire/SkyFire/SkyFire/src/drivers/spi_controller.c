@@ -20,16 +20,23 @@ void spi_select(uint8_t port)
 	PORTC.OUT ^= port; //switches SS
 }
 
-uint8_t spi_read(void)
+volatile uint8_t spi_read(void)
 {
+	uint8_t oldInterruptState = SREG;
+	cli();
 	SPIC.DATA = 0xFF; // make the DATA register something we know
 	while(!(SPIC.STATUS>>7));
-	
+	sei();
+	SREG=oldInterruptState;
 	return SPIC.DATA; // return the data from this function
 }
 
 void spi_write(uint8_t data)
 {
+	uint8_t oldInterruptState = SREG;
+	cli();
 	SPIC.DATA = data; // write the data we want to send to the data register
 	while(!(SPIC.STATUS>>7)); // wait to ensure the data is sent before we do anything else
+	sei();
+	SREG=oldInterruptState;
 }

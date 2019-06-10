@@ -40,7 +40,7 @@ uint16_t ms5607_read(uint16_t comm)
 
 uint32_t ms5607_convert_d1(void)
 {
-	uint32_t rx_data = 0; // temporary 16-bit value
+	volatile uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D1
 	flip_ms5607(); // select our spi device
 	spi_write(CMD_MS5607_D1_4096); // write a specified command to ask for data
@@ -59,7 +59,7 @@ uint32_t ms5607_convert_d1(void)
 
 uint32_t ms5607_convert_d2(void)
 {
-	uint32_t rx_data = 0; // temporary 16-bit value
+	volatile uint32_t rx_data = 0; // temporary 16-bit value
 	// CONVERT D2
 	flip_ms5607(); // select our spi device
 	spi_write(CMD_MS5607_D2_4096); // write a specified command to ask for data
