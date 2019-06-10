@@ -21,6 +21,7 @@ REQUEST_PACKET = b'd'
 CALIBRATE_ALTITUDE = b'c'
 CALIBRATE_ANGLE = b'b'
 SERVO_RELEASE = b'a'
+SERVO_CLOSE = b's'
 
 
 #GUI Setup
@@ -145,8 +146,12 @@ def addItem():
     elif cmdw.text() == 'servo_release':
         ser.write(b'a')
         listw.clear()
-        listw.addItem('servo_release')
+        listw.addItem('SERVO_RELEASE')
         cmdw.setText('')
+    elif cmdw.text() == 'servo_close':
+        ser.write(b's')
+        listw.clear()
+        listw.addItem('SERVO_CLOSE')
     else:
         listw.addItem(cmdw.text())
         cmdw.setText('')
