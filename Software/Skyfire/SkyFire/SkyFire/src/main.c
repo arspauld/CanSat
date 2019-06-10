@@ -18,6 +18,7 @@
 #define CALIBRATE_ALTITUDE	'c'
 #define CALIBRATE_ANGLE		'b'
 #define SERVO_RELEASE		'a'
+#define SERVO_CLOSE			's'
 #define PACKET				'd'
 
 // Tolerances for Flight State
@@ -33,6 +34,8 @@
 #define PACKET_ADDR_BYTE1	0x04	// Byte 4
 #define TIME_ADDR_BYTE0		0x06	// Byte 6
 #define TIME_ADDR_BYTE1		0x07	// Byte 7
+#define VEL_ADDR_BYTE0		0x2B	// Byte 27
+#define VEL_ADDR_BYTE1		0x2C	// Byte 28
 
 // Ground Constants byte addresses
 #define GROUND_PRESS_ADDR0  0x09	// Byte 9
@@ -94,6 +97,7 @@ void	calibrate(void);
 void	cali_alt(void);
 void	cali_ang(void);
 void	servo_release(void);
+void	servo_close(void);
 void	packet(void);
 
 // EEPROM commands
@@ -170,7 +174,7 @@ volatile double roll = 0;			// Roll Angle
 volatile double rpm = 0;				// Calculate RPM of Blades
 volatile double angle = 0;			// Angle of Bonus Direction
 
-char* format = "5343,%i,%i,%i,%li,%i,%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n\0";
+char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -292,34 +296,33 @@ void system_init(void){
 
 	release_servo_init();
 
-	delay_ms(10);
-
-	state_check();
-
 	// Check EEPROM
-	/*
+	
 	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
-		ground_p = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
-										 eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0)));
-		ground_t = (double) ((uint64_t) (eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24 | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
-										 eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8  | eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0)));
+		printf("Reading EEPROM\n");
+		ground_p = (double) ((uint64_t) ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0)));
+		ground_t = (double) ((uint64_t) ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
+										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0)));
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
+		
+		printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
 	}
 	else{
-	*/
-	// Initialization of variables
-	ground_p = get_pressure();
-	//printf("%li\n", (int32_t) ground_p);
-	ground_t = get_temperature();
+		// Initialization of variables
+		ground_p = get_pressure();
+		ground_t = get_temperature();
 
-	eeprom_write_const();
-	//}
+		eeprom_write_const();
+	}
+	
+	state_check();
 }
 
 void pressure_init(void){
@@ -508,7 +511,7 @@ void imu_read(void){
 }
 
 void state_check(void){
-	if((velocity > EPSILON_VELOCITY || abs(velocity) < EPSILON_VELOCITY) && state < 2){
+	if(velocity > -EPSILON_VELOCITY && state < 2){
 		state = 0;
 	}
 	else if(velocity < -EPSILON_VELOCITY && alt > 450){
@@ -577,7 +580,7 @@ void time_update(void){
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
 
 	sprintf(str,format,timer,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				((int16_t) (temp * 10 - 2731.5))%10,			(int16_t)volt,		(int16_t) (volt * 10) % 10,
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
@@ -603,28 +606,25 @@ void buzzer_init(void){
 void command(uint8_t c){
 	switch(c){
 		case RESET:
-			//printf("RESET\n");
 			reset();
 			break;
 		case CALIBRATE:
 			calibrate();
-			//printf("CALIBRATE\n");
 			break;
 		case CALIBRATE_ALTITUDE:
 			cali_alt();
-			//printf("CALIBRATE_ALTITUDE\n");
 			break;
 		case CALIBRATE_ANGLE:
 			cali_ang();
-			//printf("CALIBRATE_ANGLE\n");
 			break;
 		case SERVO_RELEASE:
 			servo_release();
-			//printf("SEND_GPS_LOCATION\n");
+			break;
+		case SERVO_CLOSE:
+			servo_close();
 			break;
 		case PACKET:
 			packet();
-			//printf("PACKET\n");
 			break;
 	}
 }
@@ -659,7 +659,11 @@ void cali_ang(void){
 }
 
 void servo_release(void){
-	//////// WRITE ////////
+	TCD0.CCA = 1200;
+}
+
+void servo_close(void){
+	TCD0.CCA = 750;
 }
 
 void packet(void){
@@ -676,11 +680,16 @@ void packet(void){
 }
 
 void eeprom_write_const(void){
-	uint64_t g_p = (uint64_t) ground_p;
-	uint64_t g_t = (uint64_t) ground_t;
+	ground_p = 100;
+	uint8_t* g_p = (uint8_t *) &ground_p;
+	uint8_t* g_t = (uint8_t *) &ground_t;
+	
+	for(uint8_t i = 0; i < 8; i ++){
+		printf("%x ", g_p[i]);
+	}
+	printf("\n");
 
-	uint8_t data[] = {	g_p&0xFF, (g_p>>8)&0xFF, (g_p>>16)&0xFF, (g_p>>24)&0xFF, (g_p>>32)&0xFF, (g_p>>40)&0xFF, (g_p>>48)&0xFF, (g_p>>56),
-						g_t&0xFF, (g_t>>8)&0xFF, (g_t>>16)&0xFF, (g_t>>24)&0xFF, (g_t>>32)&0xFF, (g_t>>40)&0xFF, (g_t>>48)&0xFF, (g_t>>56)};
+	uint8_t data[] = {g_p[0], g_p[1], g_p[2], g_p[3], g_p[4], g_p[5], g_p[6], g_p[7], g_t[7], g_t[6], g_t[5], g_t[4], g_t[3], g_t[2], g_t[1], g_t[0]};
 	uint8_t addresses[] = {	GROUND_PRESS_ADDR0, GROUND_PRESS_ADDR1, GROUND_PRESS_ADDR2, GROUND_PRESS_ADDR3, GROUND_PRESS_ADDR4, GROUND_PRESS_ADDR5, GROUND_PRESS_ADDR6, GROUND_PRESS_ADDR7,
 							GROUND_TEMP_ADDR0,  GROUND_TEMP_ADDR1,  GROUND_TEMP_ADDR2,  GROUND_TEMP_ADDR3,  GROUND_TEMP_ADDR4,  GROUND_TEMP_ADDR5,  GROUND_TEMP_ADDR6,  GROUND_TEMP_ADDR7};
 
@@ -701,14 +710,15 @@ void eeprom_write_const(void){
 
 void eeprom_write(void){
 	uint16_t a = (uint16_t) ((int16_t) alt); // creates an unsigned int of the altitude
+	uint16_t v = (uint16_t) ((int16_t) velocity);
 
 	// saves data and addresses in array
-	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF};
-	uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0};
+	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF};
+	uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0};
 
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
-	for(uint8_t i = 0; i < 6; i++){
+	for(uint8_t i = 0; i < 8; i++){
 		NVM.ADDR0 = addresses[i];
 		NVM.DATA0 = data[i];
 	}
