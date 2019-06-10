@@ -217,7 +217,7 @@ int main (void)
 			case 0:
 				break;
 			case 1:
-				if(alt > 600 && !cam_initialized){
+				if(!cam_initialized){
 					cam_initialized = 1;
 					//cam_switch();
 				}
@@ -242,7 +242,7 @@ int main (void)
 				}
 				break;
 			default:
-				state = 0;
+				state_check();
 				break;
 		}
 		
@@ -261,7 +261,7 @@ int main (void)
 			rate = data_packets / timer;
 		}
 		
-		delay_ms(20);
+		delay_ms(100);
 	}
 }
 
@@ -277,20 +277,20 @@ void system_init(void){
 	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, and 2 be output (0b10111100)
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 	
-	cam_init();
+	//cam_init();
 	// Driver Initialization
 	data_terminal_init();
 	delay_ms(500);
-	xbee_init();
-	gps_init();
+	//xbee_init();
+	//gps_init();
 	//delay_ms(100);
 	
 	//thermistor_init();
 	//voltage_init();
-	spi_init();
-	pressure_init();
-	//bno_init();
-	cam_switch();
+	//spi_init();
+	//pressure_init();
+	bno_init();
+	//cam_switch();
 	clock_init();
 
 	//buzzer_init();
@@ -336,7 +336,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -351,8 +351,13 @@ void xbee_init(void){
 }
 
 void bno_init(void){
-	sysclk_enable_module(SYSCLK_PORT_E, PR_TWI_bm);
-	sysclk_enable_peripheral_clock(&TWIE);
+	sysclk_enable_module(SYSCLK_PORT_C, SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_E, SYSCLK_HIRES);
+	sysclk_enable_module(SYSCLK_PORT_F, PR_TWI_bm);
+	
+	sysclk_enable_peripheral_clock(&USARTE0);
+	sysclk_enable_peripheral_clock(&TWIC);
 	
 	imu_init();
 }
@@ -379,13 +384,14 @@ double get_pressure(void){
 	long double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 	
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
+	
 	//printf("Pressure: %li\n", (int32_t) val);
 	//printf("%li\n",(int32_t) val);
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
-	double val = 303.15; // Change to 15 degrees C
+	double val = 298.15; // Change to 15 degrees C
 	//uint16_t reading = thermistor_read();
 	//printf("%u\n", reading);
 	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
@@ -504,26 +510,25 @@ void imu_read(void){
 		y = y - 360 * y / abs(y);
 	}
 	
+	printf("R: %i, P: %i, Y: %i\n",(int16_t) r,(int16_t) p,(int16_t) y);
+	
 	roll = r;
 	pitch = p;
 	angle = y;
 }
 
 void state_check(void){
-	if(abs(velocity)>EPSILON_VELOCITY){
-		state = 1;
-		if(velocity < 0){
-			state = 2;
-		}
-	}
-	else{
+	if((velocity > 0 || (abs(velocity) < EPSILON_VELOCITY)) && state < 2){
 		state = 0;
-		if(alt > 50 || reset_received){
-			state = 1;
-		}
-		if(released){	// only change this to true in flight state 2
-			state = 3;
-		}
+	}
+	else if(velocity < 0 && alt > 450){
+		state = 1;
+	}
+	else if(velocity < 0 && alt < 450){
+		state = 2;
+	}
+	else if((state == 2 && abs(velocity) < EPSILON_VELOCITY) || state == 3){
+		state = 3;
 	}
 }
 
