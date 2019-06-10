@@ -67,6 +67,11 @@
 #define CTRLA_CMDEX_BYTE	0x01	// Tells NVM to execute the command
 #define CCP_IOREG_MODE		0xD8	// Set CCP to this to allow CMDEX to be changed
 
+union Ground_Data{
+	volatile uint64_t mem;
+	volatile double val;	
+};
+
 ///////////////////////// Function Prototypes //////////////////////////
 void	system_init(void);												// Starts the system
 void	pressure_init(void);											// Collects the sensors constants
@@ -109,9 +114,9 @@ void	eeprom_erase(void);
 /////////////////////////// Global Variables ///////////////////////////0
 volatile uint8_t state = 0;
 volatile uint8_t released = 0;
-volatile double ground_p = 101325;		// Pascals standard sea level pressure
-volatile double ground_t = 288.15;		// 15 C
-volatile double ground_a = 0;			// Assumes ground altitude at launch
+
+double ground_p = 101325;		// Pascals standard sea level pressure
+double ground_t = 288.15;		// 15 C
 
 // Interrupt Flags
 volatile uint8_t time_flag = 0;			// New data to write to EEPROM
@@ -300,14 +305,17 @@ void system_init(void){
 
 	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
 		printf("Reading EEPROM\n");
-		ground_p = (double) ((uint64_t) ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0)));
-		ground_t = (double) ((uint64_t) ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
-										 (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0)));
+		uint64_t p =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0));
+		uint64_t t =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
+					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8   | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0));
+		memcpy(&ground_p, &p, 8);
+		memcpy(&ground_t, &t, 8);
+		
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
@@ -398,7 +406,7 @@ double get_temperature(void){
 double get_altitude(double press){
 	double val = 0;
 	val = ground_t * (pow(ground_p / press, R * L / g_0) - 1) / L;
-	return (val-ground_a);		//returns altitude in meters
+	return (val);		//returns altitude in meters
 }
 
 double get_voltage(void){
@@ -717,16 +725,14 @@ void packet(void){
 }
 
 void eeprom_write_const(void){
-	ground_p = 100;
-	uint8_t* g_p = (uint8_t *) &ground_p;
-	uint8_t* g_t = (uint8_t *) &ground_t;
+	uint64_t p = 0;
+	uint64_t t = 0;
+	
+	memcpy(&p, &ground_p, 8);
+	memcpy(&t, &ground_t, 8);
 
-	for(uint8_t i = 0; i < 8; i ++){
-		printf("%x ", g_p[i]);
-	}
-	printf("\n");
-
-	uint8_t data[] = {g_p[0], g_p[1], g_p[2], g_p[3], g_p[4], g_p[5], g_p[6], g_p[7], g_t[7], g_t[6], g_t[5], g_t[4], g_t[3], g_t[2], g_t[1], g_t[0]};
+	uint8_t data[] = {p & 0xFF, (p >> 8) & 0xFF, (p >> 16) & 0xFF, (p >> 24) & 0xFF, (p >> 32) & 0xFF, (p >> 40) & 0xFF, (p >> 48) & 0xFF, p >> 56,
+					  t & 0xFF, (t >> 8) & 0xFF, (t >> 16) & 0xFF, (t >> 24) & 0xFF, (t >> 32) & 0xFF, (t >> 40) & 0xFF, (t >> 48) & 0xFF, t >> 56,};
 	uint8_t addresses[] = {	GROUND_PRESS_ADDR0, GROUND_PRESS_ADDR1, GROUND_PRESS_ADDR2, GROUND_PRESS_ADDR3, GROUND_PRESS_ADDR4, GROUND_PRESS_ADDR5, GROUND_PRESS_ADDR6, GROUND_PRESS_ADDR7,
 							GROUND_TEMP_ADDR0,  GROUND_TEMP_ADDR1,  GROUND_TEMP_ADDR2,  GROUND_TEMP_ADDR3,  GROUND_TEMP_ADDR4,  GROUND_TEMP_ADDR5,  GROUND_TEMP_ADDR6,  GROUND_TEMP_ADDR7};
 
