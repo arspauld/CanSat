@@ -142,6 +142,11 @@ def addItem():
     if cmdw.text() == 'clear':
         listw.clear()
         cmdw.setText('')
+    elif cmdw.text() == 'servo_release':
+        ser.write(b'a')
+        listw.clear()
+        listw.addItem('servo_release')
+        cmdw.setText('')
     else:
         listw.addItem(cmdw.text())
         cmdw.setText('')
@@ -219,7 +224,7 @@ def get_gps():
     listw.addItem('GET_GPS')
     listw.addItem(str(datapoints[9]) + ',' + str(datapoints[8]))
     #parse_serial()
-    ser.write(b'a')
+    #ser.write(b'a')
 
 #Write to .csv file
 def csv_write(line):
