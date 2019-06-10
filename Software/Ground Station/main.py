@@ -143,15 +143,18 @@ def addItem():
     if cmdw.text() == 'clear':
         listw.clear()
         cmdw.setText('')
+
     elif cmdw.text() == 'servo_release':
         ser.write(b'a')
         listw.clear()
         listw.addItem('SERVO_RELEASE')
         cmdw.setText('')
+
     elif cmdw.text() == 'servo_close':
         ser.write(b's')
         listw.clear()
         listw.addItem('SERVO_CLOSE')
+        
     else:
         listw.addItem(cmdw.text())
         cmdw.setText('')
