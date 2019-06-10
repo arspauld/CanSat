@@ -22,7 +22,7 @@
 #define PACKET				'd'
 
 // Tolerances for Flight State
-#define EPSILON_VELOCITY	5
+#define EPSILON_VELOCITY	3
 #define EPSILON_ALTITUDE	10
 
 // EEPROM stuff
@@ -297,7 +297,7 @@ void system_init(void){
 	release_servo_init();
 
 	// Check EEPROM
-	
+
 	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
 		printf("Reading EEPROM\n");
 		ground_p = (double) ((uint64_t) ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
@@ -311,7 +311,7 @@ void system_init(void){
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
-		
+
 		printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
 	}
 	else{
@@ -321,7 +321,7 @@ void system_init(void){
 
 		eeprom_write_const();
 	}
-	
+
 	state_check();
 }
 
@@ -511,17 +511,52 @@ void imu_read(void){
 }
 
 void state_check(void){
-	if(velocity > -EPSILON_VELOCITY && state < 2){
+/*
+	if((velocity > EPSILON_VELOCITY) || ((abs(velocity) < EPSILON_VELOCITY) && state < 2){
 		state = 0;
 	}
-	else if(velocity < -EPSILON_VELOCITY && alt > 450){
+	else if(velocity < EPSILON_VELOCITY && alt > 450){
 		state = 1;
 	}
-	else if(velocity < -EPSILON_VELOCITY && alt < 450){
+	else if(velocity < EPSILON_VELOCITY && alt < 450){
 		state = 2;
 	}
-	else if((state == 2 && abs(velocity) < EPSILON_VELOCITY) || state == 3){
+	else if(((state == 2) && (abs(velocity) < EPSILON_VELOCITY)) || (state == 3)){
 		state = 3;
+	}
+*/
+	switch(state){
+		case 0:
+			if((velocity < EPSILON_VELOCITY) && (alt > 450)){
+				state++;
+			}
+			break;
+		case 1:
+			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
+				state++;
+			}
+			break;
+		case 2:
+			if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
+				state++;
+			}
+			break;
+		case 3:
+			break;
+		default:
+			if(velocity > EPSILON_VELOCITY){
+				state = 0;
+			}
+			if((alt > 450) && (velocity < EPSILON_VELOCITY)){
+				state = 1;
+			}
+			if((alt < 450) && (velocity < EPSILON_VELOCITY)){
+				state = 2;
+			}
+			if((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)){
+				state = 3;
+			}
+			break;
 	}
 }
 
@@ -623,6 +658,8 @@ void command(uint8_t c){
 		case SERVO_CLOSE:
 			servo_close();
 			break;
+		//case SERVO_CLOSE:
+			//servo_close();
 		case PACKET:
 			packet();
 			break;
@@ -683,7 +720,7 @@ void eeprom_write_const(void){
 	ground_p = 100;
 	uint8_t* g_p = (uint8_t *) &ground_p;
 	uint8_t* g_t = (uint8_t *) &ground_t;
-	
+
 	for(uint8_t i = 0; i < 8; i ++){
 		printf("%x ", g_p[i]);
 	}
