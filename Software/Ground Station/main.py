@@ -20,7 +20,7 @@ CALIBRATE = b'e'
 REQUEST_PACKET = b'd'
 CALIBRATE_ALTITUDE = b'c'
 CALIBRATE_ANGLE = b'b'
-GET_GPS = b'a'
+SERVO_RELEASE = b'a'
 
 
 #GUI Setup
