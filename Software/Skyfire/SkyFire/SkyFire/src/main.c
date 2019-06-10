@@ -217,7 +217,7 @@ int main (void)
 			case 0:
 				break;
 			case 1:
-				if(alt > 600 && !cam_initialized){
+				if(!cam_initialized){
 					cam_initialized = 1;
 					//cam_switch();
 				}
@@ -242,7 +242,7 @@ int main (void)
 				}
 				break;
 			default:
-				state = 0;
+				state_check();
 				break;
 		}
 		
@@ -518,20 +518,17 @@ void imu_read(void){
 }
 
 void state_check(void){
-	if(abs(velocity)>EPSILON_VELOCITY){
-		state = 1;
-		if(velocity < 0){
-			state = 2;
-		}
-	}
-	else{
+	if((velocity > 0 || (abs(velocity) < EPSILON_VELOCITY)) && state < 2){
 		state = 0;
-		if(alt > 50 || reset_received){
-			state = 1;
-		}
-		if(released){	// only change this to true in flight state 2
-			state = 3;
-		}
+	}
+	else if(velocity < 0 && alt > 450){
+		state = 1;
+	}
+	else if(velocity < 0 && alt < 450){
+		state = 2;
+	}
+	else if((state == 2 && abs(velocity) < EPSILON_VELOCITY) || state == 3){
+		state = 3;
 	}
 }
 
