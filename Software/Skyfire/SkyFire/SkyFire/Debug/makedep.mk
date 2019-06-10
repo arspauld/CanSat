@@ -20,8 +20,6 @@ src\ASF\xmega\drivers\usart\usart.c
 
 src\drivers\bno055.c
 
-src\drivers\BNO085.c
-
 src\drivers\hall.c
 
 src\drivers\IMU.c
