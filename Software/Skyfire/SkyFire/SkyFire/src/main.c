@@ -289,6 +289,7 @@ void system_init(void){
 	delay_ms(500);
 	xbee_init();
 	gps_init();
+	buzzer_init();
 	//delay_ms(100);
 
 	thermistor_init();
@@ -642,8 +643,8 @@ void buzzer_init(void){
 	PORTD.DIR |= 0x10;
 	TCD1.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD1.CTRLB = 0x13; // enables CCA and Single Waveform
-	//TCD1.PER = 184; // 2700hz
-	TCD1.PER = 1907; // 262Hz (middle C)
+	TCD1.PER = 184; // 2700hz
+	//TCD1.PER = 1907; // 262Hz (middle C)
 	TCD1.CCA = 92;
 }
 

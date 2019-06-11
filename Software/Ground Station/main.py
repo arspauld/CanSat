@@ -5,6 +5,7 @@ from pyqtgraph import console
 from pyqtgraph.dockarea import *
 from realplot import RealTimePlot, update
 import serial
+import string
 
 #  Open the serial port
 ser = serial.Serial()
@@ -16,7 +17,7 @@ ser.open()
 #  Commands
 """For use with the ground station to control the GUI"""
 RESET = b'f'
-CALIBRATE = b'e'
+CALIBRATE_PAYLOAD = b'e'
 REQUEST_PACKET = b'd'
 CALIBRATE_ALTITUDE = b'c'
 CALIBRATE_ANGLE = b'b'
@@ -84,12 +85,14 @@ directiond.addWidget(direction.plot)
 w = QtGui.QWidget()                             # Creates a large widget to hold the others
 
 halt_btn = QtGui.QPushButton('HALT')            # A checkable box
-calibrate_btn = QtGui.QPushButton("Calibrate Payload")
+calibrate_btn = QtGui.QPushButton('Calibrate Payload')
 packet_btn = QtGui.QPushButton('Request Packet')
 calibrate_altitude_btn = QtGui.QPushButton('Calibrate Altitude')
 calibrate_angle_btn = QtGui.QPushButton('Calibrate Angle')
-gps_btn = QtGui.QPushButton("GPS")
-reset_btn = QtGui.QPushButton("RESET")
+gps_btn = QtGui.QPushButton('GPS')
+reset_btn = QtGui.QPushButton('RESET')
+servo_release_btn = QtGui.QPushButton('Servo Release')
+servo_close_btn = QtGui.QPushButton('Servo Close')
 
 halt_btn.setCheckable(True)                          # Allows for a button to stay pressed
 calibrate_btn.setCheckable(True)
@@ -98,6 +101,8 @@ calibrate_altitude_btn.setCheckable(True)
 calibrate_angle_btn.setCheckable(True)
 gps_btn.setCheckable(True)
 reset_btn.setCheckable(True)
+servo_release_btn.setCheckable(True)
+servo_close_btn.setCheckable(True)
 
 listw = QtGui.QListWidget()                    # Creates a Display list box
 cmdw = QtGui.QLineEdit()
@@ -128,6 +133,8 @@ layout2.addWidget(calibrate_altitude_btn,   9, 1, 1, 1)
 layout2.addWidget(calibrate_angle_btn,      8, 1, 1, 1)
 layout2.addWidget(calibrate_btn,            10, 1, 1, 1)
 layout2.addWidget(gps_btn,                  10, 0, 1, 1)
+layout2.addWidget(servo_release_btn,        11, 0, 1, 1)
+layout2.addWidget(servo_close_btn,          11, 1, 1, 1)
 layout2.addWidget(mission_timew,            3, 0, 1, 1)
 layout2.addWidget(packetsw,                 4, 0, 1, 1)
 layout2.addWidget(flight_statew,            5, 0, 1, 1)
@@ -140,25 +147,58 @@ win.show()
 
 #GUI Functions
 def addItem():
-    if cmdw.text() == 'clear':
+    command = cmdw.text()
+    if command.lower() == 'clear':
         listw.clear()
         cmdw.setText('')
 
-    elif cmdw.text() == 'servo_release':
+    elif command.lower() == 'servo_release':
         ser.write(b'a')
-        listw.clear()
+
         listw.addItem('SERVO_RELEASE')
         cmdw.setText('')
 
-    elif cmdw.text() == 'servo_close':
+    elif command.lower() == 'servo_close':
         ser.write(b's')
-        listw.clear()
+
         listw.addItem('SERVO_CLOSE')
-        
-    else:
-        listw.addItem(cmdw.text())
         cmdw.setText('')
 
+    elif command.lower() == 'reset':
+        ser.write(b'f')
+
+        reset()
+        listw.addItem('RESET')
+        cmdw.setText('')
+
+    elif command.lower() == 'calibrate_payload':
+        ser.write(b'e')
+
+        listw.addItem('CALIBRATE_PAYLOAD')
+        cmdw.setText('')
+
+    elif command.lower() == 'calibrate_altitude':
+        ser.write(b'c')
+
+        listw.addItem('CALIBRATE_ALTITUDE')
+        cmdw.setText('')
+
+    elif command.lower() == 'calibrate_angle':
+        ser.write(b'b')
+
+        listw.addItem('CALIBRATE_ANGLE')
+        cmdw.setText('')
+
+    elif command.lower() == 'request_packet':
+        ser.write(b'd')
+
+        listw.addItem('REQUEST_PACKET')
+        cmdw.setText('')
+
+    else:
+        listw.addItem(command)
+        cmdw.setText('')
+    
 def write2payload():
     text = cmdw.text()
     binary = text.encode('ascii')
@@ -185,17 +225,12 @@ def reset():
 
     listw.clear()
 
-    global count
-    count = 0
-
     if reset_btn.isChecked():
         reset_btn.toggle()
         listw.addItem('RESET')
         ser.write(b'f')
 
 def calibrate():
-    reset()
-    
     calibrate_btn.toggle()
 
     listw.addItem('CALIBRATE_PAYLOAD')
@@ -231,8 +266,18 @@ def get_gps():
 
     listw.addItem('GET_GPS')
     listw.addItem(str(datapoints[9]) + ',' + str(datapoints[8]))
-    #parse_serial()
-    #ser.write(b'a')
+
+def servo_release():
+    servo_release_btn.toggle()
+
+    listw.addItem('SERVO_RELEASE')
+    ser.write(b'a')
+
+def servo_close():
+    servo_close_btn.toggle()
+
+    listw.addItem('SERVO_CLOSE')
+    ser.write(b's')
 
 #Write to .csv file
 def csv_write(line):
@@ -271,12 +316,12 @@ def parse_serial():
     datapoints = line.split(',') #This is the actual data that can be written into the .csv file
 
     if datapoints[0] == '5343' or len(datapoints) == 2:
-        #if count % 2 == 0:
+
         listw.addItem(line)
 
     if datapoints[0] == '5343' and len(datapoints) > 2:
         csv_write(lines)
-        #if count % 2 == 0:
+
         graph(datapoints)
         mission_timew.setText('<b>Mission Time (s): </b>' + str(datapoints[1]))
         packetsw.setText('<b>Packets: </b>' + str(datapoints[2]))
@@ -284,13 +329,6 @@ def parse_serial():
         gps_timew.setText('<b>GPS Time (UTC): </b>' + str(datapoints[7]))
         gps_altw.setText('<b>GPS Altitude (m): </b>' + str(datapoints[10]))
         gps_satsw.setText('<b>GPS Sats: </b>' + str(datapoints[11]))
-
-#Counter for graphing
-count = 0
-
-def counter():
-    global count
-    count += 1
 
 #Timer
 timer = QtCore.QTimer()
@@ -309,6 +347,8 @@ calibrate_altitude_btn.clicked.connect(calibrate_altitude)
 calibrate_angle_btn.clicked.connect(calibrate_angle)
 gps_btn.clicked.connect(get_gps)
 reset_btn.clicked.connect(reset)
+servo_release_btn.clicked.connect(servo_release)
+servo_close_btn.clicked.connect(servo_close)
 
 
 
