@@ -36,6 +36,8 @@
 #define TIME_ADDR_BYTE1		0x07	// Byte 7
 #define VEL_ADDR_BYTE0		0x2B	// Byte 27
 #define VEL_ADDR_BYTE1		0x2C	// Byte 28
+#define CHECK_WRITE_BYTE0	0x02	// Byte 2
+#define CHECK_WRITE_BYTE1	0x2F	// Byte 31
 
 // Ground Constants byte addresses
 #define GROUND_PRESS_ADDR0  0x09	// Byte 9
@@ -153,6 +155,9 @@ volatile uint8_t pos = 0;
 volatile uint8_t word_pos = 0;
 volatile uint8_t commas = 0;
 volatile uint8_t idx = 0;
+
+// EEPROM
+uint8_t check_write = 0;
 
 // Output string
 char str[100];					// Output String
@@ -576,7 +581,7 @@ void release_servo_init(void){
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = 750; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
+	TCD0.CCA = TCD0.PER - 750; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
 }
 
 void servo_timer_init(void){
@@ -666,8 +671,6 @@ void command(uint8_t c){
 		case SERVO_CLOSE:
 			servo_close();
 			break;
-		//case SERVO_CLOSE:
-			//servo_close();
 		case PACKET:
 			packet();
 			break;
@@ -704,11 +707,11 @@ void cali_ang(void){
 }
 
 void servo_release(void){
-	TCD0.CCA = 1200;
+	TCD0.CCA = TCD0.PER - 1200;
 }
 
 void servo_close(void){
-	TCD0.CCA = 750;
+	TCD0.CCA = TCD0.PER - 750;
 }
 
 void packet(void){
@@ -799,10 +802,12 @@ void eeprom_erase(void){
 	while(NVM.STATUS>>7);
 }
 
+
 ISR(TCE0_OVF_vect){
 	timer++;
 	time_flag = 1;
 }
+
 
 ISR(USARTE0_RXC_vect){
 	xbee_comm = usart_getchar(UART_TERMINAL_SERIAL);

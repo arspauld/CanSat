@@ -33,11 +33,12 @@
         <options>
           <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.services.basic.twi" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.utils.stdio.stdio_serial" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.adc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
           <option id="xmega.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.services.basic.twi" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="xmega.services.pwm" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations>
           <configuration key="config.xmega.drivers.twi.mode" value="both" default="both" content-id="Atmel.ASF" />
@@ -114,6 +115,10 @@
           <file path="src/ASF/xmega/drivers/twi/twis.h" framework="" version="3.40.0" source="xmega\drivers\twi\twis.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/xmega/drivers/twi/twi_common.h" framework="" version="3.40.0" source="xmega\drivers\twi\twi_common.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/Config/conf_twim.h" framework="" version="3.40.0" source="xmega\drivers\twi\module_config\conf_twim.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/drivers/tc/tc.h" framework="" version="3.40.0" source="xmega\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/services/pwm/pwm.c" framework="" version="3.40.0" source="xmega\services\pwm\pwm.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/services/pwm/pwm.h" framework="" version="3.40.0" source="xmega\services\pwm\pwm.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/xmega/drivers/tc/tc.c" framework="" version="3.40.0" source="xmega\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.40.0/common.applications.user_application.user_board.xmegaau/html/index.html" />
         <offline-documentation help="" />
@@ -228,6 +233,8 @@
             <Value>../src/ASF/common/services/twi</Value>
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
+            <Value>../src/ASF/xmega/services/pwm</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -269,6 +276,8 @@
             <Value>../src/ASF/common/services/twi</Value>
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
+            <Value>../src/ASF/xmega/services/pwm</Value>
           </ListValues>
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
@@ -315,6 +324,8 @@
             <Value>../src/ASF/common/services/twi</Value>
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
+            <Value>../src/ASF/xmega/services/pwm</Value>
           </ListValues>
         </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -357,6 +368,8 @@
             <Value>../src/ASF/common/services/twi</Value>
             <Value>../src/ASF/xmega/drivers/twi</Value>
             <Value>%24(PackRepoDir)\atmel\XMEGAA_DFP\1.1.68\include</Value>
+            <Value>../src/ASF/xmega/drivers/tc</Value>
+            <Value>../src/ASF/xmega/services/pwm</Value>
           </ListValues>
         </avrgcc.assembler.general.IncludePaths>
         <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
@@ -396,8 +409,11 @@
     <Folder Include="src\ASF\xmega\drivers\pmic\" />
     <Folder Include="src\ASF\xmega\drivers\sleep\" />
     <Folder Include="src\ASF\xmega\drivers\spi\" />
+    <Folder Include="src\ASF\xmega\drivers\tc\" />
     <Folder Include="src\ASF\xmega\drivers\twi\" />
     <Folder Include="src\ASF\xmega\drivers\usart\" />
+    <Folder Include="src\ASF\xmega\services\" />
+    <Folder Include="src\ASF\xmega\services\pwm\" />
     <Folder Include="src\ASF\xmega\utils\" />
     <Folder Include="src\ASF\xmega\utils\assembler\" />
     <Folder Include="src\ASF\xmega\utils\bit_handling\" />
@@ -455,6 +471,12 @@
     <Compile Include="src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="src\ASF\xmega\drivers\tc\tc.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\xmega\drivers\tc\tc.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ASF\xmega\drivers\twi\twim.c">
       <SubType>compile</SubType>
     </Compile>
@@ -480,6 +502,12 @@
       <SubType>compile</SubType>
     </None>
     <None Include="src\config\conf_twim.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\xmega\services\pwm\pwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\xmega\services\pwm\pwm.h">
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\drivers\bno055.c">
