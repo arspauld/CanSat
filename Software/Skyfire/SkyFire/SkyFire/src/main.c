@@ -34,10 +34,11 @@
 #define PACKET_ADDR_BYTE1	0x04	// Byte 4
 #define TIME_ADDR_BYTE0		0x06	// Byte 6
 #define TIME_ADDR_BYTE1		0x07	// Byte 7
-#define VEL_ADDR_BYTE0		0x2B	// Byte 27
-#define VEL_ADDR_BYTE1		0x2C	// Byte 28
+#define VEL_ADDR_BYTE0		0x1B	// Byte 27
+#define VEL_ADDR_BYTE1		0x1C	// Byte 28
 #define CHECK_WRITE_BYTE0	0x02	// Byte 2
-#define CHECK_WRITE_BYTE1	0x2D	// Byte 29
+#define CHECK_WRITE_BYTE1	0x1F	// Byte 31
+#define STATE_BYTE			0x05	// Byte 5
 
 // Ground Constants byte addresses
 #define GROUND_PRESS_ADDR0  0x09	// Byte 9
@@ -199,9 +200,6 @@ int main(void){
 
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
-	
-	//PORTA.DIR |= 0x02;
-	//PORTA.OUT |= 0x02;
 
 	//printf("Initialized\n");
 	//buzzer_init();
@@ -323,8 +321,8 @@ void system_init(void){
 	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
 	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
 
-	if(b1 == b2 && b1 != 0xFF){
-		printf("Reading EEPROM\n");
+	if((b1 == b2) && (b1 != 0xFF)){
+		//printf("Reading EEPROM\n");
 		uint64_t p =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
 					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
 					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
@@ -339,14 +337,14 @@ void system_init(void){
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
-
-		printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
+		state = eeprom_read(EEPROM_PAGE|STATE_BYTE);
+		//printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
 	}
 	else{
 		// Initialization of variables
 		ground_p = get_pressure();
 		ground_t = get_temperature();
-
+		state = 0;
 		eeprom_write_const();
 	}
 
@@ -546,6 +544,9 @@ void state_check(void){
 			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
 				state++;
 			}
+			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
+				state+=2;
+			}
 			break;
 		case 2:
 			if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
@@ -569,13 +570,13 @@ void state_check(void){
 			}
 			break;
 	}
-}
+}		
 
 void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR |= 0x01;
+	PORTD.DIR |= 0x07;
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
@@ -583,7 +584,8 @@ void release_servo_init(void){
 }
 
 void servo_timer_init(void){
-	PORTD.DIR |= 0x02;
+	PORTA.DIR |= 0x02;
+	PORTA.OUT |= 0x02;
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -771,8 +773,8 @@ void eeprom_write(void){
 	check_write = (check_write + 1) % 100;
 	
 	// saves data and addresses in array
-	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write};
-	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1};
+	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write, state};
+	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1, STATE_BYTE};
 
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
@@ -788,11 +790,6 @@ void eeprom_write(void){
 	CCP = CCP_IOREG_MODE;
 	NVM.CTRLA = CTRLA_CMDEX_BYTE;
 	while(NVM.STATUS>>7);
-	
-	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
-	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
-	
-	printf("%u, %u\n",b1, b2);
 }
 
 uint8_t	eeprom_read(uint16_t address){
