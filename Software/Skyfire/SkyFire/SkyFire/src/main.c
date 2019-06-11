@@ -143,9 +143,9 @@ volatile uint16_t servo_pulse = 1500;
 volatile uint8_t xbee_comm = 0;
 
 // IMU
-volatile double ref_yaw = 0;
-volatile double ref_roll = 0;
-volatile double ref_pitch = 0;
+volatile double ref_yaw = 0;				// Should be collected
+volatile double ref_roll = 0;				// Ideal
+volatile double ref_pitch = 90;				// Ideal
 
 // GPS Stuff
 char gps[15];			// GPS sentences
@@ -219,7 +219,7 @@ int main(void){
 
 
 	while(1){
-		//printf("In Loop\n");
+		printf("In Loop\n");
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
 
@@ -404,7 +404,7 @@ double get_pressure(void){
 }
 
 double get_temperature(void){
-	double val = 298.15; // Change to 15 degrees C
+	double val = 298.15; // Change to 25 degrees C
 	//uint16_t reading = thermistor_read();
 	//printf("%u\n", reading);
 	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
@@ -705,8 +705,8 @@ void cali_alt(void){
 }
 
 void cali_ang(void){
-	ref_roll = imu_roll();
-	ref_pitch = imu_pitch();
+	//ref_roll = imu_roll();
+	//ref_pitch = imu_pitch();
 	ref_yaw = imu_heading();
 }
 
