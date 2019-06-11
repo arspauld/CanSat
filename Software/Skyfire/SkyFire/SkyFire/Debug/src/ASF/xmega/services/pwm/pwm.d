@@ -1,6 +1,6 @@
-src/drivers/ms5607.d src/drivers/ms5607.o: ../src/drivers/ms5607.c \
- ../src/asf.h ../src/ASF/xmega/drivers/adc/adc.h \
- ../src/ASF/xmega/utils/compiler.h \
+src/ASF/xmega/services/pwm/pwm.d src/ASF/xmega/services/pwm/pwm.o: \
+ ../src/ASF/xmega/services/pwm/pwm.c ../src/asf.h \
+ ../src/ASF/xmega/drivers/adc/adc.h ../src/ASF/xmega/utils/compiler.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\io.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\sfr_defs.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\inttypes.h \
@@ -67,8 +67,7 @@ src/drivers/ms5607.d src/drivers/ms5607.o: ../src/drivers/ms5607.c \
  ../src/ASF/common/services/twi/xmega_twi/twi_slave.h \
  ../src/ASF/xmega/drivers/twi/twis.h \
  ../src/ASF/common/services/twi/xmega_twi/twi_master.h \
- ../src/ASF/common/services/twi/xmega_twi/twi_slave.h \
- ../src/drivers/ms5607.h ../src/drivers/spi_controller.h
+ ../src/ASF/common/services/twi/xmega_twi/twi_slave.h
 
 ../src/asf.h:
 
@@ -225,7 +224,3 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 ../src/ASF/common/services/twi/xmega_twi/twi_master.h:
 
 ../src/ASF/common/services/twi/xmega_twi/twi_slave.h:
-
-../src/drivers/ms5607.h:
-
-../src/drivers/spi_controller.h:

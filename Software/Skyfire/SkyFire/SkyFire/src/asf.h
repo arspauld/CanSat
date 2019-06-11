@@ -80,6 +80,9 @@
 // From module: PMIC - Programmable Multi-level Interrupt Controller
 #include <pmic.h>
 
+// From module: PWM service using timer/counter
+#include <pwm.h>
+
 // From module: Part identification macros
 #include <parts.h>
 
@@ -98,6 +101,9 @@
 
 // From module: System Clock Control - XMEGA A1U/A3U/A3BU/A4U/B/C implementation
 #include <sysclk.h>
+
+// From module: TC - Timer Counter
+#include <tc.h>
 
 // From module: TWI - Two-Wire Interface - XMEGA implementation
 #include <twi_master.h>

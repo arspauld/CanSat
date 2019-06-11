@@ -12,11 +12,15 @@ src\ASF\xmega\drivers\adc\adc.c
 
 src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c
 
+src\ASF\xmega\drivers\tc\tc.c
+
 src\ASF\xmega\drivers\twi\twim.c
 
 src\ASF\xmega\drivers\twi\twis.c
 
 src\ASF\xmega\drivers\usart\usart.c
+
+src\ASF\xmega\services\pwm\pwm.c
 
 src\drivers\bno055.c
 

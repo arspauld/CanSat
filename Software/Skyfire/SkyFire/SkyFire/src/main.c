@@ -36,6 +36,8 @@
 #define TIME_ADDR_BYTE1		0x07	// Byte 7
 #define VEL_ADDR_BYTE0		0x2B	// Byte 27
 #define VEL_ADDR_BYTE1		0x2C	// Byte 28
+#define CHECK_WRITE_BYTE0	0x02	// Byte 2
+#define CHECK_WRITE_BYTE1	0x2D	// Byte 29
 
 // Ground Constants byte addresses
 #define GROUND_PRESS_ADDR0  0x09	// Byte 9
@@ -154,6 +156,9 @@ volatile uint8_t word_pos = 0;
 volatile uint8_t commas = 0;
 volatile uint8_t idx = 0;
 
+// EEPROM
+uint8_t check_write = 0;
+
 // Output string
 char str[100];					// Output String
 
@@ -189,6 +194,9 @@ int main(void){
 
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
+	
+	//PORTA.DIR |= 0x02;
+	//PORTA.OUT |= 0x02;
 
 	//printf("Initialized\n");
 	//buzzer_init();
@@ -301,10 +309,14 @@ void system_init(void){
 	clock_init();
 
 	release_servo_init();
+	servo_timer_init();
 
 	// Check EEPROM
 
-	if(eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)^0xFF){
+	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
+	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
+
+	if(b1 == b2 && b1 != 0xFF){
 		printf("Reading EEPROM\n");
 		uint64_t p =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
 					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
@@ -372,9 +384,7 @@ void bno_init(void){
 }
 
 void release(void){
-	TCD0.CCA = 1200;
-
-	released = 1;
+	servo_release();
 }
 
 double get_pressure(void){
@@ -382,7 +392,6 @@ double get_pressure(void){
 
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
-	//printf("%lu,%lu\n",d1,d2);
 
 	double dt = d2 - (uint64_t)c[4] * 256.0;
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
@@ -577,12 +586,10 @@ void release_servo_init(void){
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = 750; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
+	TCD0.CCA = TCD0.PER - 600; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
 }
 
 void servo_timer_init(void){
-	PORTA.DIR |= 0x02;
-	PORTA.OUT |= 0x02;
 	PORTD.DIR |= 0x02;
 }
 
@@ -668,8 +675,6 @@ void command(uint8_t c){
 		case SERVO_CLOSE:
 			servo_close();
 			break;
-		//case SERVO_CLOSE:
-			//servo_close();
 		case PACKET:
 			packet();
 			break;
@@ -706,11 +711,15 @@ void cali_ang(void){
 }
 
 void servo_release(void){
-	TCD0.CCA = 1200;
+	TCD0.CCA = TCD0.PER - 1000;
+	
+	released = 1;
 }
 
 void servo_close(void){
-	TCD0.CCA = 750;
+	TCD0.CCA = TCD0.PER - 600;
+	
+	released = 0;
 }
 
 void packet(void){
@@ -757,13 +766,15 @@ void eeprom_write(void){
 	uint16_t a = (uint16_t) ((int16_t) alt); // creates an unsigned int of the altitude
 	uint16_t v = (uint16_t) ((int16_t) velocity);
 
+	check_write = (check_write + 1) % 100;
+	
 	// saves data and addresses in array
-	uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF};
-	uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0};
+	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write};
+	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1};
 
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
-	for(uint8_t i = 0; i < 8; i++){
+	for(uint8_t i = 0; i < 10; i++){
 		NVM.ADDR0 = addresses[i];
 		NVM.DATA0 = data[i];
 	}
@@ -775,6 +786,11 @@ void eeprom_write(void){
 	CCP = CCP_IOREG_MODE;
 	NVM.CTRLA = CTRLA_CMDEX_BYTE;
 	while(NVM.STATUS>>7);
+	
+	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
+	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
+	
+	printf("%u, %u\n",b1, b2);
 }
 
 uint8_t	eeprom_read(uint16_t address){
@@ -801,10 +817,12 @@ void eeprom_erase(void){
 	while(NVM.STATUS>>7);
 }
 
+
 ISR(TCE0_OVF_vect){
 	timer++;
 	time_flag = 1;
 }
+
 
 ISR(USARTE0_RXC_vect){
 	xbee_comm = usart_getchar(UART_TERMINAL_SERIAL);

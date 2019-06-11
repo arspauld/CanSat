@@ -48,8 +48,9 @@ src/drivers/RTC.d src/drivers/RTC.o: ../src/drivers/RTC.c ../src/asf.h \
  ../src/ASF/common/services/delay/xmega/cycle_counter.h \
  ../src/ASF/common/services/ioport/ioport.h \
  ../src/ASF/common/services/ioport/xmega/ioport.h \
- ../src/ASF/xmega/drivers/pmic/pmic.h ../src/ASF/xmega/drivers/spi/spi.h \
- ../src/ASF/xmega/utils/status_codes.h \
+ ../src/ASF/xmega/drivers/pmic/pmic.h ../src/ASF/xmega/services/pwm/pwm.h \
+ ../src/ASF/xmega/drivers/tc/tc.h ../src/ASF/xmega/utils/status_codes.h \
+ ../src/ASF/xmega/drivers/spi/spi.h \
  ../src/ASF/common/services/sleepmgr/xmega/sleepmgr.h \
  ../src/ASF/common/utils/stdio/stdio_serial/stdio_serial.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdio.h \
@@ -180,9 +181,13 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 
 ../src/ASF/xmega/drivers/pmic/pmic.h:
 
-../src/ASF/xmega/drivers/spi/spi.h:
+../src/ASF/xmega/services/pwm/pwm.h:
+
+../src/ASF/xmega/drivers/tc/tc.h:
 
 ../src/ASF/xmega/utils/status_codes.h:
+
+../src/ASF/xmega/drivers/spi/spi.h:
 
 ../src/ASF/common/services/sleepmgr/xmega/sleepmgr.h:
 
