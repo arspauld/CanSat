@@ -8,7 +8,6 @@
 #include "drivers\spi_controller.h"
 #include "drivers\spy_cam.h"
 #include "drivers\voltage.h"
-#include "drivers\hall.h"
 #include "drivers\IMU.h"
 #include "tools\RingBuffer.h"
 
@@ -24,6 +23,8 @@
 // Tolerances for Flight State
 #define EPSILON_VELOCITY	3
 #define EPSILON_ALTITUDE	10
+
+#define VOLTAGE_SCALE_FACT	60
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -81,6 +82,7 @@ void	pressure_init(void);											// Collects the sensors constants
 void	gps_init(void);													// Starts the GPS
 void	xbee_init(void);												// Starts the XBEE
 void	bno_init(void);													// Starts the BNO055
+void	hall_sensor_init(void);
 void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
@@ -98,7 +100,7 @@ void	clock_init(void);												// Starts a timer to count the seconds
 void	time_update(void);												// Function to perform timer based actions
 void	buzzer_init(void);
 void	calc_rpm(void);
-static void hall_sensor_measure(void);
+static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status);
 
 //XBEE controls
 void	command(uint8_t c);
@@ -151,7 +153,7 @@ volatile double ref_roll = 0;				// Ideal
 volatile double ref_pitch = 90;				// Ideal
 
 // RPM
-uint16_t ticks_per_sec = 0;
+volatile uint16_t ticks_per_sec = 0;
 
 // GPS Stuff
 char gps[15];			// GPS sentences
@@ -220,6 +222,7 @@ int main(void){
 	uint8_t buzzer_initialized = 0;
 	//printf("Before Loop\n");
 
+	printf("BEFORE LOOP\n");
 
 	while(1){
 		//printf("In Loop\n");
@@ -227,6 +230,8 @@ int main(void){
 		data_collect(&altitudes,&pressures);
 
 		state_check();
+
+		//printf("%i\n", ticks_per_sec);
 
 		// IMU Check
 		//imu_read();
@@ -248,7 +253,7 @@ int main(void){
 				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					hall_sensor_init();		// Starts hall effect sensor to read rpm
+					//hall_sensor_init();		// Starts hall effect sensor to read rpm
 				}
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
@@ -386,6 +391,31 @@ void bno_init(void){
 	ref_roll = imu_roll();
 	ref_pitch = imu_pitch();
 	ref_yaw = imu_heading();
+}
+
+void hall_sensor_init(void){
+	struct ac_config aca_config;
+		
+	memset(&aca_config, 0, sizeof(struct ac_config));
+		
+	ac_set_mode(&aca_config, AC_MODE_SINGLE);
+	ac_set_hysteresis(&aca_config, AC_HYSMODE_LARGE_gc);
+	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
+	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
+	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
+		
+	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
+	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
+	ac_set_interrupt_level(&aca_config, AC_INT_LVL_MED);
+		
+	ac_write_config(&ACA, 0, &aca_config);
+	
+	ac_enable(&ACA, 0);
+	
+	cpu_irq_enable();
+	
+	//printf("HALL SENSOR INITIALIZED\n");
+
 }
 
 void release(void){
@@ -652,11 +682,13 @@ void buzzer_init(void){
 
 void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
+	//printf("%i\n", ticks_per_sec);
 	ticks_per_sec = 0;
 }
 	
-static void hall_sensor_measure(void){
+static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status){
 	ticks_per_sec++;
+	printf("INTERRUPTED BITCH\n");
 }
 
 void command(uint8_t c){
