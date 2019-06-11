@@ -1,12 +1,13 @@
 src/ASF/common/boards/user_board/init.d \
  src/ASF/common/boards/user_board/init.o: \
  ../src/ASF/common/boards/user_board/init.c ../src/asf.h \
- ../src/ASF/xmega/drivers/adc/adc.h ../src/ASF/xmega/utils/compiler.h \
+ ../src/ASF/xmega/drivers/ac/ac.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdint.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdint.h \
+ ../src/ASF/xmega/utils/compiler.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\io.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\sfr_defs.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\inttypes.h \
- c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdint.h \
- c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdint.h \
  C:\Program\ Files\ (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include/avr/iox128a4u.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\portpins.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\common.h \
@@ -30,8 +31,10 @@ src/ASF/common/boards/user_board/init.d \
  ../src/ASF/common/utils/interrupt.h \
  ../src/ASF/common/utils/interrupt/interrupt_avr8.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\interrupt.h \
- ../src/config/conf_adc.h ../src/ASF/xmega/drivers/nvm/nvm.h \
- ../src/ASF/xmega/drivers/cpu/ccp.h \
+ ../src/ASF/xmega/utils/status_codes.h \
+ ../src/ASF/xmega/drivers/pmic/pmic.h ../src/ASF/xmega/drivers/cpu/ccp.h \
+ ../src/ASF/xmega/drivers/adc/adc.h ../src/config/conf_adc.h \
+ ../src/ASF/xmega/drivers/nvm/nvm.h \
  ../src/ASF/common/services/sleepmgr/sleepmgr.h \
  ../src/ASF/common/services/sleepmgr/xmega/sleepmgr.h \
  ../src/config/conf_sleepmgr.h ../src/ASF/xmega/drivers/sleep/sleep.h \
@@ -50,8 +53,7 @@ src/ASF/common/boards/user_board/init.d \
  ../src/ASF/common/services/delay/xmega/cycle_counter.h \
  ../src/ASF/common/services/ioport/ioport.h \
  ../src/ASF/common/services/ioport/xmega/ioport.h \
- ../src/ASF/xmega/drivers/pmic/pmic.h ../src/ASF/xmega/services/pwm/pwm.h \
- ../src/ASF/xmega/drivers/tc/tc.h ../src/ASF/xmega/utils/status_codes.h \
+ ../src/ASF/xmega/services/pwm/pwm.h ../src/ASF/xmega/drivers/tc/tc.h \
  ../src/ASF/xmega/drivers/spi/spi.h \
  ../src/ASF/common/services/sleepmgr/xmega/sleepmgr.h \
  ../src/ASF/common/utils/stdio/stdio_serial/stdio_serial.h \
@@ -72,7 +74,11 @@ src/ASF/common/boards/user_board/init.d \
 
 ../src/asf.h:
 
-../src/ASF/xmega/drivers/adc/adc.h:
+../src/ASF/xmega/drivers/ac/ac.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdint.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdint.h:
 
 ../src/ASF/xmega/utils/compiler.h:
 
@@ -81,10 +87,6 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\sfr_defs.h:
 
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\inttypes.h:
-
-c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdint.h:
-
-c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdint.h:
 
 C:\Program\ Files\ (x86)\Atmel\Studio\7.0\Packs\atmel\XMEGAA_DFP\1.1.68\include/avr/iox128a4u.h:
 
@@ -132,11 +134,17 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\interrupt.h:
 
+../src/ASF/xmega/utils/status_codes.h:
+
+../src/ASF/xmega/drivers/pmic/pmic.h:
+
+../src/ASF/xmega/drivers/cpu/ccp.h:
+
+../src/ASF/xmega/drivers/adc/adc.h:
+
 ../src/config/conf_adc.h:
 
 ../src/ASF/xmega/drivers/nvm/nvm.h:
-
-../src/ASF/xmega/drivers/cpu/ccp.h:
 
 ../src/ASF/common/services/sleepmgr/sleepmgr.h:
 
@@ -180,13 +188,9 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 
 ../src/ASF/common/services/ioport/xmega/ioport.h:
 
-../src/ASF/xmega/drivers/pmic/pmic.h:
-
 ../src/ASF/xmega/services/pwm/pwm.h:
 
 ../src/ASF/xmega/drivers/tc/tc.h:
-
-../src/ASF/xmega/utils/status_codes.h:
 
 ../src/ASF/xmega/drivers/spi/spi.h:
 

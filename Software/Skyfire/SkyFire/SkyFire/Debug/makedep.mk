@@ -8,6 +8,8 @@ src\ASF\common\utils\stdio\read.c
 
 src\ASF\common\utils\stdio\write.c
 
+src\ASF\xmega\drivers\ac\ac.c
+
 src\ASF\xmega\drivers\adc\adc.c
 
 src\ASF\xmega\drivers\adc\xmega_aau\adc_aau.c
@@ -23,8 +25,6 @@ src\ASF\xmega\drivers\usart\usart.c
 src\ASF\xmega\services\pwm\pwm.c
 
 src\drivers\bno055.c
-
-src\drivers\hall.c
 
 src\drivers\IMU.c
 
