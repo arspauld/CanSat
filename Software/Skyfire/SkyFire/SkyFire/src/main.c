@@ -96,6 +96,8 @@ void	servo_pid(RingBuffer16_t* direct);								// Function that alters the posit
 void	clock_init(void);												// Starts a timer to count the seconds
 void	time_update(void);												// Function to perform timer based actions
 void	buzzer_init(void);
+void	calc_rpm(void);
+static void hall_sensor_measure(void);
 
 //XBEE controls
 void	command(uint8_t c);
@@ -122,8 +124,8 @@ double ground_t = 288.15;		// 15 C
 
 // Interrupt Flags
 volatile uint8_t time_flag = 0;			// New data to write to EEPROM
-volatile uint8_t quat_data = 0;			// New quaternion information
 volatile uint8_t xbee_flag = 0;
+
 
 // Altitude calculation variables
 double R = 287.0578987;
@@ -146,6 +148,9 @@ volatile uint8_t xbee_comm = 0;
 volatile double ref_yaw = 0;				// Should be collected
 volatile double ref_roll = 0;				// Ideal
 volatile double ref_pitch = 90;				// Ideal
+
+// RPM
+uint16_t ticks_per_sec = 0;
 
 // GPS Stuff
 char gps[15];			// GPS sentences
@@ -171,17 +176,17 @@ volatile uint16_t rate = 10;
 // Initializes variables
 volatile double press = 0;			// Pressure (Pa)
 volatile double temp = 0;			// Temperature (C)
-volatile double alt = 0;				// Altitude (m)
+volatile double alt = 0;			// Altitude (m)
 volatile double volt = 0;			// Battery Terminal Voltage (V)
 volatile double velocity = 0;		// Velocity (m/s)
 volatile double gps_t = 0;			// GPS Time
-volatile double gps_lat = 0;			// GPS Latitude (+:N,-:S)
+volatile double gps_lat = 0;		// GPS Latitude (+:N,-:S)
 volatile double gps_long = 0;		// GPS Longitude (+:E,-:W)
-volatile double gps_alt = 0;			// GPS Altitude
+volatile double gps_alt = 0;		// GPS Altitude
 volatile int16_t gps_sats = 0;		// GPS Satellites
 volatile double pitch = 0;			// Pitch Angle
 volatile double roll = 0;			// Roll Angle
-volatile double rpm = 0;				// Calculate RPM of Blades
+volatile double rpm = 0;			// Calculate RPM of Blades
 volatile double angle = 0;			// Angle of Bonus Direction
 
 char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
@@ -219,7 +224,7 @@ int main(void){
 
 
 	while(1){
-		printf("In Loop\n");
+		//printf("In Loop\n");
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
 
@@ -263,6 +268,7 @@ int main(void){
 		}
 
 		if(time_flag){
+			calc_rpm();
 			time_update();
 			time_flag = 0;
 		}
@@ -297,9 +303,10 @@ void system_init(void){
 	delay_ms(500);
 	xbee_init();
 	gps_init();
-	buzzer_init();
+	//buzzer_init();
 	//delay_ms(100);
 
+	hall_sensor_init();
 	thermistor_init();
 	voltage_init();
 	spi_init();
@@ -308,8 +315,8 @@ void system_init(void){
 	cam_switch();
 	clock_init();
 
-	release_servo_init();
-	servo_timer_init();
+	//release_servo_init();
+	//servo_timer_init();
 
 	// Check EEPROM
 
@@ -529,20 +536,6 @@ void imu_read(void){
 }
 
 void state_check(void){
-/*
-	if((velocity > EPSILON_VELOCITY) || ((abs(velocity) < EPSILON_VELOCITY) && state < 2){
-		state = 0;
-	}
-	else if(velocity < EPSILON_VELOCITY && alt > 450){
-		state = 1;
-	}
-	else if(velocity < EPSILON_VELOCITY && alt < 450){
-		state = 2;
-	}
-	else if(((state == 2) && (abs(velocity) < EPSILON_VELOCITY)) || (state == 3)){
-		state = 3;
-	}
-*/
 	switch(state){
 		case 0:
 			if((velocity < EPSILON_VELOCITY) && (alt > 450)){
@@ -653,6 +646,15 @@ void buzzer_init(void){
 	TCD1.PER = 184; // 2700hz
 	//TCD1.PER = 1907; // 262Hz (middle C)
 	TCD1.CCA = 92;
+}
+
+void calc_rpm(void){
+	rpm = (rpm + ticks_per_sec * 60) / 2.0;
+	ticks_per_sec = 0;
+}
+	
+static void hall_sensor_measure(void){
+	ticks_per_sec++;
 }
 
 void command(uint8_t c){
