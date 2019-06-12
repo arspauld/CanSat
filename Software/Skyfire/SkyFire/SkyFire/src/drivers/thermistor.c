@@ -18,7 +18,7 @@ void thermistor_init(void)
 	THERMISTOR_SERIAL.CAL = adc_get_calibration_data(ADC_CAL_ADCA); // retrieve stored calibration data about the ADC
 	
 	THERMISTOR_SERIAL.THERMISTOR_CHANNEL.CTRL = 0x01; // single ended input
-	THERMISTOR_SERIAL.THERMISTOR_CHANNEL.MUXCTRL = THERMISTOR_PIN; // reading ADCA pin 0	
+	THERMISTOR_SERIAL.THERMISTOR_CHANNEL.MUXCTRL = THERMISTOR_PIN; // reading ADCA pin 6	
 }
 
 uint16_t thermistor_read(void)

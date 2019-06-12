@@ -221,7 +221,6 @@ int main(void){
 
 	uint8_t cam_initialized = 0;
 	uint8_t buzzer_initialized = 0;
-	//printf("Before Loop\n");
 
 
 	while(1){
@@ -234,7 +233,7 @@ int main(void){
 		//printf("%i\n", ticks_per_sec);
 
 		// IMU Check
-		imu_read();
+		//imu_read();
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -285,6 +284,7 @@ int main(void){
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
+		delay_ms(100);
 	}
 }
 
@@ -301,24 +301,24 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 
 	// Driver Initialization
-	cam_init();
+	//cam_init();
 	data_terminal_init();
 	delay_ms(500);
 	xbee_init();
-	gps_init();
-	buzzer_init();
+	//gps_init();
+	//buzzer_init();
 	//delay_ms(100);
 
-	hall_sensor_init();
+	//hall_sensor_init();
 	thermistor_init();
 	voltage_init();
 	spi_init();
 	pressure_init();
-	bno_init();
-	cam_switch();
+	//bno_init();
+	//cam_switch();
 	clock_init();
 
-	release_servo_init();
+	//release_servo_init();
 	//servo_timer_init();
 
 	// Check EEPROM
@@ -366,7 +366,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -404,6 +404,7 @@ void hall_sensor_init(void){
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
 	
+	ACA.AC0CTRL |= AC_HSMODE_bm;
 
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
@@ -421,9 +422,11 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-
+	
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
+
+	//printf("%lx, %lx\n", d1, d2);
 
 	double dt = d2 - (uint64_t)c[4] * 256.0;
 	//double temp = 20.0 + ((uint64_t) dt * c[5]) / 8388608.0;
@@ -431,14 +434,14 @@ double get_pressure(void){
 	long double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-
+	
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
-	//uint16_t reading = thermistor_read();
-	//printf("%u\n", reading);
+	volatile uint16_t reading = thermistor_read();
+	printf("%u\n", reading);
 	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
 	//double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
@@ -611,8 +614,8 @@ void release_servo_init(void){
 }
 
 void servo_timer_init(void){
-	PORTA.DIR |= 0x02;
-	PORTA.OUT |= 0x02;
+	PORTA.DIR |= PIN2_bm;
+	PORTA.OUT |= PIN2_bm;
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -652,14 +655,14 @@ void time_update(void){
 	
 	packets++;
 	sprintf(str,format,timer,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),  ((int16_t) (temp*10-2731.5))%10, 		(int16_t)volt, ((int16_t) (volt *10)) %10, 
 	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
 	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
 	printf(str);
-
+	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
 	eeprom_write();
 
