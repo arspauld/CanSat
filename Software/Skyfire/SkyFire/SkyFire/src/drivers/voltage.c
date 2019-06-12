@@ -18,13 +18,13 @@ void voltage_init(void)
 	VOLTAGE_SERIAL.PRESCALER = 0x05; // prescaler of DIV128 on the clock
 	VOLTAGE_SERIAL.CAL = adc_get_calibration_data(ADC_CAL_ADCA); // retrieve stored calibration data about the ADC
 	
-	VOLTAGE_SERIAL.VOLTAGE_CHANNEL.CTRL = 0x01; // single ended input
-	VOLTAGE_SERIAL.VOLTAGE_CHANNEL.MUXCTRL = VOLTAGE_PIN; // reading ADCA pin 0
+	VOLTAGE_CHANNEL.CTRL = 0x01; // single ended input
+	VOLTAGE_CHANNEL.MUXCTRL = VOLTAGE_PIN; // reading ADCA pin 0
 }
 
 uint16_t voltage_read(void)
 {
-	VOLTAGE_SERIAL.VOLTAGE_CHANNEL.CTRL |= 0x80; // start the conversion
-	while(!(VOLTAGE_SERIAL.VOLTAGE_CHANNEL.INTFLAGS)); // wait until the conversion is done
-	return VOLTAGE_SERIAL.VOLTAGE_CHANNEL.RES; // return the 12-bit result as a uint16_t
+	VOLTAGE_CHANNEL.CTRL |= 0x80; // start the conversion
+	while(!(VOLTAGE_CHANNEL.INTFLAGS)); // wait until the conversion is done
+	return VOLTAGE_CHANNEL.RES; // return the 12-bit result as a uint16_t
 }

@@ -11,8 +11,8 @@
 #define VOLTAGE_H_
 
 #define VOLTAGE_SERIAL		ADCA
-#define VOLTAGE_CHANNEL		CH1
-#define VOLTAGE_PIN			(uint8_t)(PIN7_bm<<3) // Pin 7
+#define VOLTAGE_CHANNEL		VOLTAGE_SERIAL.CH1
+#define VOLTAGE_PIN			0x38 // Pin 7
 
 
 void voltage_init(void);

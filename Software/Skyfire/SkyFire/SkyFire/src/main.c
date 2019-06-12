@@ -283,7 +283,7 @@ int main(void){
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
-		//delay_ms(100);
+		delay_ms(100);
 	}
 }
 
@@ -308,7 +308,7 @@ void system_init(void){
 	//buzzer_init();		// Starts the buzzer (used here for debugging)
 	//delay_ms(100);
 
-	hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
+	//hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
 	thermistor_init();		// Initializes the thermistor
 	voltage_init();			// Initializes the voltage reader
 	spi_init();				// Initializes the SPI communication
@@ -421,7 +421,7 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-	
+	/*
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 
@@ -433,14 +433,14 @@ double get_pressure(void){
 	long double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-	
+	*/	
 	return val;	// returns pressure in Pa
 }
 
 double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
 	volatile uint16_t reading = thermistor_read();
-	//printf("%u\n", reading);
+	printf("%u\n", reading);
 	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
 	//double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
@@ -455,7 +455,7 @@ double get_altitude(double press){
 
 double get_voltage(void){
 	uint16_t reading = voltage_read();
-	//printf("%u\n", reading);
+	printf("%u\n", reading);
 	double voltage = (.0004966 * reading - .096364766); // m and b are collected from testing
 	voltage = voltage * (29800.0 / 13000.0) + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
@@ -664,10 +664,10 @@ void time_update(void){
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	printf(str);
+	//printf(str);
 	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
-	eeprom_write();
+	//eeprom_write();
 
 	time_flag = 0;
 }
@@ -859,6 +859,7 @@ ISR(TCE0_OVF_vect){
 
 ISR(USARTE0_RXC_vect){
 	xbee_comm = usart_getchar(UART_TERMINAL_SERIAL);
+	//printf("%c\n", xbee_comm);
 	xbee_flag = 1;
 }
 
