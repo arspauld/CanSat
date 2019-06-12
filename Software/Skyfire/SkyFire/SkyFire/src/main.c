@@ -21,11 +21,11 @@
 #define PACKET				'd'
 
 // Tolerances for Flight State
-#define EPSILON_VELOCITY	3
+#define EPSILON_VELOCITY	5
 #define EPSILON_ALTITUDE	10
 
 // Hall Effect Constants
-#define VOLTAGE_SCALE_FACT	62 //subject to change
+#define VOLTAGE_SCALE_FACT	45 //subject to change
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -95,6 +95,7 @@ void	servo_pid(RingBuffer16_t* direct);								// Function that alters the posit
 void	clock_init(void);												// Starts a timer to count the seconds
 void	time_update(void);												// Function to perform timer based actions
 void	buzzer_init(void);												// Starts the buzzer
+void	buzzer_stop(void);												// Stops the buzzer
 void	calc_rpm(void);													// Function to calculate rpm for packets
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status); // Interrupt function for Hall Effect sensor
 
@@ -202,6 +203,9 @@ int main(void){
 	// Turns on status LED
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
+	buzzer_init();
+	delay_ms(125);
+	buzzer_stop();
 
 	// Integer ring buffer for storing multiple older values
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
@@ -216,7 +220,7 @@ int main(void){
 	RingBuffer16_t directions;	// in hundredths degrees
 	rb16_init(&directions, direct_array, (uint16_t) 10);
 
-	// Boolean values of the state of the camer and buzzer
+	// Boolean values of the state of the camera and buzzer
 	uint8_t cam_initialized = 0;
 	uint8_t buzzer_initialized = 0;
 
@@ -245,6 +249,8 @@ int main(void){
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
 					hall_sensor_init();		// Starts hall effect sensor to read rpm
+					imu_read();
+					ref_yaw = angle;
 				}
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
@@ -365,7 +371,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -403,7 +409,7 @@ void hall_sensor_init(void){
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
 	
-	ACA.AC0CTRL |= AC_HSMODE_bm;
+	//ACA.AC0CTRL |= AC_HSMODE_bm;
 
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
@@ -421,7 +427,7 @@ void release(void){
 
 double get_pressure(void){
 	double val = 101325;
-	/*
+	
 	uint32_t d1 = ms5607_convert_d1();
 	uint32_t d2 = ms5607_convert_d2();
 
@@ -433,7 +439,7 @@ double get_pressure(void){
 	long double sens = (uint64_t) c[0] * 65536.0 + ((uint64_t) c[2] * dt) / 128.0;
 
 	val = (double) (((double) d1 * sens / 2097152.0 - off) / 32768.0);
-	*/	
+	
 	return val;	// returns pressure in Pa
 }
 
@@ -445,8 +451,8 @@ double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
 	volatile uint16_t reading = thermistor_read();
 	double voltage = (m * reading + b); // m and b are collected from testing
-	double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	val = (1.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	double resistance = 3300.0 * (3.30 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	val = (1.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000.0) + 2.620131E-6 * pow(log(resistance / 10000.0), 2) + 6.383091E-8 * pow(log(resistance / 10000.0), 3))); // returns the temperature in hundredths of kelvin
 	return val; //returns the temperature in kelvin
 }
 
@@ -558,10 +564,11 @@ void imu_read(void){
 	if(abs(y) > 180){
 		y = y - 360 * y / abs(y);
 	}
-
-	roll = r;
-	pitch = p;
-	angle = y;
+	if(abs(r) < 180 && abs(p) < 90 && abs(y) < 180){
+		roll = r;
+		pitch = p;
+		angle = y;
+	}
 }
 
 void state_check(void){
@@ -612,13 +619,14 @@ void release_servo_init(void){
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
 	TCD0.CCA = TCD0.PER - 600; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
-	TCD0.CCB = TCD0.PER - 750;
-	TCD0.CCC = TCD0.PER - 750;
 }
 
 void servo_timer_init(void){
 	PORTA.DIR |= PIN2_bm;
 	PORTA.OUT |= PIN2_bm;
+	
+	TCD0.CCB = TCD0.PER - 750;
+	TCD0.CCC = TCD0.PER - 750;
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -686,6 +694,11 @@ void buzzer_init(void){
 	TCD1.CCA = 92;
 }
 
+void buzzer_stop(void){
+	TCD1.PER = 0;
+	TCD1.CCA = 0;
+}
+
 void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
 	ticks_per_sec = 0;
@@ -745,8 +758,8 @@ void cali_alt(void){
 }
 
 void cali_ang(void){
-	//ref_roll = imu_roll();
-	//ref_pitch = imu_pitch();
+	ref_roll = imu_roll();
+	ref_pitch = imu_pitch();
 	ref_yaw = imu_heading();
 }
 
