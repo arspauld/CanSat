@@ -579,7 +579,7 @@ void state_check(void){
 			}
 			break;
 		case 1:
-			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
+			if((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
 				state++;
 			}
 			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
@@ -600,10 +600,10 @@ void state_check(void){
 			if((alt > 450) && (velocity < EPSILON_VELOCITY)){
 				state = 1;
 			}
-			if((alt < 450) && (velocity < EPSILON_VELOCITY)){
+			if((alt < 450) && (released)){
 				state = 2;
 			}
-			if((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)){
+			if(((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)) && (released)){
 				state = 3;
 			}
 			break;
