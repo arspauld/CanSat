@@ -25,7 +25,7 @@
 #define EPSILON_ALTITUDE	10
 
 // Hall Effect Constants
-#define VOLTAGE_SCALE_FACT	62
+#define VOLTAGE_SCALE_FACT	62 //subject to change
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -72,18 +72,13 @@
 #define CTRLA_CMDEX_BYTE	0x01	// Tells NVM to execute the command
 #define CCP_IOREG_MODE		0xD8	// Set CCP to this to allow CMDEX to be changed
 
-union Ground_Data{
-	volatile uint64_t mem;
-	volatile double val;
-};
-
 ///////////////////////// Function Prototypes //////////////////////////
 void	system_init(void);												// Starts the system
 void	pressure_init(void);											// Collects the sensors constants
 void	gps_init(void);													// Starts the GPS
 void	xbee_init(void);												// Starts the XBEE
 void	bno_init(void);													// Starts the BNO055
-void	hall_sensor_init(void);
+void	hall_sensor_init(void);											// Starts the Hall Effect Sensor
 void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
@@ -99,27 +94,27 @@ void	servo_timer_init(void);											// Starts PWM wave for fin servos
 void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
 void	time_update(void);												// Function to perform timer based actions
-void	buzzer_init(void);
-void	calc_rpm(void);
-static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status);
+void	buzzer_init(void);												// Starts the buzzer
+void	calc_rpm(void);													// Function to calculate rpm for packets
+static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status); // Interrupt function for Hall Effect sensor
 
-//XBEE controls
-void	command(uint8_t c);
+// XBEE controls
+void	command(uint8_t c);												// Switch case for commands
 void	reset(void);													// Re-initializes the CanSat
-void	calibrate(void);
-void	cali_alt(void);
-void	cali_ang(void);
-void	servo_release(void);
-void	servo_close(void);
-void	packet(void);
+void	calibrate(void);												// Calibrates the payload (angle and altitude)
+void	cali_alt(void);													// Calibrates the altitude
+void	cali_ang(void);													// Calibrates the angle
+void	servo_release(void);											// Opens the release servo (unlocks)
+void	servo_close(void);												// Closes the release servo (locks)
+void	packet(void);													// Transmits last packet stored
 
 // EEPROM commands
-void	eeprom_write_const(void);
-void	eeprom_write(void);
-uint8_t	eeprom_read(uint16_t address);
-void	eeprom_erase(void);
+void	eeprom_write_const(void);										// Writes the ground pressure and temp to EEPROM
+void	eeprom_write(void);												// Writes the last packet to EEPROM
+uint8_t	eeprom_read(uint16_t address);									// Reads the byte at specified address in EEPROM
+void	eeprom_erase(void);												// Erases all bytes on all pages of EEPROM
 
-/////////////////////////// Global Variables ///////////////////////////0
+/////////////////////////// Global Variables ///////////////////////////
 volatile uint8_t state = 0;
 volatile uint8_t released = 0;
 
@@ -128,7 +123,7 @@ double ground_t = 288.15;		// 15 C
 
 // Interrupt Flags
 volatile uint8_t time_flag = 0;			// New data to write to EEPROM
-volatile uint8_t xbee_flag = 0;
+volatile uint8_t xbee_flag = 0;			// New command received from ground station
 
 
 // Altitude calculation variables
@@ -139,14 +134,17 @@ double g_0 = 9.80665;
 // Pressure Calculation variables
 uint16_t c[] = {0,0,0,0,0,0};
 
+
+/* May not use following two constants */
 // Release
 volatile uint16_t release_pulse = 1500; // microseconds (0 position)
 
 // Fin Servo
-volatile uint16_t servo_pulse = 1500;
+volatile uint16_t servo_pulse = 1500; // microseconds (0 position)
+
 
 // XBEE
-volatile uint8_t xbee_comm = 0;
+volatile uint8_t xbee_comm = 0; // Variable stores XBee commands
 
 // IMU
 volatile double ref_yaw = 0;				// Should be collected
@@ -154,10 +152,10 @@ volatile double ref_roll = 0;				// Ideal
 volatile double ref_pitch = 90;				// Ideal
 
 // RPM
-volatile uint16_t ticks_per_sec = 0;
+volatile uint16_t ticks_per_sec = 0; // Hall effect interrupts per seconds (what a unit)
 
 // GPS Stuff
-char gps[15];			// GPS sentences
+char gps[15];						// GPS sentences
 char dec[5];
 volatile uint8_t writing = 0;
 volatile uint8_t pos = 0;
@@ -166,16 +164,16 @@ volatile uint8_t commas = 0;
 volatile uint8_t idx = 0;
 
 // EEPROM
-uint8_t check_write = 0;
+uint8_t check_write = 0; // Number used to verify successful write to EEPROM
 
-// Output string
-char str[100];					// Output String
+// Output String
+char str[100];
 
 // Time and Packets
-volatile uint16_t timer = 0;
-volatile uint16_t data_packets = 0;
-volatile uint16_t packets = 0;
-volatile uint16_t rate = 10;
+volatile uint16_t timer = 0;				// Time since startup
+volatile uint16_t data_packets = 0;			// Number of times looped through data collection function
+volatile uint16_t packets = 0;				// Number of packets since startup (equal to time at 1Hz transmission rate)
+volatile uint16_t rate = 10;				// Frequency at which data is collected
 
 // Initializes variables
 volatile double press = 0;			// Pressure (Pa)
@@ -193,7 +191,7 @@ volatile double roll = 0;			// Roll Angle
 volatile double rpm = 0;			// Calculate RPM of Blades
 volatile double angle = 0;			// Angle of Bonus Direction
 
-char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
+char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n"; // Format for output string
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -201,12 +199,11 @@ int main(void){
 	system_init();
 	//delay_ms(100);
 
+	// Turns on status LED
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
 
-	//printf("Initialized\n");
-	//buzzer_init();
-
+	// Integer ring buffer for storing multiple older values
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
 	RingBuffer16_t altitudes;	// in centimeters
 	rb16_init(&altitudes, alt_array, (uint16_t) 10);
@@ -219,18 +216,17 @@ int main(void){
 	RingBuffer16_t directions;	// in hundredths degrees
 	rb16_init(&directions, direct_array, (uint16_t) 10);
 
+	// Boolean values of the state of the camer and buzzer
 	uint8_t cam_initialized = 0;
 	uint8_t buzzer_initialized = 0;
 
 
 	while(1){
-		//printf("In Loop\n");
 		// Check Sensors
 		data_collect(&altitudes,&pressures);
 
+		// Checks the Flight State
 		state_check();
-
-		//printf("%i\n", ticks_per_sec);
 
 		// IMU Check
 		//imu_read();
@@ -242,13 +238,13 @@ int main(void){
 			case 1:
 				if(!cam_initialized){
 					cam_initialized = 1;
-					//cam_switch();
+					cam_switch();	//	Turns on Camera
 				}
 				break;
 			case 2:
 				if(!cam_initialized){
 					cam_initialized = 1;
-					//cam_switch();
+					cam_switch();
 				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
@@ -269,17 +265,20 @@ int main(void){
 				break;
 		}
 
+		// 1 Hz timer interrupt function
 		if(time_flag){
-			calc_rpm();
-			time_update();
+			calc_rpm();	// Resets the tick counter and averages it with the new values
+			time_update();	// Transmits the data packet and writes the EEPROM
 			time_flag = 0;
 		}
+		// XBEE command received
 		if(xbee_flag){
 			command(xbee_comm);
 			xbee_comm = 0;
 			xbee_flag = 0;
 		}
 
+		// Recalculates the data writing rate
 		data_packets++;
 		if(timer != 0){
 			rate = data_packets / timer;
@@ -294,32 +293,32 @@ void system_init(void){
 	// Initialization of systems
 	sysclk_init(); // initializes the system clock
 	delay_ms(2); // delays the rest of the processes to ensure a started clock
-	sei();
+	sei();	// Enables global interrupts
 
 	// Initialization of pins
 	PORTC.DIR = 0xBC; // makes Port C have pins, 7, 5, 4, 3, and 2 be output (0b10111100)
-	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
+	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables all level interrupts
 
 	// Driver Initialization
-	cam_init();
-	data_terminal_init();
-	delay_ms(500);
-	xbee_init();
-	gps_init();
-	//buzzer_init();
+	cam_init();				// Initializes the Camera
+	data_terminal_init();	// Initializes the OpenLog
+	delay_ms(500);			// Delay to ensure clean writing
+	xbee_init();			// Sets up XBEE command interrupt
+	gps_init();				// Starts the GPS interrupt
+	//buzzer_init();		// Starts the buzzer (used here for debugging)
 	//delay_ms(100);
 
-	hall_sensor_init();
-	thermistor_init();
-	voltage_init();
-	spi_init();
-	pressure_init();
-	//bno_init();
-	cam_switch();
-	clock_init();
+	hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
+	thermistor_init();		// Initializes the thermistor
+	voltage_init();			// Initializes the voltage reader
+	spi_init();				// Initializes the SPI communication
+	pressure_init();		// Initializes the pressure sensor
+	//bno_init();			// Initilizes the IMU
+	cam_switch();			// Starts the camera (used for debugging)
+	clock_init();			// Starts the clock for data transmission
 
-	release_servo_init();
-	servo_timer_init();
+	release_servo_init();	// Initializes the release servo
+	servo_timer_init();		// Initializes the timer for the servo
 
 	// Check EEPROM
 
