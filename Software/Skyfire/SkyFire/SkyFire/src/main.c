@@ -284,7 +284,7 @@ int main(void){
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
-		delay_ms(100);
+		//delay_ms(100);
 	}
 }
 
@@ -301,25 +301,25 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 
 	// Driver Initialization
-	//cam_init();
+	cam_init();
 	data_terminal_init();
 	delay_ms(500);
 	xbee_init();
-	//gps_init();
+	gps_init();
 	//buzzer_init();
 	//delay_ms(100);
 
-	//hall_sensor_init();
+	hall_sensor_init();
 	thermistor_init();
 	voltage_init();
 	spi_init();
 	pressure_init();
 	//bno_init();
-	//cam_switch();
+	cam_switch();
 	clock_init();
 
-	//release_servo_init();
-	//servo_timer_init();
+	release_servo_init();
+	servo_timer_init();
 
 	// Check EEPROM
 
@@ -441,7 +441,7 @@ double get_pressure(void){
 double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
 	volatile uint16_t reading = thermistor_read();
-	printf("%u\n", reading);
+	//printf("%u\n", reading);
 	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
 	//double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
