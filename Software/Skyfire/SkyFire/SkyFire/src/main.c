@@ -229,7 +229,7 @@ int main(void){
 		state_check();
 
 		// IMU Check
-		//imu_read();
+		imu_read();
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -308,12 +308,12 @@ void system_init(void){
 	//buzzer_init();		// Starts the buzzer (used here for debugging)
 	//delay_ms(100);
 
-	//hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
+	hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
 	thermistor_init();		// Initializes the thermistor
 	voltage_init();			// Initializes the voltage reader
 	spi_init();				// Initializes the SPI communication
 	pressure_init();		// Initializes the pressure sensor
-	//bno_init();			// Initilizes the IMU
+	bno_init();				// Initializes the IMU
 	cam_switch();			// Starts the camera (used for debugging)
 	clock_init();			// Starts the clock for data transmission
 
@@ -437,13 +437,16 @@ double get_pressure(void){
 	return val;	// returns pressure in Pa
 }
 
+// ADC linear fit constants
+double m =  0.000494760310;
+double b = -0.093185924650;
+
 double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
 	volatile uint16_t reading = thermistor_read();
-	printf("%u\n", reading);
-	//double voltage = (.000496735 * reading - 0.095430804); // m and b are collected from testing
-	//double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
-	//val = (100.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
+	double voltage = (m * reading + b); // m and b are collected from testing
+	double resistance = 9990 * (3.27 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	val = (1.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000) + 2.620131E-6 * pow(log(resistance / 10000), 2) + 6.383091E-8 * pow(log(resistance / 10000), 3))); // returns the temperature in hundredths of kelvin
 	return val; //returns the temperature in kelvin
 }
 
@@ -455,8 +458,7 @@ double get_altitude(double press){
 
 double get_voltage(void){
 	uint16_t reading = voltage_read();
-	printf("%u\n", reading);
-	double voltage = (.0004966 * reading - .096364766); // m and b are collected from testing
+	double voltage = (m * reading + b); // m and b are collected from testing
 	voltage = voltage * (29800.0 / 13000.0) + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
 }
@@ -664,10 +666,10 @@ void time_update(void){
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	//printf(str);
+	printf(str);
 	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
-	//eeprom_write();
+	eeprom_write();
 
 	time_flag = 0;
 }
