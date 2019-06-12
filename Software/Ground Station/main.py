@@ -148,8 +148,27 @@ win.show()
 #GUI Functions
 def addItem():
     command = cmdw.text()
-    if command.lower() == 'clear':
+    if command.lower() == 'gclear':
+        altitude.clear()
+        pressure.clear()
+        temp.clear()
+        voltage.clear()
+        pitch.clear()
+        roll.clear()
+        spin.clear()
+        direction.clear()
+        gps.clear()
+
+        cmdw.setText('')
+
+    if command.lower() == 'cclear':
         listw.clear()
+
+        cmdw.setText('')
+
+    if command.lower() == 'clearall':
+        reset()
+
         cmdw.setText('')
 
     elif command.lower() == 'servo_release':
@@ -174,18 +193,26 @@ def addItem():
     elif command.lower() == 'calibrate_payload':
         ser.write(b'e')
 
+        altitude.clear()
+        pitch.clear()
+        roll.clear()
+        direction.clear()
         listw.addItem('CALIBRATE_PAYLOAD')
         cmdw.setText('')
 
     elif command.lower() == 'calibrate_altitude':
         ser.write(b'c')
 
+        altitude.clear()
         listw.addItem('CALIBRATE_ALTITUDE')
         cmdw.setText('')
 
     elif command.lower() == 'calibrate_angle':
         ser.write(b'b')
 
+        pitch.clear()
+        roll.clear()
+        direction.clear()
         listw.addItem('CALIBRATE_ANGLE')
         cmdw.setText('')
 
@@ -231,6 +258,11 @@ def reset():
         ser.write(b'f')
 
 def calibrate():
+    altitude.clear()
+    pitch.clear()
+    roll.clear()
+    direction.clear()
+
     calibrate_btn.toggle()
 
     listw.addItem('CALIBRATE_PAYLOAD')
@@ -255,6 +287,7 @@ def calibrate_altitude():
 def calibrate_angle():
     pitch.clear()
     roll.clear()
+    direction.clear()
     
     calibrate_angle_btn.toggle()
 
