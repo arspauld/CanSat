@@ -399,7 +399,7 @@ void hall_sensor_init(void){
 	memset(&aca_config, 0, sizeof(struct ac_config));
 
 	ac_set_mode(&aca_config, AC_MODE_SINGLE);
-	ac_set_hysteresis(&aca_config, AC_HYSMODE_SMALL_gc);
+	ac_set_hysteresis(&aca_config, AC_HYSMODE_LARGE_gc);
 	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
