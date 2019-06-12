@@ -246,10 +246,6 @@ int main(void){
 				}
 				break;
 			case 2:
-				if(!cam_initialized){
-					cam_initialized = 1;
-					cam_switch();
-				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
 					hall_sensor_init();		// Starts hall effect sensor to read rpm
@@ -259,10 +255,14 @@ int main(void){
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
 				}
+				if(!cam_initialized){
+					cam_initialized = 1;
+					cam_switch();
+				}
 				break;
 			case 3:
 				if(!buzzer_initialized){
-					//buzzer_init();
+					//buzzer_init();			//UNCOMMENT BEFORE FLIGHT
 					buzzer_initialized = 1;
 				}
 				break;
@@ -580,7 +580,7 @@ void state_check(void){
 			}
 			break;
 		case 1:
-			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
+			if((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
 				state++;
 			}
 			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
@@ -601,10 +601,10 @@ void state_check(void){
 			if((alt > 450) && (velocity < EPSILON_VELOCITY)){
 				state = 1;
 			}
-			if((alt < 450) && (velocity < EPSILON_VELOCITY)){
+			if((alt < 450) && (released)){
 				state = 2;
 			}
-			if((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)){
+			if(((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)) && (released)){
 				state = 3;
 			}
 			break;
