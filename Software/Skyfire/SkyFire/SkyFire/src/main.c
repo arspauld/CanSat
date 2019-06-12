@@ -740,7 +740,7 @@ void reset(void){
 	uint8_t oldInterruptState = SREG;	// no real need to store the interrupt context as the reset will pre-empt its restoration
 	cli();		                        // Disable interrupts
 
-	CCP = 0xD8;							// Configuration change protection: allow protected IO regiser write
+	CCP = 0xD8;							// Configuration change protection: allow protected IO register write
 	RST.CTRL = RST_SWRST_bm;			// Request software reset by writing to protected IO register
 
 	SREG=oldInterruptState;
