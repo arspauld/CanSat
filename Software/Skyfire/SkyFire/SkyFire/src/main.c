@@ -193,7 +193,7 @@ volatile double roll = 0;			// Roll Angle
 volatile double rpm = 0;			// Calculate RPM of Blades
 volatile double angle = 0;			// Angle of Bonus Direction
 
-char* format = "5343,%i.%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
+char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -234,7 +234,7 @@ int main(void){
 		//printf("%i\n", ticks_per_sec);
 
 		// IMU Check
-		//imu_read();
+		imu_read();
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -271,7 +271,7 @@ int main(void){
 		}
 
 		if(time_flag){
-			//calc_rpm();
+			calc_rpm();
 			time_update();
 			time_flag = 0;
 		}
@@ -301,24 +301,24 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 
 	// Driver Initialization
-	//cam_init();
+	cam_init();
 	data_terminal_init();
 	delay_ms(500);
-	//xbee_init();
-	//gps_init();
-	//buzzer_init();
+	xbee_init();
+	gps_init();
+	buzzer_init();
 	//delay_ms(100);
 
-	//hall_sensor_init();
-	//thermistor_init();
-	//voltage_init();
+	hall_sensor_init();
+	thermistor_init();
+	voltage_init();
 	spi_init();
 	pressure_init();
-	//bno_init();
-	//cam_switch();
+	bno_init();
+	cam_switch();
 	clock_init();
 
-	//release_servo_init();
+	release_servo_init();
 	//servo_timer_init();
 
 	// Check EEPROM
@@ -643,13 +643,22 @@ void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
-	TCE0.PER = 3124; // 1 Hz
+	TCE0.PER = 31249; // 1 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
 void time_update(void){
 	//packets++;
 	
+	packets++;
+	sprintf(str,format,timer,packets,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+	state,									(int16_t) angle); // Data Logging Test
+	printf(str);
 
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
 	eeprom_write();
@@ -838,15 +847,6 @@ void eeprom_erase(void){
 
 ISR(TCE0_OVF_vect){
 	timer++;
-	packets++;
-	sprintf(str,format,timer/10,timer%10,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
-	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
-	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
-	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
-	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
-	printf(str);
 	time_flag = 1;
 }
 
