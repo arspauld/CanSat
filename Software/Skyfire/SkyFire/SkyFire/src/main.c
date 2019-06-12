@@ -24,7 +24,8 @@
 #define EPSILON_VELOCITY	3
 #define EPSILON_ALTITUDE	10
 
-#define VOLTAGE_SCALE_FACT	60
+// Hall Effect Constants
+#define VOLTAGE_SCALE_FACT	62
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -222,7 +223,6 @@ int main(void){
 	uint8_t buzzer_initialized = 0;
 	//printf("Before Loop\n");
 
-	printf("BEFORE LOOP\n");
 
 	while(1){
 		//printf("In Loop\n");
@@ -253,7 +253,7 @@ int main(void){
 				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					//hall_sensor_init();		// Starts hall effect sensor to read rpm
+					hall_sensor_init();		// Starts hall effect sensor to read rpm
 				}
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
@@ -399,7 +399,7 @@ void hall_sensor_init(void){
 	memset(&aca_config, 0, sizeof(struct ac_config));
 		
 	ac_set_mode(&aca_config, AC_MODE_SINGLE);
-	ac_set_hysteresis(&aca_config, AC_HYSMODE_LARGE_gc);
+	ac_set_hysteresis(&aca_config, AC_HYSMODE_SMALL_gc);
 	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
@@ -411,10 +411,6 @@ void hall_sensor_init(void){
 	ac_write_config(&ACA, 0, &aca_config);
 	
 	ac_enable(&ACA, 0);
-	
-	cpu_irq_enable();
-	
-	//printf("HALL SENSOR INITIALIZED\n");
 
 }
 
@@ -682,13 +678,11 @@ void buzzer_init(void){
 
 void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
-	//printf("%i\n", ticks_per_sec);
 	ticks_per_sec = 0;
 }
 	
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status){
 	ticks_per_sec++;
-	printf("INTERRUPTED BITCH\n");
 }
 
 void command(uint8_t c){
