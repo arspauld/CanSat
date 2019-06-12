@@ -290,6 +290,7 @@ int main(void){
 			rate = data_packets / timer;
 		}
 		delay_ms(100);
+		//pressure_init();
 	}
 }
 
@@ -371,7 +372,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
