@@ -74,7 +74,7 @@
 
 union Ground_Data{
 	volatile uint64_t mem;
-	volatile double val;	
+	volatile double val;
 };
 
 ///////////////////////// Function Prototypes //////////////////////////
@@ -193,7 +193,7 @@ volatile double roll = 0;			// Roll Angle
 volatile double rpm = 0;			// Calculate RPM of Blades
 volatile double angle = 0;			// Angle of Bonus Direction
 
-char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
+char* format = "5343,%i.%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n";
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -271,7 +271,7 @@ int main(void){
 		}
 
 		if(time_flag){
-			calc_rpm();
+			//calc_rpm();
 			time_update();
 			time_flag = 0;
 		}
@@ -301,21 +301,21 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 
 	// Driver Initialization
-	cam_init();
+	//cam_init();
 	data_terminal_init();
 	delay_ms(500);
-	xbee_init();
-	gps_init();
+	//xbee_init();
+	//gps_init();
 	//buzzer_init();
 	//delay_ms(100);
 
-	hall_sensor_init();
-	thermistor_init();
-	voltage_init();
+	//hall_sensor_init();
+	//thermistor_init();
+	//voltage_init();
 	spi_init();
 	pressure_init();
 	//bno_init();
-	cam_switch();
+	//cam_switch();
 	clock_init();
 
 	release_servo_init();
@@ -338,7 +338,7 @@ void system_init(void){
 					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8   | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0));
 		memcpy(&ground_p, &p, 8);
 		memcpy(&ground_t, &t, 8);
-		
+
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
@@ -395,21 +395,21 @@ void bno_init(void){
 
 void hall_sensor_init(void){
 	struct ac_config aca_config;
-		
+
 	memset(&aca_config, 0, sizeof(struct ac_config));
-		
+
 	ac_set_mode(&aca_config, AC_MODE_SINGLE);
 	ac_set_hysteresis(&aca_config, AC_HYSMODE_SMALL_gc);
 	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
-		
+
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
 	ac_set_interrupt_level(&aca_config, AC_INT_LVL_MED);
-		
+
 	ac_write_config(&ACA, 0, &aca_config);
-	
+
 	ac_enable(&ACA, 0);
 
 }
@@ -491,7 +491,7 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		velocity = diff(alts, rate);
 	}
 	temp = get_temperature();	// Grabs the temperature once
-	volt = get_voltage();
+	//volt = get_voltage();
 }
 
 double data_check(RingBuffer32_t* presses){
@@ -596,7 +596,7 @@ void state_check(void){
 			}
 			break;
 	}
-}		
+}
 
 void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
@@ -642,23 +642,14 @@ void clock_init(void){
 	sysclk_enable_peripheral_clock(&TCE0); // starts peripheral clock
 
 	TCE0.CTRLA = 0x07; // divisor set to 1024 0x07
-	TCE0.PER = 31249; // 1 Hz
+	TCE0.PER = 3124; // 1 Hz
 	TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc; // CCA int flag Lo level
 }
 
 void time_update(void){
-	packets++;
+	//packets++;
 
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
-
-	sprintf(str,format,timer,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				((int16_t) (temp * 10 - 2731.5))%10,			(int16_t)volt,		(int16_t) (volt * 10) % 10,
-	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
-	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
-	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
-	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
-	printf(str);
 	eeprom_write();
 
 	time_flag = 0;
@@ -680,7 +671,7 @@ void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
 	ticks_per_sec = 0;
 }
-	
+
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status){
 	ticks_per_sec++;
 }
@@ -742,13 +733,13 @@ void cali_ang(void){
 
 void servo_release(void){
 	TCD0.CCA = TCD0.PER - 1000;
-	
+
 	released = 1;
 }
 
 void servo_close(void){
 	TCD0.CCA = TCD0.PER - 600;
-	
+
 	released = 0;
 }
 
@@ -768,7 +759,7 @@ void packet(void){
 void eeprom_write_const(void){
 	uint64_t p = 0;
 	uint64_t t = 0;
-	
+
 	memcpy(&p, &ground_p, 8);
 	memcpy(&t, &ground_t, 8);
 
@@ -797,7 +788,7 @@ void eeprom_write(void){
 	uint16_t v = (uint16_t) ((int16_t) velocity);
 
 	check_write = (check_write + 1) % 100;
-	
+
 	// saves data and addresses in array
 	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write, state};
 	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1, STATE_BYTE};
@@ -845,6 +836,15 @@ void eeprom_erase(void){
 
 ISR(TCE0_OVF_vect){
 	timer++;
+	packets++;
+	sprintf(str,format,timer/10,timer%10,packets,
+	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
+	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
+	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
+	state,									(int16_t) angle); // Data Logging Test
+	printf(str);
 	time_flag = 1;
 }
 
