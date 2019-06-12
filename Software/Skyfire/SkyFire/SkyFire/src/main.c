@@ -318,7 +318,7 @@ void system_init(void){
 	cam_switch();
 	clock_init();
 
-	//release_servo_init();
+	release_servo_init();
 	//servo_timer_init();
 
 	// Check EEPROM
