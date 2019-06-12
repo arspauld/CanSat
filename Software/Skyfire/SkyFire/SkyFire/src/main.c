@@ -24,7 +24,8 @@
 #define EPSILON_VELOCITY	3
 #define EPSILON_ALTITUDE	10
 
-#define VOLTAGE_SCALE_FACT	60
+// Hall Effect Constants
+#define VOLTAGE_SCALE_FACT	62
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -73,7 +74,7 @@
 
 union Ground_Data{
 	volatile uint64_t mem;
-	volatile double val;	
+	volatile double val;
 };
 
 ///////////////////////// Function Prototypes //////////////////////////
@@ -222,7 +223,6 @@ int main(void){
 	uint8_t buzzer_initialized = 0;
 	//printf("Before Loop\n");
 
-	//printf("BEFORE LOOP\n");
 
 	while(1){
 		//printf("In Loop\n");
@@ -253,7 +253,7 @@ int main(void){
 				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					//hall_sensor_init();		// Starts hall effect sensor to read rpm
+					hall_sensor_init();		// Starts hall effect sensor to read rpm
 				}
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
@@ -338,7 +338,7 @@ void system_init(void){
 					   (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8   | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0));
 		memcpy(&ground_p, &p, 8);
 		memcpy(&ground_t, &t, 8);
-		
+
 		alt = (double) ((int16_t) (eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|ALT_ADDR_BYTE0)));
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
@@ -395,26 +395,22 @@ void bno_init(void){
 
 void hall_sensor_init(void){
 	struct ac_config aca_config;
-		
+
 	memset(&aca_config, 0, sizeof(struct ac_config));
-		
+
 	ac_set_mode(&aca_config, AC_MODE_SINGLE);
-	ac_set_hysteresis(&aca_config, AC_HYSMODE_LARGE_gc);
+	ac_set_hysteresis(&aca_config, AC_HYSMODE_SMALL_gc);
 	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
-		
+
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
 	ac_set_interrupt_level(&aca_config, AC_INT_LVL_MED);
-		
+
 	ac_write_config(&ACA, 0, &aca_config);
-	
+
 	ac_enable(&ACA, 0);
-	
-	cpu_irq_enable();
-	
-	//printf("HALL SENSOR INITIALIZED\n");
 
 }
 
@@ -600,7 +596,7 @@ void state_check(void){
 			}
 			break;
 	}
-}		
+}
 
 void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
@@ -673,13 +669,11 @@ void buzzer_init(void){
 
 void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
-	//printf("%i\n", ticks_per_sec);
 	ticks_per_sec = 0;
 }
-	
+
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status){
 	ticks_per_sec++;
-	printf("INTERRUPTED BITCH\n");
 }
 
 void command(uint8_t c){
@@ -739,13 +733,13 @@ void cali_ang(void){
 
 void servo_release(void){
 	TCD0.CCA = TCD0.PER - 1000;
-	
+
 	released = 1;
 }
 
 void servo_close(void){
 	TCD0.CCA = TCD0.PER - 600;
-	
+
 	released = 0;
 }
 
@@ -765,7 +759,7 @@ void packet(void){
 void eeprom_write_const(void){
 	uint64_t p = 0;
 	uint64_t t = 0;
-	
+
 	memcpy(&p, &ground_p, 8);
 	memcpy(&t, &ground_t, 8);
 
@@ -794,7 +788,7 @@ void eeprom_write(void){
 	uint16_t v = (uint16_t) ((int16_t) velocity);
 
 	check_write = (check_write + 1) % 100;
-	
+
 	// saves data and addresses in array
 	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write, state};
 	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1, STATE_BYTE};
