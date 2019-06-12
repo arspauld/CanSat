@@ -233,7 +233,7 @@ int main(void){
 		state_check();
 
 		// IMU Check
-		imu_read();
+		//imu_read();
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -289,7 +289,7 @@ int main(void){
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
-		delay_ms(100);
+		//delay_ms(100);
 		//pressure_init();
 	}
 }
@@ -320,7 +320,7 @@ void system_init(void){
 	voltage_init();			// Initializes the voltage reader
 	spi_init();				// Initializes the SPI communication
 	pressure_init();		// Initializes the pressure sensor
-	bno_init();				// Initializes the IMU
+	//bno_init();				// Initializes the IMU
 	cam_switch();			// Starts the camera (used for debugging)
 	clock_init();			// Starts the clock for data transmission
 
@@ -351,6 +351,19 @@ void system_init(void){
 		state = eeprom_read(EEPROM_PAGE|STATE_BYTE);
 		//printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
 	}
+	else if(b1 != 0xFF){
+		state = -1;
+		uint64_t p =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0));
+		uint64_t t =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
+		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8   | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0));
+		memcpy(&ground_p, &p, 8);
+		memcpy(&ground_t, &t, 8);		
+	}
 	else{
 		// Initialization of variables
 		ground_p = get_pressure();
@@ -372,7 +385,7 @@ void pressure_init(void){
 	c[3] = ms5607_read(CMD_MS5607_READ_C4);
 	c[4] = ms5607_read(CMD_MS5607_READ_C5);
 	c[5] = ms5607_read(CMD_MS5607_READ_C6);
-	printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
+	//printf("\n%u,%u,%u,%u,%u,%u\n",c[0],c[1],c[2],c[3],c[4],c[5]);
 }
 
 void gps_init(void){
@@ -580,7 +593,7 @@ void state_check(void){
 			}
 			break;
 		case 1:
-			if((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
+			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
 				state++;
 			}
 			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
