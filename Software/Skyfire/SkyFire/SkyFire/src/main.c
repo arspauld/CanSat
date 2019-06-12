@@ -271,7 +271,7 @@ int main(void){
 		}
 
 		if(time_flag){
-			//calc_rpm();
+			calc_rpm();
 			time_update();
 			time_flag = 0;
 		}
@@ -301,24 +301,24 @@ void system_init(void){
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm; // enables lo level interrupts
 
 	// Driver Initialization
-	//cam_init();
+	cam_init();
 	data_terminal_init();
 	delay_ms(500);
-	//xbee_init();
-	//gps_init();
+	xbee_init();
+	gps_init();
 	//buzzer_init();
 	//delay_ms(100);
 
-	//hall_sensor_init();
-	//thermistor_init();
-	//voltage_init();
+	hall_sensor_init();
+	thermistor_init();
+	voltage_init();
 	spi_init();
 	pressure_init();
 	//bno_init();
-	//cam_switch();
+	cam_switch();
 	clock_init();
 
-	//release_servo_init();
+	release_servo_init();
 	//servo_timer_init();
 
 	// Check EEPROM
@@ -403,6 +403,7 @@ void hall_sensor_init(void){
 	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
+	
 
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
@@ -491,7 +492,7 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		velocity = diff(alts, rate);
 	}
 	temp = get_temperature();	// Grabs the temperature once
-	//volt = get_voltage();
+	volt = get_voltage();
 }
 
 double data_check(RingBuffer32_t* presses){
