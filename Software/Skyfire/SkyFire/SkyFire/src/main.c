@@ -611,6 +611,8 @@ void release_servo_init(void){
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
 	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
 	TCD0.CCA = TCD0.PER - 600; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
+	TCD0.CCB = TCD0.PER - 750;
+	TCD0.CCC = TCD0.PER - 750;
 }
 
 void servo_timer_init(void){
@@ -639,7 +641,9 @@ void servo_pid(RingBuffer16_t* direct){
 	double val = p + i + d;
 	servo_pulse = 1500 + val;  // 1500 is the zero position in this model
 
-	TCD0.CCA = (uint16_t) ((500) * (servo_pulse / 1000.0)); // makes the waveform be created for a duty cycle
+	uint16_t per = (uint16_t) ((500) * (servo_pulse / 1000.0));
+	TCD0.CCB = per; // makes the waveform be created for a duty cycle
+	TCD0.CCC = per;
 }
 
 void clock_init(void){
