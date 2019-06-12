@@ -242,10 +242,6 @@ int main(void){
 				}
 				break;
 			case 2:
-				if(!cam_initialized){
-					cam_initialized = 1;
-					cam_switch();
-				}
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
 					hall_sensor_init();		// Starts hall effect sensor to read rpm
@@ -253,10 +249,14 @@ int main(void){
 				else if(released){
 					servo_pid(&directions);	// Updates the PID
 				}
+				if(!cam_initialized){
+					cam_initialized = 1;
+					cam_switch();
+				}
 				break;
 			case 3:
 				if(!buzzer_initialized){
-					//buzzer_init();
+					//buzzer_init();			//UNCOMMENT BEFORE FLIGHT
 					buzzer_initialized = 1;
 				}
 				break;
