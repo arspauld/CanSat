@@ -320,7 +320,7 @@ void system_init(void){
 	voltage_init();			// Initializes the voltage reader
 	spi_init();				// Initializes the SPI communication
 	pressure_init();		// Initializes the pressure sensor
-	//bno_init();				// Initializes the IMU
+	bno_init();				// Initializes the IMU
 	cam_switch();			// Starts the camera (used for debugging)
 	clock_init();			// Starts the clock for data transmission
 
@@ -423,7 +423,7 @@ void hall_sensor_init(void){
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
 	
-	//ACA.AC0CTRL |= AC_HSMODE_bm;
+	ACA.AC0CTRL |= AC_HSMODE_bm;
 
 	ac_set_interrupt_callback(&ACA, hall_sensor_measure);
 	ac_set_interrupt_mode(&aca_config, AC_INT_MODE_RISING_EDGE);
