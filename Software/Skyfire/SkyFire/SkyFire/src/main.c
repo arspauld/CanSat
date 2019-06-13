@@ -24,6 +24,12 @@
 #define EPSILON_VELOCITY	5
 #define EPSILON_ALTITUDE	10
 
+// Servo
+#define SERVO_NEUTRAL_PULSE	750
+#define SERVO_WAVELENGTH	10000
+#define RELEASE_SERVO_OPEN	1000
+#define RELEASE_SERVO_CLOSE 600
+
 // Hall Effect Constants
 #define VOLTAGE_SCALE_FACT	45 //subject to change
 
@@ -41,6 +47,7 @@
 #define CHECK_WRITE_BYTE0	0x02	// Byte 2
 #define CHECK_WRITE_BYTE1	0x1F	// Byte 31
 #define STATE_BYTE			0x05	// Byte 5
+#define RELEASED_BYTE		0x08	// Byte 8
 
 // Ground Constants byte addresses
 #define GROUND_PRESS_ADDR0  0x09	// Byte 9
@@ -87,7 +94,7 @@ double	get_voltage(void);												// Volts
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
-void	imu_read(void);													// Reads and calculates position of board
+void	imu_read(RingBuffer16_t* direct);													// Reads and calculates position of board
 void	state_check(void);												// Returns the current state
 void	release_servo_init(void);										// Starts Release Servo Rate
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
@@ -135,15 +142,6 @@ double g_0 = 9.80665;
 // Pressure Calculation variables
 uint16_t c[] = {0,0,0,0,0,0};
 
-
-/* May not use following two constants */
-// Release
-volatile uint16_t release_pulse = 1500; // microseconds (0 position)
-
-// Fin Servo
-volatile uint16_t servo_pulse = 1500; // microseconds (0 position)
-
-
 // XBEE
 volatile uint8_t xbee_comm = 0; // Variable stores XBee commands
 
@@ -171,28 +169,29 @@ uint8_t check_write = 0; // Number used to verify successful write to EEPROM
 char str[100];
 
 // Time and Packets
-volatile uint16_t timer = 0;				// Time since startup
-volatile uint16_t data_packets = 0;			// Number of times looped through data collection function
-volatile uint16_t packets = 0;				// Number of packets since startup (equal to time at 1Hz transmission rate)
-volatile uint16_t rate = 10;				// Frequency at which data is collected
+volatile uint16_t timer = 0;			// Time since startup
+volatile uint16_t data_packets = 0;		// Number of times looped through data collection function
+volatile uint16_t packets = 0;			// Number of packets since startup (equal to time at 1Hz transmission rate)
+volatile uint16_t rate = 10;			// Frequency at which data is collected
 
 // Initializes variables
-volatile double press = 0;			// Pressure (Pa)
-volatile double temp = 0;			// Temperature (C)
-volatile double alt = 0;			// Altitude (m)
-volatile double volt = 0;			// Battery Terminal Voltage (V)
-volatile double velocity = 0;		// Velocity (m/s)
-volatile double gps_t = 0;			// GPS Time
-volatile double gps_lat = 0;		// GPS Latitude (+:N,-:S)
-volatile double gps_long = 0;		// GPS Longitude (+:E,-:W)
-volatile double gps_alt = 0;		// GPS Altitude
-volatile int16_t gps_sats = 0;		// GPS Satellites
-volatile double pitch = 0;			// Pitch Angle
-volatile double roll = 0;			// Roll Angle
-volatile double rpm = 0;			// Calculate RPM of Blades
-volatile double angle = 0;			// Angle of Bonus Direction
+volatile double press = 0;				// Pressure (Pa)
+volatile double temp = 0;				// Temperature (C)
+volatile double alt = 0;				// Altitude (m)
+volatile double volt = 0;				// Battery Terminal Voltage (V)
+volatile double velocity = 0;			// Velocity (m/s)
+volatile double gps_t = 0;				// GPS Time
+volatile double gps_lat = 0;			// GPS Latitude (+:N,-:S)
+volatile double gps_long = 0;			// GPS Longitude (+:E,-:W)
+volatile double gps_alt = 0;			// GPS Altitude
+volatile int16_t gps_sats = 0;			// GPS Satellites
+volatile double pitch = 0;				// Pitch Angle
+volatile double roll = 0;				// Roll Angle
+volatile double rpm = 0;				// Calculate RPM of Blades
+volatile double angle = 0;				// Angle of Bonus Direction
 
-char* format = "5343,%i,%i,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%i,%i\n"; // Format for output string
+// TEAM ID, TIME, PACKETS, ALTITUDE, PRESSURE, TEMPERATURE, VOLTAGE, GPS TIME, LATITUDE, LONGITUDE, GPS ALT, GPS SATS, PITCH, ROLL, BLADE SPIN RATE, FLIGHT STATE, BONUS DIRECTION
+char* format = "5343,%u,%u,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%u,%i\n"; // Format for output string
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -203,9 +202,9 @@ int main(void){
 	// Turns on status LED
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
-	buzzer_init();
-	delay_ms(125);
-	buzzer_stop();
+	//buzzer_init();
+	//delay_ms(125);
+	//buzzer_stop();
 
 	// Integer ring buffer for storing multiple older values
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
@@ -233,7 +232,8 @@ int main(void){
 		state_check();
 
 		// IMU Check
-		//imu_read();
+		imu_read(&directions);
+		servo_pid(&directions);
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -248,12 +248,11 @@ int main(void){
 			case 2:
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					hall_sensor_init();		// Starts hall effect sensor to read rpm
-					imu_read();
+					imu_read(&directions);
 					ref_yaw = angle;
 				}
 				else if(released){
-					servo_pid(&directions);	// Updates the PID
+					//servo_pid(&directions);	// Updates the PID
 				}
 				if(!cam_initialized){
 					cam_initialized = 1;
@@ -290,7 +289,6 @@ int main(void){
 			rate = data_packets / timer;
 		}
 		//delay_ms(100);
-		//pressure_init();
 	}
 }
 
@@ -328,7 +326,6 @@ void system_init(void){
 	servo_timer_init();		// Initializes the timer for the servo
 
 	// Check EEPROM
-
 	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
 	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
 
@@ -349,20 +346,8 @@ void system_init(void){
 		timer = (uint16_t) (eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|TIME_ADDR_BYTE0));
 		packets = (uint16_t) (eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE1)<<8 | eeprom_read(EEPROM_PAGE|PACKET_ADDR_BYTE0));
 		state = eeprom_read(EEPROM_PAGE|STATE_BYTE);
+		released = eeprom_read(EEPROM_PAGE|RELEASED_BYTE);
 		//printf("Ground Pressure: %li\nGround Temperature: %i\n", (int32_t) ground_p, (int16_t) ground_t);
-	}
-	else if(b1 != 0xFF){
-		state = -1;
-		uint64_t p =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR7)<<56 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR6)<<48 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR5)<<40 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR4)<<32 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR3)<<24 | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR2)<<16 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR1)<<8  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_PRESS_ADDR0));
-		uint64_t t =  ((uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR7)<<56  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR6)<<48 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR5)<<40  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR4)<<32 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR3)<<24  | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR2)<<16 |
-		(uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR1)<<8   | (uint64_t) eeprom_read(EEPROM_PAGE|GROUND_TEMP_ADDR0));
-		memcpy(&ground_p, &p, 8);
-		memcpy(&ground_t, &t, 8);		
 	}
 	else{
 		// Initialization of variables
@@ -477,9 +462,9 @@ double get_altitude(double press){
 }
 
 double get_voltage(void){
-	uint16_t reading = voltage_read();
+	double reading = (double) voltage_read();
 	double voltage = (m * reading + b); // m and b are collected from testing
-	voltage = voltage * (29800.0 / 13000.0) + voltage; // 6720 is the resistance of the steady resistor
+	voltage = voltage * 29800.0 / 13000.0 + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
 }
 
@@ -562,7 +547,7 @@ double data_check(RingBuffer32_t* presses){
 	return result;
 }
 
-void imu_read(void){
+void imu_read(RingBuffer16_t* direct){
 	imu_update();
 
 	double r = imu_roll() - ref_roll;
@@ -582,6 +567,9 @@ void imu_read(void){
 		roll = r;
 		pitch = p;
 		angle = y;
+		
+		int16_t yaw = (int16_t) (y * 100);
+		rb16_write(direct,&yaw,1);
 	}
 }
 
@@ -628,25 +616,28 @@ void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR |= 0x07;
+	PORTD.DIR |= 0x01;
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
 	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
-	TCD0.PER = 10000; // sets the period (or the TOP value) to the period
-	TCD0.CCA = TCD0.PER - 600; // makes the waveform be created for a duty cycle // 500 ticks per millisecond
+	TCD0.PER = SERVO_WAVELENGTH; // sets the period (or the TOP value) to the period
+	TCD0.CCA = TCD0.PER - RELEASE_SERVO_CLOSE; // makes the waveform be created for a duty cycle // 514.5 ticks per millisecond
 }
 
 void servo_timer_init(void){
 	PORTA.DIR |= PIN2_bm;
 	PORTA.OUT |= PIN2_bm;
 	
-	TCD0.CCB = TCD0.PER - 750;
-	TCD0.CCC = TCD0.PER - 750;
+	PORTD.DIR |= 0x06;
+	TCD0.CTRLB |= 0x60;
+	
+	TCD0.CCB = TCD0.PER - SERVO_NEUTRAL_PULSE;		// 400 is 90 degrees
+	TCD0.CCC = TCD0.PER - SERVO_NEUTRAL_PULSE;		// 750 is middle
 }
 
 void servo_pid(RingBuffer16_t* direct){
-	double k_p = 0;
-	double k_i = 0;
-	double k_d = 0;
+	double k_p = 1;
+	double k_i = 1;
+	double k_d = -1;
 
 	double p = 0;
 	double i = 0;
@@ -658,15 +649,15 @@ void servo_pid(RingBuffer16_t* direct){
 	}
 
 	p = k_p * rb16_get_nth(direct, 0) / 100.0;
-	i = k_i * sum/100;
+	i = k_i * sum / 100.0;
 	d = k_d * diff(direct,rate);
 
 	double val = p + i + d;
-	servo_pulse = 1500 + val;  // 1500 is the zero position in this model
-
-	uint16_t per = (uint16_t) ((500) * (servo_pulse / 1000.0));
-	TCD0.CCB = per; // makes the waveform be created for a duty cycle
-	TCD0.CCC = per;
+	printf("%i\n",  (int16_t) val);
+	
+	uint16_t per = SERVO_NEUTRAL_PULSE + val;
+	//TCD0.CCB = TCD0.PER - per; // makes the waveform be created for a duty cycle
+	//TCD0.CCC = TCD0.PER - per;
 }
 
 void clock_init(void){
@@ -688,7 +679,7 @@ void time_update(void){
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	printf(str);
+	//printf(str);
 	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
 	eeprom_write();
@@ -778,7 +769,7 @@ void cali_ang(void){
 }
 
 void servo_release(void){
-	TCD0.CCA = TCD0.PER - 1000;
+	TCD0.CCA = TCD0.PER - RELEASE_SERVO_OPEN;
 
 	released = 1;
 }
@@ -833,15 +824,15 @@ void eeprom_write(void){
 	uint16_t a = (uint16_t) ((int16_t) alt); // creates an unsigned int of the altitude
 	uint16_t v = (uint16_t) ((int16_t) velocity);
 
-	check_write = (check_write + 1) % 100;
+	check_write = timer % 100;
 
 	// saves data and addresses in array
-	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write, state};
-	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1, STATE_BYTE};
+	volatile uint8_t data[] = {a >> 8, a & 0xFF, packets >> 8, packets & 0xFF, timer >> 8, timer & 0xFF, v >> 8, v & 0xFF, check_write, check_write, state, released};
+	volatile uint8_t addresses[] = {ALT_ADDR_BYTE1, ALT_ADDR_BYTE0, PACKET_ADDR_BYTE1, PACKET_ADDR_BYTE0, TIME_ADDR_BYTE1, TIME_ADDR_BYTE0, VEL_ADDR_BYTE1, VEL_ADDR_BYTE0, CHECK_WRITE_BYTE0, CHECK_WRITE_BYTE1, STATE_BYTE, RELEASED_BYTE};
 
 	// Writes the NVM Registers to write the buffer
 	NVM.CMD = LOAD_BUFFER_CMD;
-	for(uint8_t i = 0; i < 10; i++){
+	for(uint8_t i = 0; i < 12; i++){
 		NVM.ADDR0 = addresses[i];
 		NVM.DATA0 = data[i];
 	}
