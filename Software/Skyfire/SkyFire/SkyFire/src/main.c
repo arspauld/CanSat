@@ -94,7 +94,8 @@ double	get_voltage(void);												// Volts
 double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
 void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
 double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
-void	imu_read(RingBuffer16_t* direct);													// Reads and calculates position of board
+void	imu_read(void);
+void	pid_val(RingBuffer16_t* direct);								// Reads and calculates position of board
 void	state_check(void);												// Returns the current state
 void	release_servo_init(void);										// Starts Release Servo Rate
 void	servo_timer_init(void);											// Starts PWM wave for fin servos
@@ -146,7 +147,7 @@ uint16_t c[] = {0,0,0,0,0,0};
 volatile uint8_t xbee_comm = 0; // Variable stores XBee commands
 
 // IMU
-volatile double ref_yaw = 0;				// Should be collected
+volatile double ref_yaw = 180;				// Should be collected
 volatile double ref_roll = 0;				// Ideal
 volatile double ref_pitch = 90;				// Ideal
 
@@ -232,8 +233,10 @@ int main(void){
 		state_check();
 
 		// IMU Check
-		imu_read(&directions);
-		servo_pid(&directions);
+		imu_read();
+
+		//pid_val(&directions);
+		//servo_pid(&directions);
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -248,11 +251,12 @@ int main(void){
 			case 2:
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					imu_read(&directions);
+					pid_val(&directions);
 					ref_yaw = angle;
 				}
 				else if(released){
-					//servo_pid(&directions);	// Updates the PID
+					pid_val(&directions);	// Writes angle values to the ringbuffer
+					servo_pid(&directions); // Updates PID
 				}
 				if(!cam_initialized){
 					cam_initialized = 1;
@@ -394,7 +398,7 @@ void bno_init(void){
 
 	ref_roll = imu_roll();
 	ref_pitch = imu_pitch();
-	ref_yaw = imu_heading();
+	//ref_yaw = imu_heading();
 }
 
 void hall_sensor_init(void){
@@ -547,12 +551,12 @@ double data_check(RingBuffer32_t* presses){
 	return result;
 }
 
-void imu_read(RingBuffer16_t* direct){
+void imu_read(void){
 	imu_update();
 
 	double r = imu_roll() - ref_roll;
 	double p = imu_pitch() - ref_pitch;
-	double y = imu_heading() - ref_yaw;
+	double y = imu_heading();
 
 	if(abs(r) > 180){
 		r = r - 360 * r / abs(r);
@@ -560,23 +564,26 @@ void imu_read(RingBuffer16_t* direct){
 	if(abs(p) > 90){
 		p = p - 180 * p / abs(p);
 	}
-	if(abs(y) > 180){
-		y = y - 360 * y / abs(y);
-	}
-	if(abs(r) < 180 && abs(p) < 90 && abs(y) < 180){
+	if(abs(r) < 180 && abs(p) < 90){
 		roll = r;
 		pitch = p;
 		angle = y;
-		
-		int16_t yaw = (int16_t) (y * 100);
-		rb16_write(direct,&yaw,1);
 	}
+}
+
+void pid_val(RingBuffer16_t* direct){
+	double yaw = angle - ref_yaw;
+	if(abs(yaw) > 180){
+		yaw = yaw - 360 * yaw / abs(yaw);
+	}
+	int16_t y = (int16_t) (yaw *100); 
+	rb16_write(direct,&y,1);
 }
 
 void state_check(void){
 	switch(state){
 		case 0:
-			if(velocity < EPSILON_VELOCITY){
+			if((velocity < EPSILON_VELOCITY) && (alt > 450)){
 				state++;
 			}
 			break;
@@ -652,8 +659,8 @@ void servo_timer_init(void){
 
 void servo_pid(RingBuffer16_t* direct){
 	double k_p = 1;
-	double k_i = 1;
-	double k_d = -1;
+	double k_i = 0.05;
+	double k_d = -0.2;
 
 	double p = 0;
 	double i = 0;
@@ -669,11 +676,11 @@ void servo_pid(RingBuffer16_t* direct){
 	d = k_d * diff(direct,rate);
 
 	double val = p + i + d;
-	printf("%i\n",  (int16_t) val);
+	//printf("%i\n",  (int16_t) val);
 	
 	uint16_t per = SERVO_NEUTRAL_PULSE + val;
-	//TCD0.CCB = TCD0.PER - per; // makes the waveform be created for a duty cycle
-	//TCD0.CCC = TCD0.PER - per;
+	TCD0.CCB = TCD0.PER - per; // makes the waveform be created for a duty cycle
+	TCD0.CCC = TCD0.PER - per;
 }
 
 void clock_init(void){
@@ -695,7 +702,7 @@ void time_update(void){
 	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
 	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
 	state,									(int16_t) angle); // Data Logging Test
-	//printf(str);
+	printf(str);
 	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
 	eeprom_write();
