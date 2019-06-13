@@ -82,9 +82,9 @@ directiond.addWidget(direction.plot)
 
 
 # Buttons
-w = QtGui.QWidget()                             # Creates a large widget to hold the others
+w = QtGui.QWidget()                                                 # Creates a large widget to hold the others
 
-halt_btn = QtGui.QPushButton('HALT')            # A checkable box
+halt_btn = QtGui.QPushButton('HALT')                                # A pushable button
 calibrate_btn = QtGui.QPushButton('Calibrate Payload')
 packet_btn = QtGui.QPushButton('Request Packet')
 calibrate_altitude_btn = QtGui.QPushButton('Calibrate Altitude')
@@ -104,16 +104,16 @@ reset_btn.setCheckable(True)
 servo_release_btn.setCheckable(True)
 servo_close_btn.setCheckable(True)
 
-listw = QtGui.QListWidget()                    # Creates a Display list box
-cmdw = QtGui.QLineEdit()
-mission_timew = QtGui.QLabel()
+listw = QtGui.QListWidget()                     # Creates a display list box
+cmdw = QtGui.QLineEdit()                        # Creates a line editor
+mission_timew = QtGui.QLabel()                  # Creates a text label
 packetsw = QtGui.QLabel()
 flight_statew = QtGui.QLabel()
 gps_timew = QtGui.QLabel()
 gps_altw = QtGui.QLabel()
 gps_satsw = QtGui.QLabel()
 
-mission_timew.setText('<b>Mission Time (s):</b>')
+mission_timew.setText('<b>Mission Time (s):</b>')       # Set the initial text of the labels to the data they reperesent
 packetsw.setText('<b>Packets:</b>')
 flight_statew.setText('<b>Flight State:</b>')
 gps_timew.setText('<b>GPS Time (UTC):</b>')
@@ -122,9 +122,9 @@ gps_satsw.setText('<b>GPS Sats:</b>')
 
 layout2 = QtGui.QGridLayout()                   # Creates a layout element
 w.setLayout(layout2)                            # Adds the layout to the large widget
-messages.addWidget(w)                                 # Adds the large widget to the dock
+messages.addWidget(w)                           # Adds the large widget to the dock
 
-layout2.addWidget(reset_btn,                7, 0, 1, 2)     # button goes in row 0, column 0, spanning 1 row and 2 columns
+layout2.addWidget(reset_btn,                7, 0, 1, 2)     # Widget goes in row 7, column 0, spanning 1 row and 2 columns
 layout2.addWidget(halt_btn,                 8, 0, 1, 1)
 layout2.addWidget(listw,                    0, 0, 1, 2)
 layout2.addWidget(cmdw,                     1, 0, 1, 2)
@@ -142,7 +142,7 @@ layout2.addWidget(gps_timew,                3, 1, 1, 1)
 layout2.addWidget(gps_altw,                 4, 1, 1, 1)
 layout2.addWidget(gps_satsw,                5, 1, 1, 1)
 
-# Shows Window
+# Show Window
 win.show()  
 
 #GUI Functions
@@ -367,11 +367,10 @@ def parse_serial():
 timer = QtCore.QTimer()
 timer.setInterval(100)
 timer.timeout.connect(parse_serial)
-#timer.timeout.connect(counter)
 timer.start()
 
 #Connect Signals with Events (Functions)
-cmdw.returnPressed.connect(write2payload)
+cmdw.returnPressed.connect(write2payload)                       # Connects each event to a function
 cmdw.returnPressed.connect(addItem)
 halt_btn.clicked.connect(halt)
 calibrate_btn.clicked.connect(calibrate)

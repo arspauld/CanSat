@@ -588,12 +588,12 @@ void imu_read(void){
 void state_check(void){
 	switch(state){
 		case 0:
-			if((velocity < EPSILON_VELOCITY) && (alt > 450)){
+			if(velocity < EPSILON_VELOCITY){
 				state++;
 			}
 			break;
 		case 1:
-			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released = 1)){
+			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released)){
 				state++;
 			}
 			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
@@ -608,6 +608,7 @@ void state_check(void){
 		case 3:
 			break;
 		default:
+			/*
 			if(velocity > EPSILON_VELOCITY){
 				state = 0;
 			}
@@ -621,6 +622,21 @@ void state_check(void){
 				state = 3;
 			}
 			break;
+			*/
+			
+			if(released){							//This case is state = 2 and state = 3
+				state = 2;
+				if(alt < EPSILON_ALTITUDE){
+					state = 3;
+				}
+			}
+			else{									//This case is state = 0 and state = 1
+				state = 0;
+				if(velocity < EPSILON_VELOCITY){
+					state = 1;
+				}
+			}
+			
 	}
 }
 
