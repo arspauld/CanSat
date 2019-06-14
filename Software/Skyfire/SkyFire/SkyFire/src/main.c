@@ -29,9 +29,11 @@
 #define SERVO_WAVELENGTH	10000
 #define RELEASE_SERVO_OPEN	1000
 #define RELEASE_SERVO_CLOSE 600
+#define SERVO_M1_TRIM		43
+#define SERVO_M2_TRIM		47
 
 // Hall Effect Constants
-#define VOLTAGE_SCALE_FACT	45 //subject to change
+#define VOLTAGE_SCALE_FACT	43 //subject to change
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -192,7 +194,7 @@ volatile double rpm = 0;				// Calculate RPM of Blades
 volatile double angle = 0;				// Angle of Bonus Direction
 
 // TEAM ID, TIME, PACKETS, ALTITUDE, PRESSURE, TEMPERATURE, VOLTAGE, GPS TIME, LATITUDE, LONGITUDE, GPS ALT, GPS SATS, PITCH, ROLL, BLADE SPIN RATE, FLIGHT STATE, BONUS DIRECTION
-char* format = "5343,%u,%u,%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%u,%i\n"; // Format for output string
+char* format = "5343,%u,%u,%i.%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%u,%i\n"; // Format for output string
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -204,7 +206,7 @@ int main(void){
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
 	//buzzer_init();
-	//delay_ms(125);
+	delay_ms(125);
 	//buzzer_stop();
 
 	// Integer ring buffer for storing multiple older values
@@ -235,8 +237,8 @@ int main(void){
 		// IMU Check
 		imu_read();
 
-		//pid_val(&directions);
-		//servo_pid(&directions);
+		pid_val(&directions);
+		servo_pid(&directions);
 
 		//Gives each flight state their unique tasks
 		switch(state){
@@ -251,11 +253,12 @@ int main(void){
 			case 2:
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
+					servo_timer_init();
 					pid_val(&directions);
 					ref_yaw = angle;
 				}
 				else if(released){
-					pid_val(&directions);	// Writes angle values to the ringbuffer
+					pid_val(&directions);	// Writes angle values to the ring buffer
 					servo_pid(&directions); // Updates PID
 				}
 				if(!cam_initialized){
@@ -265,7 +268,7 @@ int main(void){
 				break;
 			case 3:
 				if(!buzzer_initialized){
-					//buzzer_init();			//UNCOMMENT BEFORE FLIGHT
+					buzzer_init();			//UNCOMMENT BEFORE FLIGHT
 					buzzer_initialized = 1;
 				}
 				break;
@@ -314,8 +317,6 @@ void system_init(void){
 	delay_ms(500);			// Delay to ensure clean writing
 	xbee_init();			// Sets up XBEE command interrupt
 	gps_init();				// Starts the GPS interrupt
-	//buzzer_init();		// Starts the buzzer (used here for debugging)
-	//delay_ms(100);
 
 	hall_sensor_init();		// Initializes the hall effect sensor (used here for debugging)
 	thermistor_init();		// Initializes the thermistor
@@ -591,9 +592,6 @@ void state_check(void){
 			if(((velocity < EPSILON_VELOCITY) && (alt < 450)) || (released)){
 				state++;
 			}
-			else if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
-				state+=2;
-			}
 			break;
 		case 2:
 			if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
@@ -602,23 +600,7 @@ void state_check(void){
 			break;
 		case 3:
 			break;
-		default:
-			/*
-			if(velocity > EPSILON_VELOCITY){
-				state = 0;
-			}
-			if((alt > 450) && (velocity < EPSILON_VELOCITY)){
-				state = 1;
-			}
-			if((alt < 450) && (released)){
-				state = 2;
-			}
-			if(((abs(velocity) < EPSILON_VELOCITY) && (alt < EPSILON_ALTITUDE)) && (released)){
-				state = 3;
-			}
-			break;
-			*/
-			
+		default:			
 			if(released){							//This case is state = 2 and state = 3
 				state = 2;
 				if(alt < EPSILON_ALTITUDE){
@@ -653,14 +635,14 @@ void servo_timer_init(void){
 	PORTD.DIR |= 0x06;
 	TCD0.CTRLB |= 0x60;
 	
-	TCD0.CCB = TCD0.PER - SERVO_NEUTRAL_PULSE;		// 400 is 90 degrees
-	TCD0.CCC = TCD0.PER - SERVO_NEUTRAL_PULSE;		// 750 is middle
+	TCD0.CCB = TCD0.PER - (SERVO_NEUTRAL_PULSE + SERVO_M1_TRIM);		// 400 is 90 degrees
+	TCD0.CCC = TCD0.PER - (SERVO_NEUTRAL_PULSE + SERVO_M2_TRIM);		// 750 is middle
 }
 
 void servo_pid(RingBuffer16_t* direct){
-	double k_p = 1;
-	double k_i = 0.05;
-	double k_d = -0.2;
+	double k_p = .75;
+	double k_i = 0.1;
+	double k_d = -0.25;
 
 	double p = 0;
 	double i = 0;
@@ -679,8 +661,8 @@ void servo_pid(RingBuffer16_t* direct){
 	//printf("%i\n",  (int16_t) val);
 	
 	uint16_t per = SERVO_NEUTRAL_PULSE + val;
-	TCD0.CCB = TCD0.PER - per; // makes the waveform be created for a duty cycle
-	TCD0.CCC = TCD0.PER - per;
+	TCD0.CCB = TCD0.PER - (per + SERVO_M1_TRIM); // makes the waveform be created for a duty cycle
+	TCD0.CCC = TCD0.PER - (per + SERVO_M2_TRIM);
 }
 
 void clock_init(void){
@@ -695,13 +677,12 @@ void time_update(void){
 	//packets++;
 	
 	packets++;
-	sprintf(str,format,timer,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),  ((int16_t) (temp*10-2731.5))%10, 		(int16_t)volt, ((int16_t) (volt *10)) %10, 
-	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
-	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
-	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
-	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
+	sprintf(str,								format,										timer,										packets,
+	(int16_t) (alt),							((int16_t) abs(alt*10))%10,					(int32_t) press,							(int16_t) (temp-273.15),  ((int16_t) (temp*10-2731.5))%10,
+	(int16_t) volt,								((int16_t) (volt *10)) %10, 				(int16_t) (((int32_t)gps_t)/10000),			(int16_t) ((((int32_t)gps_t)%10000)/100),						(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,							((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,							(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,							((int16_t) (gps_alt)*10)%10,				gps_sats,									(int16_t) pitch,
+	(int16_t) roll,								(int16_t) rpm,								state,										(int16_t) angle); // Data Logging Test
 	printf(str);
 	
 	//printf("%i.%i, %i, %li, %i\n", timer/10, timer%10, (int16_t) alt, (int32_t) press, (int16_t) velocity);
