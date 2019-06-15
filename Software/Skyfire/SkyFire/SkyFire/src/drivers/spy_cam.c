@@ -10,7 +10,7 @@
 
 void cam_init(void){
 	PORTA.DIR |= PIN3_bm; // Sets A3 to output
-	PORTA.OUT |= PIN3_bm; // Sets the N Channel MOSFET gate to high putting the data line low
+	delay_ms(100);
 	cam_switch();
 }
 

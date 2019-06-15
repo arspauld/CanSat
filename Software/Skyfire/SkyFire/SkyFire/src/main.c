@@ -29,11 +29,7 @@
 #define SERVO_WAVELENGTH	10000
 #define RELEASE_SERVO_OPEN	1000
 #define RELEASE_SERVO_CLOSE 600
-#define SERVO_M1_TRIM		43
-#define SERVO_M2_TRIM		47
-
-// Hall Effect Constants
-#define VOLTAGE_SCALE_FACT	43 //subject to change
+#define SERVO_TRIM		45
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -88,6 +84,7 @@ void	gps_init(void);													// Starts the GPS
 void	xbee_init(void);												// Starts the XBEE
 void	bno_init(void);													// Starts the BNO055
 void	hall_sensor_init(void);											// Starts the Hall Effect Sensor
+void	change_hall_sensor_scaler(void);								// Updates the Hall Effect scale factor
 void	release(void);													// Releases the Science Payload
 double	get_pressure(void);												// Pascals
 double	get_temperature(void);											// Celsius
@@ -100,13 +97,14 @@ void	imu_read(void);
 void	pid_val(RingBuffer16_t* direct);								// Reads and calculates position of board
 void	state_check(void);												// Returns the current state
 void	release_servo_init(void);										// Starts Release Servo Rate
-void	servo_timer_init(void);											// Starts PWM wave for fin servos
+void	fin_servo_init(void);											// Starts PWM wave for fin servos
 void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
 void	clock_init(void);												// Starts a timer to count the seconds
 void	time_update(void);												// Function to perform timer based actions
 void	buzzer_init(void);												// Starts the buzzer
 void	buzzer_stop(void);												// Stops the buzzer
 void	calc_rpm(void);													// Function to calculate rpm for packets
+void	update_scale_factor(void);										// Recalculates the scale factor of the hall effect based on input voltage
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status); // Interrupt function for Hall Effect sensor
 
 // XBEE controls
@@ -136,6 +134,8 @@ double ground_t = 288.15;		// 15 C
 volatile uint8_t time_flag = 0;			// New data to write to EEPROM
 volatile uint8_t xbee_flag = 0;			// New command received from ground station
 
+// Hall Effect Constants
+volatile uint8_t scale_factor = 0;		// updated with function
 
 // Altitude calculation variables
 double R = 287.0578987;
@@ -166,7 +166,7 @@ volatile uint8_t commas = 0;
 volatile uint8_t idx = 0;
 
 // EEPROM
-uint8_t check_write = 0; // Number used to verify successful write to EEPROM
+volatile uint8_t check_write = 0; // Number used to verify successful write to EEPROM
 
 // Output String
 char str[100];
@@ -194,7 +194,7 @@ volatile double rpm = 0;				// Calculate RPM of Blades
 volatile double angle = 0;				// Angle of Bonus Direction
 
 // TEAM ID, TIME, PACKETS, ALTITUDE, PRESSURE, TEMPERATURE, VOLTAGE, GPS TIME, LATITUDE, LONGITUDE, GPS ALT, GPS SATS, PITCH, ROLL, BLADE SPIN RATE, FLIGHT STATE, BONUS DIRECTION
-char* format = "5343,%u,%u,%i.%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%u,%i\n"; // Format for output string
+char* format = "5343,%u,%u,%i.%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i.%i,%i,%i,%i,%i,%u,%i\n\0"; // Format for output string
 
 
 ////////////////////////////// Functions ///////////////////////////////
@@ -237,9 +237,6 @@ int main(void){
 		// IMU Check
 		imu_read();
 
-		pid_val(&directions);
-		servo_pid(&directions);
-
 		//Gives each flight state their unique tasks
 		switch(state){
 			case 0:
@@ -248,12 +245,13 @@ int main(void){
 				if(!cam_initialized){
 					cam_initialized = 1;
 					cam_switch();	//	Turns on Camera
+					delay_ms(100);
+					cam_switch();
 				}
 				break;
 			case 2:
 				if(abs(alt-450)<EPSILON_ALTITUDE){
 					release();				// Releases the payload
-					servo_timer_init();
 					pid_val(&directions);
 					ref_yaw = angle;
 				}
@@ -270,6 +268,8 @@ int main(void){
 				if(!buzzer_initialized){
 					buzzer_init();			//UNCOMMENT BEFORE FLIGHT
 					buzzer_initialized = 1;
+					
+					cam_switch();
 				}
 				break;
 			default:
@@ -279,8 +279,11 @@ int main(void){
 
 		// 1 Hz timer interrupt function
 		if(time_flag){
-			calc_rpm();	// Resets the tick counter and averages it with the new values
-			time_update();	// Transmits the data packet and writes the EEPROM
+			temp = get_temperature();	// Grabs the temperature once
+			volt = get_voltage();		// Updates voltage
+			update_scale_factor();		// Updates Hall Effect scale factor
+			calc_rpm();					// Resets the tick counter and averages it with the new values
+			time_update();				// Transmits the data packet and writes the EEPROM
 			time_flag = 0;
 		}
 		// XBEE command received
@@ -295,7 +298,6 @@ int main(void){
 		if(timer != 0){
 			rate = data_packets / timer;
 		}
-		//delay_ms(100);
 	}
 }
 
@@ -324,15 +326,14 @@ void system_init(void){
 	spi_init();				// Initializes the SPI communication
 	pressure_init();		// Initializes the pressure sensor
 	bno_init();				// Initializes the IMU
-	cam_switch();			// Starts the camera (used for debugging)
 	clock_init();			// Starts the clock for data transmission
 
 	release_servo_init();	// Initializes the release servo
-	servo_timer_init();		// Initializes the timer for the servo
+	fin_servo_init();		// Initializes the timer for the servo
 
 	// Check EEPROM
-	volatile uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
-	volatile uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
+	uint8_t b1 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE0);
+	uint8_t b2 = eeprom_read(EEPROM_PAGE|CHECK_WRITE_BYTE1);
 
 	if((b1 == b2) && (b1 != 0xFF)){
 		//printf("Reading EEPROM\n");
@@ -361,6 +362,10 @@ void system_init(void){
 		state = 0;
 		eeprom_write_const();
 	}
+	
+	temp = get_temperature();	// Grabs the temperature once
+	volt = get_voltage();		// Updates voltage
+	update_scale_factor();
 
 	state_check();
 }
@@ -402,14 +407,13 @@ void bno_init(void){
 	//ref_yaw = imu_heading();
 }
 
+struct ac_config aca_config;
 void hall_sensor_init(void){
-	struct ac_config aca_config;
-
 	memset(&aca_config, 0, sizeof(struct ac_config));
 
 	ac_set_mode(&aca_config, AC_MODE_SINGLE);
 	ac_set_hysteresis(&aca_config, AC_HYSMODE_LARGE_gc);
-	ac_set_voltage_scaler(&aca_config, VOLTAGE_SCALE_FACT);
+	ac_set_voltage_scaler(&aca_config, scale_factor);
 	ac_set_negative_reference(&aca_config, AC_MUXNEG_SCALER_gc);
 	ac_set_positive_reference(&aca_config, AC_MUXPOS_PIN5_gc);
 	
@@ -423,6 +427,10 @@ void hall_sensor_init(void){
 
 	ac_enable(&ACA, 0);
 
+}
+
+void change_hall_sensor_scaler(void){
+	ACA.CTRLB = scale_factor;
 }
 
 void release(void){
@@ -455,7 +463,7 @@ double get_temperature(void){
 	double val = 298.15; // Change to 25 degrees C
 	volatile uint16_t reading = thermistor_read();
 	double voltage = (m * reading + b); // m and b are collected from testing
-	double resistance = 3300.0 * (3.30 - voltage) / voltage; // 6720 is the resistance of the steady resistor
+	double resistance = 3180.0 * (3.30 - voltage) / voltage; // 6720 is the resistance of the steady resistor
 	val = (1.0 / (3.354016E-3 + 2.569850E-4 * log(resistance / 10000.0) + 2.620131E-6 * pow(log(resistance / 10000.0), 2) + 6.383091E-8 * pow(log(resistance / 10000.0), 3))); // returns the temperature in hundredths of kelvin
 	return val; //returns the temperature in kelvin
 }
@@ -469,7 +477,7 @@ double get_altitude(double press){
 double get_voltage(void){
 	double reading = (double) voltage_read();
 	double voltage = (m * reading + b); // m and b are collected from testing
-	voltage = voltage * 29800.0 / 13000.0 + voltage; // 6720 is the resistance of the steady resistor
+	voltage = voltage * 29600.0 / 12540.0 + voltage; // 6720 is the resistance of the steady resistor
 	return voltage;
 }
 
@@ -505,8 +513,6 @@ void data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses){
 		// Calculates Velocity
 		velocity = diff(alts, rate);
 	}
-	temp = get_temperature();	// Grabs the temperature once
-	volt = get_voltage();
 }
 
 double data_check(RingBuffer32_t* presses){
@@ -621,22 +627,21 @@ void release_servo_init(void){
 	sysclk_enable_peripheral_clock(&TCD0); //enables peripheral clock for TCD0
 	sysclk_enable_module(SYSCLK_PORT_D, SYSCLK_HIRES); //necessary jumbo
 
-	PORTD.DIR |= 0x01;
+	PORTD.DIR |= 0x07;
 	TCD0.CTRLA = 0x05; // sets the clock's divisor to 64
-	TCD0.CTRLB = 0x13; // enables CCA and Single Waveform
+	TCD0.CTRLB = 0x23; // enables CCA and Single Waveform
 	TCD0.PER = SERVO_WAVELENGTH; // sets the period (or the TOP value) to the period
-	TCD0.CCA = TCD0.PER - RELEASE_SERVO_CLOSE; // makes the waveform be created for a duty cycle // 514.5 ticks per millisecond
+	TCD0.CCC = TCD0.PER - RELEASE_SERVO_CLOSE; // makes the waveform be created for a duty cycle // 514.5 ticks per millisecond
 }
 
-void servo_timer_init(void){
+void fin_servo_init(void){
 	PORTA.DIR |= PIN2_bm;
 	PORTA.OUT |= PIN2_bm;
 	
-	PORTD.DIR |= 0x06;
-	TCD0.CTRLB |= 0x60;
+	TCD0.CTRLB |= 0x50;
 	
-	TCD0.CCB = TCD0.PER - (SERVO_NEUTRAL_PULSE + SERVO_M1_TRIM);		// 400 is 90 degrees
-	TCD0.CCC = TCD0.PER - (SERVO_NEUTRAL_PULSE + SERVO_M2_TRIM);		// 750 is middle
+	TCD0.CCA = TCD0.PER - (SERVO_NEUTRAL_PULSE + SERVO_TRIM);		// 400 is 90 degrees
+	TCD0.CCB = TCD0.CCA;		// 750 is middle
 }
 
 void servo_pid(RingBuffer16_t* direct){
@@ -661,8 +666,8 @@ void servo_pid(RingBuffer16_t* direct){
 	//printf("%i\n",  (int16_t) val);
 	
 	uint16_t per = SERVO_NEUTRAL_PULSE + val;
-	TCD0.CCB = TCD0.PER - (per + SERVO_M1_TRIM); // makes the waveform be created for a duty cycle
-	TCD0.CCC = TCD0.PER - (per + SERVO_M2_TRIM);
+	TCD0.CCA = TCD0.PER - (per + SERVO_TRIM); // makes the waveform be created for a duty cycle
+	TCD0.CCB = TCD0.CCA;
 }
 
 void clock_init(void){
@@ -711,6 +716,12 @@ void buzzer_stop(void){
 void calc_rpm(void){
 	rpm = (rpm + ticks_per_sec * 60) / 2.0;
 	ticks_per_sec = 0;
+}
+
+void update_scale_factor(void){
+	double trigger_voltage = 0.425514285714 * volt - 0.100033333333;	// Calculates the trigger voltage from the input voltage
+	scale_factor = (uint8_t) ((trigger_voltage * 64) / 3.3 - 1);
+	change_hall_sensor_scaler();
 }
 
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status){
@@ -773,13 +784,13 @@ void cali_ang(void){
 }
 
 void servo_release(void){
-	TCD0.CCA = TCD0.PER - RELEASE_SERVO_OPEN;
+	TCD0.CCC = TCD0.PER - RELEASE_SERVO_OPEN;
 
 	released = 1;
 }
 
 void servo_close(void){
-	TCD0.CCA = TCD0.PER - 600;
+	TCD0.CCC = TCD0.PER - RELEASE_SERVO_CLOSE;
 
 	released = 0;
 }
