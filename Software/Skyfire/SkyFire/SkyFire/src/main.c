@@ -608,7 +608,7 @@ void state_check(void){
 			}
 			break;
 		case 2:
-			if((abs(velocity) < EPSILON_VELOCITY) && (alt < 15)){
+			if((abs(velocity) < EPSILON_VELOCITY) && (alt < 25)){
 				state++;
 			}
 			break;
