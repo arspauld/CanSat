@@ -10,7 +10,7 @@ import string
 #  Open the serial port
 ser = serial.Serial()
 ser.timeout = 0.02
-ser.baudrate = 9600
+ser.baudrate = 115200
 ser.port = 'COM9'
 ser.open()
 
@@ -148,6 +148,7 @@ win.show()
 #GUI Functions
 def addItem():
     command = cmdw.text()
+
     if command.lower() == 'gclear':
         altitude.clear()
         pressure.clear()
@@ -159,16 +160,19 @@ def addItem():
         direction.clear()
         gps.clear()
 
+        listw.addItem('gclear')
         cmdw.setText('')
 
-    if command.lower() == 'cclear':
+    elif command.lower() == 'cclear':
         listw.clear()
 
+        listw.addItem('cclear')
         cmdw.setText('')
 
-    if command.lower() == 'clearall':
+    elif command.lower() == 'clearall':
         reset()
 
+        listw.addItem('clearall')
         cmdw.setText('')
 
     elif command.lower() == 'servo_release':
@@ -363,11 +367,13 @@ def parse_serial():
         gps_altw.setText('<b>GPS Altitude (m): </b>' + str(datapoints[10]))
         gps_satsw.setText('<b>GPS Sats: </b>' + str(datapoints[11]))
 
+
 #Timer
 timer = QtCore.QTimer()
 timer.setInterval(100)
 timer.timeout.connect(parse_serial)
 timer.start()
+
 
 #Connect Signals with Events (Functions)
 cmdw.returnPressed.connect(write2payload)                       # Connects each event to a function
@@ -381,7 +387,6 @@ gps_btn.clicked.connect(get_gps)
 reset_btn.clicked.connect(reset)
 servo_release_btn.clicked.connect(servo_release)
 servo_close_btn.clicked.connect(servo_close)
-
 
 
 
