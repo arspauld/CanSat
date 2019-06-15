@@ -27,9 +27,9 @@
 // Servo
 #define SERVO_NEUTRAL_PULSE	750
 #define SERVO_WAVELENGTH	10000
-#define RELEASE_SERVO_OPEN	1000
+#define RELEASE_SERVO_OPEN	875
 #define RELEASE_SERVO_CLOSE 600
-#define SERVO_TRIM		45
+#define SERVO_TRIM			-5
 
 // EEPROM stuff
 // uint16_t addr = PAGE | BYTE;
@@ -78,33 +78,33 @@
 #define CCP_IOREG_MODE		0xD8	// Set CCP to this to allow CMDEX to be changed
 
 ///////////////////////// Function Prototypes //////////////////////////
-void	system_init(void);												// Starts the system
-void	pressure_init(void);											// Collects the sensors constants
-void	gps_init(void);													// Starts the GPS
-void	xbee_init(void);												// Starts the XBEE
-void	bno_init(void);													// Starts the BNO055
-void	hall_sensor_init(void);											// Starts the Hall Effect Sensor
-void	change_hall_sensor_scaler(void);								// Updates the Hall Effect scale factor
-void	release(void);													// Releases the Science Payload
-double	get_pressure(void);												// Pascals
-double	get_temperature(void);											// Celsius
-double	get_altitude(double press);										// meters
-double	get_voltage(void);												// Volts
-double	diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
-void	data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
-double	data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
-void	imu_read(void);
-void	pid_val(RingBuffer16_t* direct);								// Reads and calculates position of board
-void	state_check(void);												// Returns the current state
-void	release_servo_init(void);										// Starts Release Servo Rate
-void	fin_servo_init(void);											// Starts PWM wave for fin servos
-void	servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
-void	clock_init(void);												// Starts a timer to count the seconds
-void	time_update(void);												// Function to perform timer based actions
-void	buzzer_init(void);												// Starts the buzzer
-void	buzzer_stop(void);												// Stops the buzzer
-void	calc_rpm(void);													// Function to calculate rpm for packets
-void	update_scale_factor(void);										// Recalculates the scale factor of the hall effect based on input voltage
+void		system_init(void);												// Starts the system
+void		pressure_init(void);											// Collects the sensors constants
+void		gps_init(void);													// Starts the GPS
+void		xbee_init(void);												// Starts the XBEE
+void		bno_init(void);													// Starts the BNO055
+void		hall_sensor_init(void);											// Starts the Hall Effect Sensor
+void		change_hall_sensor_scaler(void);								// Updates the Hall Effect scale factor
+void		release(void);													// Releases the Science Payload
+double		get_pressure(void);												// Pascals
+double		get_temperature(void);											// Celsius
+double		get_altitude(double press);										// meters
+double		get_voltage(void);												// Volts
+double		diff(RingBuffer16_t* data, uint8_t frequency);					// Approximates velocity of CanSat
+void		data_collect(RingBuffer16_t* alts, RingBuffer32_t* presses);	// Handles data collection
+double		data_check(RingBuffer32_t* presses);							// Function that averages values and compares with stdev
+void		imu_read(void);
+void		pid_val(RingBuffer16_t* direct);								// Reads and calculates position of board
+void		state_check(void);												// Returns the current state
+void		release_servo_init(void);										// Starts Release Servo Rate
+void		fin_servo_init(void);											// Starts PWM wave for fin servos
+void		servo_pid(RingBuffer16_t* direct);								// Function that alters the position of the fins
+void		clock_init(void);												// Starts a timer to count the seconds
+void		time_update(void);												// Function to perform timer based actions
+void		buzzer_init(void);												// Starts the buzzer
+void		buzzer_stop(void);												// Stops the buzzer
+void		calc_rpm(void);													// Function to calculate rpm for packets
+void		update_scale_factor(void);										// Recalculates the scale factor of the hall effect based on input voltage
 static void hall_sensor_measure(AC_t *ac, uint8_t channel, enum ac_status_t status); // Interrupt function for Hall Effect sensor
 
 // XBEE controls
@@ -200,14 +200,14 @@ char* format = "5343,%u,%u,%i.%i,%li,%i.%i,%i.%i,%02i:%02i:%02i,%i.%li,%i.%li,%i
 ////////////////////////////// Functions ///////////////////////////////
 int main(void){
 	system_init();
-	//delay_ms(100);
+	delay_ms(100);
 
 	// Turns on status LED
 	PORTD.DIR |= PIN3_bm;
 	PORTD.OUT |= PIN3_bm;
-	//buzzer_init();
+	buzzer_init();
 	delay_ms(125);
-	//buzzer_stop();
+	buzzer_stop();
 
 	// Integer ring buffer for storing multiple older values
 	int16_t alt_array[] = {0,0,0,0,0,0,0,0,0,0};
@@ -226,6 +226,9 @@ int main(void){
 	uint8_t cam_initialized = 0;
 	uint8_t buzzer_initialized = 0;
 
+	// Camera switching
+	int16_t cam_timer = -3;
+	
 
 	while(1){
 		// Check Sensors
@@ -237,6 +240,10 @@ int main(void){
 		// IMU Check
 		imu_read();
 
+		if(timer - cam_timer == 2){
+			cam_switch();
+			cam_timer = -3;
+		}
 		//Gives each flight state their unique tasks
 		switch(state){
 			case 0:
@@ -245,8 +252,7 @@ int main(void){
 				if(!cam_initialized){
 					cam_initialized = 1;
 					cam_switch();	//	Turns on Camera
-					delay_ms(100);
-					cam_switch();
+					cam_timer = timer;
 				}
 				break;
 			case 2:
@@ -262,6 +268,7 @@ int main(void){
 				if(!cam_initialized){
 					cam_initialized = 1;
 					cam_switch();
+					cam_timer = timer;
 				}
 				break;
 			case 3:
@@ -270,6 +277,7 @@ int main(void){
 					buzzer_initialized = 1;
 					
 					cam_switch();
+					cam_timer = timer;
 				}
 				break;
 			default:
@@ -600,7 +608,7 @@ void state_check(void){
 			}
 			break;
 		case 2:
-			if((abs(velocity) < EPSILON_VELOCITY) || (alt < EPSILON_ALTITUDE)){
+			if((abs(velocity) < EPSILON_VELOCITY) && (alt < 15)){
 				state++;
 			}
 			break;
@@ -645,9 +653,9 @@ void fin_servo_init(void){
 }
 
 void servo_pid(RingBuffer16_t* direct){
-	double k_p = .75;
+	double k_p = .7;
 	double k_i = 0.1;
-	double k_d = -0.25;
+	double k_d = -0.35;
 
 	double p = 0;
 	double i = 0;
@@ -798,13 +806,12 @@ void servo_close(void){
 void packet(void){
 	//XBEE_spi_write(str);
 	packets++;
-	sprintf(str,format,timer/10,timer%10,packets,
-	(int16_t) (alt),						(int32_t) press,							(int16_t) (temp-273.15),				(int16_t)volt,
-	(int16_t) (((int32_t)gps_t)/10000),		(int16_t) ((((int32_t)gps_t)%10000)/100),	(int16_t) (((int32_t)gps_t)%100),
-	(int16_t) gps_lat,						((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,						(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
-	(int16_t) gps_alt,						((int16_t) (gps_alt)*10)%10,				gps_sats,
-	(int16_t) pitch,						(int16_t) roll,								(int16_t) rpm,
-	state,									(int16_t) angle); // Data Logging Test
+	sprintf(str,								format,										timer,										packets,
+	(int16_t) (alt),							((int16_t) abs(alt*10))%10,					(int32_t) press,							(int16_t) (temp-273.15),  ((int16_t) (temp*10-2731.5))%10,
+	(int16_t) volt,								((int16_t) (volt *10)) %10, 				(int16_t) (((int32_t)gps_t)/10000),			(int16_t) ((((int32_t)gps_t)%10000)/100),						(int16_t) (((int32_t)gps_t)%100),
+	(int16_t) gps_lat,							((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,							(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_alt,							((int16_t) (gps_alt)*10)%10,				gps_sats,									(int16_t) pitch,
+	(int16_t) roll,								(int16_t) rpm,								state,										(int16_t) angle); // Data Logging Test
 	printf(str);
 }
 
