@@ -200,7 +200,7 @@ def addItem():
         altitude.clear()
         pitch.clear()
         roll.clear()
-        direction.clear()
+
         listw.addItem('CALIBRATE_PAYLOAD')
         cmdw.setText('')
 
@@ -216,7 +216,7 @@ def addItem():
 
         pitch.clear()
         roll.clear()
-        direction.clear()
+
         listw.addItem('CALIBRATE_ANGLE')
         cmdw.setText('')
 
