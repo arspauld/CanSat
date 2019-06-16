@@ -11,7 +11,7 @@
 void cam_init(void){
 	PORTA.DIR |= PIN3_bm; // Sets A3 to output
 	delay_ms(100);
-	cam_switch();
+	//cam_switch();
 }
 
 void cam_switch(void){
