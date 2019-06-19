@@ -246,20 +246,20 @@ int main(void){
 		}
 		//Gives each flight state their unique tasks
 		switch(state){
-			case 0:
-				break;
-			case 1:
+			case 0:									// Flight State 0
+				break;								// Do Nothing Special
+			case 1:									// Flight State 1
 				if(!cam_initialized){
-					cam_initialized = 1;
-					cam_switch();	//	Turns on Camera
-					cam_timer = timer;
+					cam_initialized = 1;			// Ensures method is not called again
+					cam_switch();					// Turns on Camera
+					cam_timer = timer;				// Timer feature to ensure safe camera start
 				}
 				break;
-			case 2:
-				if(abs(alt-450)<EPSILON_ALTITUDE){
-					release();				// Releases the payload
-					pid_val(&directions);
-					ref_yaw = angle;
+			case 2:									// Flight State Two
+				if(abs(alt-450)<EPSILON_ALTITUDE){	// Checks the altitude
+					release();						// Releases the payload
+					pid_val(&directions);			// Starts PID for Stabilization	
+					ref_yaw = angle;				// Updates the reference yaw of the payload
 				}
 				else if(released){
 					pid_val(&directions);	// Writes angle values to the ring buffer
@@ -693,7 +693,7 @@ void time_update(void){
 	sprintf(str,								format,										timer,										packets,
 	(int16_t) (alt),							((int16_t) abs(alt*10))%10,					(int32_t) press,							(int16_t) (temp-273.15),  ((int16_t) (temp*10-2731.5))%10,
 	(int16_t) volt,								((int16_t) (volt *10)) %10, 				(int16_t) (((int32_t)gps_t)/10000),			(int16_t) ((((int32_t)gps_t)%10000)/100),						(int16_t) (((int32_t)gps_t)%100),
-	(int16_t) gps_lat,							((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,							(int32_t)(abs(((int32_t)(gps_long*1000000))%1000000)),
+	(int16_t) gps_lat,							((int32_t) (gps_lat*1000000))%1000000,		(int16_t) gps_long,							(int32_t)(((int32_t)(abs(gps_long*1000000)))%1000000),
 	(int16_t) gps_alt,							((int16_t) (gps_alt)*10)%10,				gps_sats,									(int16_t) pitch,
 	(int16_t) roll,								(int16_t) rpm,								state,										(int16_t) angle); // Data Logging Test
 	printf(str);
@@ -728,7 +728,7 @@ void calc_rpm(void){
 
 void update_scale_factor(void){
 	double trigger_voltage = 0.425514285714 * volt - 0.100033333333;	// Calculates the trigger voltage from the input voltage
-	scale_factor = (uint8_t) ((trigger_voltage * 64) / 3.3 - 1);
+	scale_factor = (uint8_t) ((trigger_voltage * 64.0) / 3.3 - 1);
 	change_hall_sensor_scaler();
 }
 
