@@ -14,6 +14,8 @@ ser.baudrate = 115200
 ser.port = 'COM9'
 ser.open()
 
+#comment
+
 #  Commands
 """For use with the ground station to control the GUI"""
 RESET = b'f'
